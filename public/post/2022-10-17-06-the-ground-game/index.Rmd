@@ -1,0 +1,181 @@
+---
+title: 06. Ground Game
+author: Charles Onesti
+date: '2022-10-17'
+---
+
+In contrast to the Air War described in last weeks post, the ground game constitutes any non-digital voter outreach conducted by political campaigns.  This week's post is firstly about the axes of persuasion and turnout that air war or ground game strategies might impact. Last week we saw how advertisements have only a short lasting effect on voting behavior. Ground game strategies such as canvassing and voter rallies, however, are considered to be more effective at influencing voters.  A study by Enos and Fowler finds that ground game activity can increase voter turnout by around 8 percentage points. Using new citizen voting age population data on districts we can test whether ads create a similar influence on voter turnout within their district.  After looking at voter turnout, we will try out a first attempt at binomial logistic regression models to predict district level 2022 vote share outcomes using polling data.
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+	echo = FALSE,
+	message = FALSE,
+	warning = FALSE,
+	results = FALSE
+)
+# Import Libraries
+library(ggplot2)
+library(tidyverse)
+library(rmapshaper)
+library(dplyr)
+library(readr)
+library(stargazer)
+library(sf)
+library(insight)
+
+getmode <- function(v) {
+   uniqv <- unique(v)
+   uniqv[which.max(tabulate(match(v, uniqv)))]
+}
+
+# Import Data
+
+## CVAP
+cvap_district_df <- read_csv("./data/cvap_district_2012-2020_clean.csv") %>%
+  filter(year == 2020) %>%
+  select(state, district = cd, st_cd_fips = geoid, cvap) 
+
+## VOTE SHARE
+dist_voteshare_1948_2020_df <- read_csv("../2022-09-30-04-incumbency/data/house party vote share by district 1948-2020.csv") %>%
+  mutate(st_cd_fips = paste(
+    ifelse(nchar(as.character(st_fips)) == 1, paste("0", as.character(st_fips), sep=""), as.character(st_fips)), 
+    ifelse(nchar(as.character(district_num)) == 1, paste("0", as.character(district_num), sep=""), as.character(district_num)), 
+    sep="")
+  ) %>%
+  select(cycle=raceYear, state=State, district=district_num, st_cd_fips, RepStatus, DemStatus, RepVotes, DemVotes, RepVotesMajorPercent, DemVotesMajorPercent)
+
+## RDI
+RDI_quarterly_1959_2022_df <- read_csv("../2022-09-18-02-local-and-national-economy/data/RDI_quarterly.csv") %>%
+  filter(quarter_yr == 3 | (year == 2022 & quarter_yr == 2)) %>% select(cycle = year, rdi_pct = DSPIC_change_pct)
+
+## POLLING
+dist_polls_2018_2022_df <- read_csv("../2022-09-30-04-incumbency/data/dist_polls_2018-2022.csv") %>%
+  filter(stage == "general", state != "Puerto Rico") %>%
+  select(cycle, state, district = seat_number, st_cd_fips, party, candidate_name, pct, question_id) %>%
+  mutate(district = as.character(district)) 
+
+dem_df <- dist_polls_2018_2022_df %>%
+  filter(party == "DEM") %>%
+  select(-party) %>%
+  rename(dem_candidate = candidate_name, dem_pct = pct)
+rep_df <- dist_polls_2018_2022_df %>%
+  filter(party == "REP") %>%
+  select(-party) %>%
+  rename(rep_candidate = candidate_name, rep_pct = pct)
+dist_polls_2018_2022_df <- inner_join(dem_df, rep_df, by=c("state","cycle","district","question_id","st_cd_fips")) %>%
+  mutate(dem_poll_pct = dem_pct / (dem_pct + rep_pct), rep_poll_pct = rep_pct / (dem_pct + rep_pct)) %>%
+  group_by(cycle, state, district, st_cd_fips) %>%
+  summarise(dem_poll_pct = mean(dem_poll_pct), rep_poll_pct = mean(rep_poll_pct), rep_candidate = getmode(rep_candidate), dem_candidate = getmode(dem_candidate))
+
+## INCUMBENCY
+inc_dist_1948_2022_df <- read_csv("../2022-09-30-04-incumbency/data/incumb_dist_1948-2022 (2).csv") %>%
+  select(cycle = year, state, district = district_num, st_cd_fips, RepStatus, DemStatus, RepVotesMajorPercent, RepVotes, DemVotes, DemCandidate, RepCandidate) %>%
+  mutate(district = case_when(district == "00" ~ "AL", TRUE ~ as.character(as.numeric(district)))) %>%
+  na.omit(c("district", "state")) %>%
+  mutate(RepStatus = ifelse(RepStatus == "Challenger", 0, 1),
+         DemStatus = ifelse(DemStatus == "Challenger", 0, 1)) 
+inc_dist_1948_2022_df$RepCandidate <- sub("(\\w+),\\s(\\w+)","\\2 \\1", inc_dist_1948_2022_df$RepCandidate)
+inc_dist_1948_2022_df$DemCandidate <- sub("(\\w+),\\s(\\w+)","\\2 \\1", inc_dist_1948_2022_df$DemCandidate)
+
+## GEO
+cd114 <- st_read("../2022-09-30-04-incumbency/districtShapes/districts114.shp")
+cd114 <- cd114 %>% rename(district = DISTRICT, state = STATENAME)
+cd114 <- rmapshaper::ms_simplify(cd114, keep = 0.01)
+
+```
+
+
+```{r}
+inc_2022 <- read_csv("../../../data/house_cands.csv") %>% filter(incumbent == 1)
+
+template_2022 <- read_csv("./data/2022template.csv") %>% 
+  left_join(inc_2022, by=c("state", "district")) %>%
+  left_join(cvap_district_df %>% select(st_cd_fips, cvap), by=c("st_cd_fips"))
+
+presidents_df <- read_csv("../2022-09-30-04-incumbency/data/presidents.csv") %>%
+  rename(cycle = year)
+
+combined_dist_df <- left_join(inc_dist_1948_2022_df, presidents_df, by = c("cycle"))
+combined_dist_df <- left_join(combined_dist_df, cvap_district_df, by=c( "st_cd_fips")) %>% select(-district.y, -state.y) %>% rename(state = state.x, district = district.x)
+
+for (row in 1:nrow(template_2022)) {
+  cand_party <- toString(template_2022[row, "cand_party"])
+
+  combined_dist_df <- combined_dist_df %>% 
+    add_row(
+      cycle = 2022,
+      state = toString(template_2022[row, "state"]),
+      district = toString(template_2022[row, "district"]),
+      st_cd_fips = toString(template_2022[row, "st_cd_fips"]),
+      RepStatus = ifelse(cand_party == "Republican", 1, 0),
+      DemStatus = ifelse(cand_party == "Democrat", 1, 0),
+      pres_dem = 1,
+      pres_rep = 0,
+      cvap = as.numeric(template_2022[row, "cvap"])
+    )
+}
+
+combined_dist_df <- left_join(combined_dist_df, RDI_quarterly_1959_2022_df, by=c("cycle"))
+combined_dist_df <- left_join(combined_dist_df, dist_polls_2018_2022_df, by=c("cycle", "st_cd_fips", "state", "district"))
+
+```
+
+## Close Elections: Do Ads Predict Turnout?
+Do ads keep up with the effectiveness of the ground game at increasing voter turnout?  This section plots data from 2006 - 2018 on districts where ads were run.  The visualizations show the relationship between the number of ads run in a certain district against the party voter turnout for that election year for Republicans and Democrats.
+
+```{r}
+ads_clean <- read_csv("./data/ads_clean.csv") %>%
+  left_join(inc_dist_1948_2022_df %>% select(cycle, st_cd_fips, RepVotes, DemVotes), by=c("cycle", "st_cd_fips")) %>% 
+  left_join(cvap_district_df %>% select(st_cd_fips, cvap), by=c("st_cd_fips")) %>%
+  mutate(RepVoteTurnout = RepVotes/cvap, DemVoteTurnout = DemVotes/cvap)
+
+ggplot(data = ads_clean %>% filter(party == "Republican"), aes(x = total, y = RepVoteTurnout)) + 
+  geom_point() + geom_smooth(method = glm) + labs(title = "Republican Turnout by District Ad Volume")
+
+ggplot(data = ads_clean %>% filter(party == "Democrat"), aes(x = total, y = DemVoteTurnout)) + 
+  geom_point() + geom_smooth(method = glm) + labs(title = "Democrat Turnout by District Ad Volume")
+
+```
+The charts above show a little correlation for Democrat ads and zero for Republican ads. This suggests that ads are largely ineffective at increasing voter turnout for a certain party.  It is interesting to see that relative to each other, Democrat campaigns see more success in increasing voter turnout with advertisements.
+
+## Probabilistic Poll Models of District-Level Races
+Now we will try to create district probabilistic models using past polls.  These models use binomial logistic regression to compute the probability that a voting age citizen of a district will vote for the Republican nominee or vote for the Democrat nominee.  The benefit of this sort of model is that it will never output out of bounds values less than zero or greater than one hundred because it uses an inverse logit function that approaches 0 in the negative asymptotic and 1 in the positive asymptotic.  The data available is too sparse to use in district level models though so only around 25 districts have enough data points to generate a model.  Here are the results:
+```{r}
+dist_train_df <- combined_dist_df %>%
+  filter(!is.na(rep_poll_pct)) %>%
+  filter(cycle != 2022, cycle >= 1960) %>%
+  group_by(st_cd_fips, state, district) %>%
+  filter(n() > 1) %>% # Filtering out single data rows
+  group_nest() %>%
+  mutate(data = map(data, ~unnest(., cols = c())))
+
+dist_test_df <- combined_dist_df %>%
+  filter(!is.na(rep_poll_pct)) %>%
+  filter(cycle == 2022) %>%
+  group_by(st_cd_fips, state, district) %>% 
+  group_nest() %>%
+  mutate(data = map(data, ~unnest(., cols = c())))
+
+models <- dist_train_df %>% 
+  mutate(model = map(data, ~glm(cbind(RepVotes, DemVotes) ~ rep_poll_pct, data = .x, family = binomial)))
+
+pred_2022 <- dist_test_df %>%
+  inner_join(models, by = c("state", "district", "st_cd_fips")) %>% 
+  mutate(pred = map_dbl(.x = model, .y = data.x, ~predict(object = .x, newdata = as.data.frame(.y), type="response"))) 
+
+plot_pred_2022 <- left_join(cd114, pred_2022, by = c("state", "district")) %>%
+  filter(state != "Alaska", state != "Hawaii")
+
+ggplot() +
+  geom_sf(data = plot_pred_2022, mapping = aes(fill = pred, geometry = geometry)) +
+  scale_fill_gradient2(low = "blue", mid = "white", high = "red", midpoint = .5, name = "Prediction") +
+  theme_void() +
+  labs(title = "2022 polling GLM prediction")
+```
+This approach is clearly not sufficient to make any sort of analysis. In order to make good predictions there needs to be more overlap in the available data about district populations and polling.
+
+
+
+
+
+

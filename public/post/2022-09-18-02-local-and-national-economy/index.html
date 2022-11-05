@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+  	<meta property="og:title" content=" 02. Local and National Economy &middot;  Election Analytics Blog" />
+  	<meta property="og:site_name" content="Election Analytics Blog" />
+  	<meta property="og:url" content="http://example.org/post/2022-09-18-02-local-and-national-economy/" />
+    
+    
+  	<meta property="og:type" content="article" />
+
+    <meta property="og:article:published_time" content="2022-09-18T00:00:00Z" />
+
+    
+    
+
+  <title>
+     02. Local and National Economy &middot;  Election Analytics Blog
+  </title>
+
+    <meta name="description" content="2022 Midterm Election Predictions and Analysis by Charles Onesti" />
+
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link rel="shortcut icon" href="http://example.org/images/favicon.ico">
+	  <link rel="apple-touch-icon" href="http://example.org/images/apple-touch-icon.png" />
+    
+    <link rel="stylesheet" type="text/css" href="http://example.org/css/screen.css" />
+    <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Merriweather:300,700,700italic,300italic|Open+Sans:700,400|Inconsolata" />
+
+
+    
+      
+          <link href="http://example.org/index.xml" rel="alternate" type="application/rss+xml" title="Election Analytics Blog" />
+      
+      
+    
+    <meta name="generator" content="Hugo 0.102.3" />
+
+    <link rel="canonical" href="http://example.org/post/2022-09-18-02-local-and-national-economy/" />
+
+     
+</head>
+<body class="nav-closed">
+<div id="particles-js"></div>
+  
+
+
+ <div class="site-wrapper">
+
+
+
+<header class="main-header " style="background-image: url(http://example.org/images/user.jpg)">
+
+    <nav class="main-nav overlay clearfix">
+        
+            <a class="blog-logo" href="http://example.org/"><img src="http://example.org/images/user.png" alt="Blog Logo" /></a>
+        
+        
+    </nav>
+<div class="vertical">
+        <div class="main-header-content inner">
+            <h1 class="page-title">
+              <a class="btn-bootstrap-2" href="#content">Election Analytics Blog</a>
+          </h1>
+          <h2 class="page-description">2022 Midterm Election Predictions and Analysis by Charles Onesti</h2>
+        </div>
+</div>
+    <a class="scroll-down icon-arrow-left" href="#content"><span class="hidden">Scroll Down</span></a>
+</header>
+
+  <main id="content" class="content" role="main">
+
+
+  <article class="post post">
+
+    <header class="post-header">
+        <h1 class="post-title">02. Local and National Economy</h1>
+        <section class="post-meta">
+        
+	<time class="post-date" datetime="2022-09-18">
+            2022-09-18
+          </time>
+        
+         
+        </section>
+    </header>
+
+    <section class="post-content">
+      
+
+
+<div id="section" class="section level2">
+<h2></h2>
+<p>Welcome back to my election analytics blog. This week we will be looking at economic data as predictors for the popular vote. Political science theory described by Achen and Bartels in Democracy for Realists suggests that voter behavior can be modeled retrospectively. When a voter chooses who to vote for, they measure the performance of the incumbent party based on their experiences during the last term when they decide to keep or replace the party candidate. A large factor influencing the experiences of a voter is their economic prosperity. When a voter benefits from increases in purchasing power during the term of some representative, they are very likely to keep that party in power. Likewise, economic deterioration is likely to see the incumbent punished and voted out.<br />
+This blog will focus in on local economic data because it is my hypothesis that if retrospective voting behavior surrounding the economy will influence the 2022 elections, a voter’s local economic condition will be more salient an issue to them than national averages. The national and local data is collected from past midterm elections and quarterly unemployment reports from the Bureau of Labor Statistics. We will compare the predictive power of national and local data using models created on historical unemployment data.</p>
+</div>
+<div id="the-national-model" class="section level2">
+<h2>The National Model</h2>
+<p>Let’s begin by looking at national averages of unemployment and midterm two-party vote share for midterm election years going back to 1978. For example, here is a peek into the underlying data table at play:</p>
+<pre><code>##  year RepVotes DemVotes RepVoteMargin unemployment_rate
+##  1978 24891165 29517656         0.457              6.23
+##  1982 27796580 35516107         0.439              9.23
+##  1986 26599585 32625513         0.449              6.93
+##  1990 28026690 32942345         0.460              5.43
+##  1994 37099921 32122004         0.536              6.37
+##  1998 32254557 31465334         0.506              4.47
+##  2002 37405702 33811240         0.525              5.80
+##  2006 35944748 42278903         0.460              4.70
+##  2010 43288427 37663261         0.535              9.70
+##  2014 39850411 35469234         0.529              6.33
+##  2018 51017329 60576466         0.457              3.97</code></pre>
+<p>Putting this data into a graph we get the following plot:</p>
+<p><img src="http://example.org/post/2022-09-18-02-local-and-national-economy/index_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
+<p>A point on this plot represents one row of the data table above. The red dotted line represents the equal vote share level while the blue solid line attempts to fit the trend of the data. Evidently, with so few points and such high variability, the model does not have strong predictive power. It has an R squared value of 0.015. Nonetheless, extrapolating the republican vote share for a current national unemployment rate of 3.8% yields a Republican popular vote share of 0.48 or 48%.</p>
+</div>
+<div id="the-local-model" class="section level2">
+<h2>The Local Model</h2>
+<p><img src="http://example.org/post/2022-09-18-02-local-and-national-economy/index_files/figure-html/unnamed-chunk-3-1.png" width="672" />
+This chart gives a rough visualization of all data points from 1978 to 2018 for all midterm election years combined. Each dot represents data from one state on a certain election year. The midline of 50 percent vote share is marked in red. A result above the line means that the state’s districts were likely won by the Republican candidate and a result below the line similarly favors the Democratic candidate. The linear trend that the data follows is that on average, low unemployment on election years (2-6%) favors the Republican party and higher unemployment favors the platform of the Democratic Party (6+%).</p>
+<p>To make a predictive model from this, we will differentiate between states and weight by their population. We use state specific unemployment data on each election years to fit a line for each state. We can then take that state’s current unemployment rate to calculate the predicted 2022 Republican vote share in that state. To weight the values by population, we multiply each prediction by the current state population and divide by the national population. The sum of the remaining predictions is the new population adjusted national republican popular vote share. Following this procedure, the model predicts that Republicans will receive 49% of the popular vote. This is a difference of only 1 percentage point from the simple national model prediction. The R squared values for each state prediction though was on average 9 times greater than the national model but still a relatively small value of 0.092. I expect, however, that with more election cycles to use as data, the predictive power would increase.</p>
+<p>According to retrospective voting, this model predicts that economic performance as measured by current unemployment rates gives a small advantage to the Democratic party in national popular vote. The effect is very small though which fits with the analysis of John Wright in 2012. According to Wright, when Democrats are incumbents, they are not punished nor rewarded by decreasing or increasing unemployment levels as much as Republican incumbents. Since the Democratic party is the majority of incumbent candidates this election, I would not be surprised for this result to remain true according to this blog’s analysis.</p>
+<div id="references" class="section level3">
+<h3>References</h3>
+<p>Christopher H Achen and Larry M Bartels. Democracy for Realists: Why Elections Do Not Produce Responsive Government, volume 4. Princeton University Press, 2017.</p>
+<p>John R Wright. Unemployment and the democratic electoral advantage. American Political Science Review, 106(4):685–702, 2012. ISSN 0003-0554.</p>
+</div>
+</div>
+
+    </section>
+
+
+  <footer class="post-footer">
+
+
+    
+    <figure class="author-image">
+
+        <a class="img" href="http://example.org/" style="background-image: url(http://example.org/images/user.png)"><span class="hidden">Charles Onesti</span></a>
+    </figure>
+    
+
+    <section class="author">
+
+  <p>Charles Onesti</p>
+  
+
+</section>
+
+
+    
+    <section class="share">
+      <h4>Share this post</h4>
+      <a class="icon-twitter" style="font-size: 1.4em" href="https://twitter.com/share?text=02.%20Local%20and%20National%20Economy&amp;url=http%3a%2f%2fexample.org%2fpost%2f2022-09-18-02-local-and-national-economy%2f"
+          onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+          <span class="hidden">Twitter</span>
+      </a>
+      <a class="icon-facebook" style="font-size: 1.4em" href="https://www.facebook.com/sharer/sharer.php?u=http%3a%2f%2fexample.org%2fpost%2f2022-09-18-02-local-and-national-economy%2f"
+          onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+          <span class="hidden">Facebook</span>
+      </a>
+      <a class="icon-google-plus" style="font-size: 1.4em" href="https://plus.google.com/share?url=http%3a%2f%2fexample.org%2fpost%2f2022-09-18-02-local-and-national-economy%2f"
+         onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
+          <span class="hidden">Google+</span>
+      </a>
+    </section>
+    
+
+    
+
+  </footer>
+</article>
+
+</main>
+    <footer class="site-footer clearfix">
+      <script type="text/javascript"
+   src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js">
+</script>
+      <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX", "output/HTML-CSS"],
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+      processEscapes: true
+    },
+    "HTML-CSS": { fonts: ["TeX"] }
+  });
+</script>
+<script type="text/javascript" src="path-to-MathJax/MathJax.js">
+</script>
+        <section class="copyright"><a href="">Election Analytics Blog</a> </section>
+        
+        <section class="poweredby">Proudly generated by <a class="icon-hugo" href="https://gohugo.io">HUGO</a>, with <a class="icon-theme" href="https://github.com/syui/hugo-theme-air">hugo-theme-air</a> theme</section>
+        
+    </footer>
+    </div>
+    <script type="text/javascript" src="http://example.org/js/jquery.js"></script>
+    <script type="text/javascript" src="http://example.org/js/jquery.fitvids.js"></script>
+    <script type="text/javascript" src="http://example.org/js/index.js"></script>
+    <script src="http://example.org/js/particles.min.js"></script>
+    <script src="http://example.org/js/particles.js"></script>  
+
+</body>
+</html>
+

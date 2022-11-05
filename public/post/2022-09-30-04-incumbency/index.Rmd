@@ -1,0 +1,205 @@
+---
+title: "04. Incumbency and Expert Prediction"
+author: "Charles Onesti"
+date: "2022-10-03"
+output: pdf_document
+share: yes
+---
+
+This week we will be adding an incumbency term to our 2022 House elections prediction model and bringing our predictions into the district level.  First however, let's do an analysis of expert predictions.  An expert prediction is when a journalist of political pundit make personal predictions about how certain contentious districts will break in the upcoming election.  The person or firm informs their decision with their unique knowledge and expertise about the voters and candidates.  The prediction takes the form of a 7 option likert scale from "solid", "likely", and "lean" towards one party or the other or "Toss Up" if they think the election is too close to make a verdict.  The benefit of expert predictions is that, theoretically, expert predictions are already based on solid data collected and considered by each expert and so they are a very easy shortcut to making our own predictions.  The major drawback of expert predictions is that they are also packed with the biases of the expert and often tend to be more opinionated than calculated.  In the first part of this post lets examine historical expert predictions and see how accurate they were compared to the election results.
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, results = FALSE)
+
+# Import Libraries
+library(ggplot2)
+library(tidyverse)
+library(plotly)
+library(usmap)
+library(rmapshaper)
+library(dplyr)
+library(readr)
+library(stargazer)
+library(DescTools)
+library(sf)
+
+getmode <- function(v) {
+   uniqv <- unique(v)
+   uniqv[which.max(tabulate(match(v, uniqv)))]
+}
+
+# Import Data
+dist_polls_2018_2022_df <- read_csv("./data/dist_polls_2018-2022.csv") %>%
+  filter(stage == "general", state != "Puerto Rico") %>%
+  select(state, year = cycle, district = seat_number, party, candidate_name, pct, question_id)
+
+dem_df <- dist_polls_2018_2022_df %>%
+  filter(party == "DEM") %>%
+  select(-party) %>%
+  rename(dem_candidate = candidate_name, dem_pct = pct)
+
+rep_df <- dist_polls_2018_2022_df %>%
+  filter(party == "REP") %>%
+  select(-party) %>%
+  rename(rep_candidate = candidate_name, rep_pct = pct)
+
+dist_polls_2018_2022_df <- inner_join(dem_df, rep_df, by = c("state","year","district","question_id")) %>%
+  mutate(dem_poll_pct = dem_pct / (dem_pct + rep_pct), rep_poll_pct = rep_pct / (dem_pct + rep_pct)) %>%
+  group_by(year, state, district) %>%
+  summarise(dem_poll_pct = mean(dem_poll_pct), rep_poll_pct = mean(rep_poll_pct), rep_candidate = getmode(rep_candidate), dem_candidate = getmode(dem_candidate))
+
+dist_expert_2010_2022_df <- read_csv("./data/expert_rating.csv") %>% 
+  select(year, state, district, avg_rating)
+dist_voteshare_1948_2020_df <- read_csv("./data/house party vote share by district 1948-2020.csv") %>%
+  select(state=State, district=district_num, year=raceYear, state_abb, RepStatus, DemStatus, RepVotes, DemVotes, RepVotesMajorPercent, DemVotesMajorPercent, vote_margin, R_vote_margin)
+
+cd114 <- st_read("districtShapes/districts114.shp")
+cd114 <- cd114 %>% rename(district = DISTRICT, state = STATENAME)
+cd114 <- rmapshaper::ms_simplify(cd114, keep = 0.01)
+
+voteshare_2018_df <- dist_voteshare_1948_2020_df %>%
+  filter(year == 2018)
+voteshare_2018_df$district <- as.character(voteshare_2018_df$district)
+
+expert_2018_df <- dist_expert_2010_2022_df %>%
+  filter(year == 2018) %>%
+  mutate(scaled_rating = LinScale(avg_rating, low = 1, high = 7, newlow = -3, newhigh = 3))
+# -3 is DEM
+#  3 is REP
+
+combined_2018_df <- inner_join(expert_2018_df, voteshare_2018_df, by=c("district", "state")) %>%
+  mutate(ranked_outcome = case_when(
+    RepVotesMajorPercent - 50 > 6 ~ 7,
+    RepVotesMajorPercent - 50 > 4 ~ 6,
+    RepVotesMajorPercent - 50 > 2 ~ 5,
+    RepVotesMajorPercent - 50 > -2 ~ 4,
+    RepVotesMajorPercent - 50 > -4 ~ 3,
+    RepVotesMajorPercent - 50 > -6 ~ 2,
+    TRUE ~ 1
+  )) %>% 
+  mutate(accuracy = abs(avg_rating - ranked_outcome))
+
+```
+
+## How Expert are the Experts 2018 Edition
+The method of testing expert prediction accuracy is to look at the district level and compare the election outcome to the average expert prediction.  Up first is a plot of all mainland districts colored in red for higher two party vote share for Republicans, and blue for a higher vote share for Democrats.  Districts in white had close elections.
+```{r}
+voteshare_2018_df <- cd114 %>% left_join(voteshare_2018_df, by=c("district", "state")) %>%
+  filter(!state %in% c("Alaska","Hawaii"))
+
+ggplot(data = voteshare_2018_df) +
+  geom_sf(mapping = aes(fill = RepVotesMajorPercent)) +
+  scale_fill_gradient2(low = "blue", mid = "white", high = "red", midpoint = 50, name = "Vote Share") +
+  theme_void() +
+  labs(title = "2018 Voteshare Margins by state")
+
+```
+
+Next up are the expert predictions following a similar structure but with a 7 point scale.  In this visualization a 3 is the highest likelihood of Republican victory and a -3 is the highest likelihood of Democrat victory.  States in grey lacked a prediction from any of the expert predictions.  This is perhaps because every expert believed the outcome was not close enough to merit attention.
+
+```{r}
+expert_2018_df <- cd114 %>% left_join(expert_2018_df, by=c("district", "state")) %>%
+  filter(!state %in% c("Alaska","Hawaii"))
+
+ggplot(data = expert_2018_df) +
+  geom_sf(mapping = aes(fill = scaled_rating)) +
+  scale_fill_gradient2(low = "blue", mid = "white", high = "red", name = "Expert Rating") +
+  theme_void() +
+  labs(title = "2018 Expert Ratings by state")
+
+```
+
+Overlaying the two maps and showing the absolute difference between prediction and result yields the following combined graph.  In this graph a low value of 0 means perfect accuracy and a high value means low accuracy.
+
+```{r}
+combined_2018_df <- cd114 %>% left_join(combined_2018_df, by=c("district", "state")) %>%
+  filter(!state %in% c("Alaska","Hawaii"))
+
+ggplot() +
+  geom_sf(data = combined_2018_df, mapping = aes(fill = accuracy)) +
+  scale_fill_gradient(low = "green", high = "red", name = "Accuracy") +
+  theme_void() +
+  labs(title = "2018 Expert Accuracy by state (0 is best)")
+```
+
+In order to make this comparison I decided to convert the vote share outcomes into a 1-7 scale using a tiered bucket system that focused on a vote share margin or up to 6 percent.  I clipped off large margins at 6% because I wanted to have the extremes of expert prediction scores be considered accurate for any margin above 6 percentage points and focus on predictions that lay in the middle in margins of 4 percentage points.  We can notice in the graph that most average expert predictions are high accuracy and within 2 percentage points of the outcome on average.  Geographically, experts seem to be better at predicting northern districts and worse with southern districts such as the Texas, Florida and Oklahoma examples above.
+
+## Incumbency
+
+There are a couple axes of incumbency to explore.  First is the idea of reelection and the other is about party affiliation.  The motivation behind using incumbency on the individual level is that candidates running for re-election have the advantage of greater visibility in their district.  One complication about a simply incumbency variable is presented in research by Adam Brown in the Journal of Experimental Political Science.  Brown argues that inherent incumbency does not matter to voters in elections but that other factors that correlate with incumbency such as fundraising and candidate quality do matter.  So in this model, think of incumbency as the simplest heuristic for candidate quality and visibility to voters.  The model also fators in presidential party incumbency which
+
+```{r}
+inc_dist_1948_2022_df <- read_csv("./data/incumb_dist_1948-2022 (2).csv") %>%
+  select(year, state, district = district_num, winner_party, RepStatus, DemStatus, RepVotesMajorPercent, DemVotesMajorPercent, winner_candidate_inc, DemCandidate, RepCandidate) %>%
+  mutate(district = case_when(district == "00" ~ "AL", TRUE ~ as.character(as.numeric(district)))) %>%
+  na.omit(c("district", "state")) %>%
+  mutate(RepStatus = ifelse(RepStatus == "Challenger", 0, 1),
+         DemStatus = ifelse(DemStatus == "Challenger", 0, 1)) 
+inc_dist_1948_2022_df$RepCandidate <- sub("(\\w+),\\s(\\w+)","\\2 \\1", inc_dist_1948_2022_df$RepCandidate)
+inc_dist_1948_2022_df$DemCandidate <- sub("(\\w+),\\s(\\w+)","\\2 \\1", inc_dist_1948_2022_df$DemCandidate)
+
+inc_2022 <- read_csv("./data/house_cands_2022.csv") %>%
+  filter(incumbent == 1) %>%
+  select(state, district, cand)
+  
+presidents_df <- read_csv("./data/presidents.csv")
+
+dist_combined_df <- left_join(inc_dist_1948_2022_df, presidents_df, by = c("year"))
+
+for (row in 1:nrow(inc_2022)) {
+  inc_state <- toString(inc_2022[row, "state"])
+  inc_district <- toString(inc_2022[row, "district"])
+  inc <- toString(inc_2022[row, "cand"])
+  prev <- dist_combined_df %>% 
+    filter(year == 2020, state == inc_state, district == inc_district)
+  rep <- toString(prev %>% select(RepCandidate))
+  dem <- toString(prev %>% select(DemCandidate))
+
+  dist_combined_df <- dist_combined_df %>% 
+    add_row(
+      year = 2022,
+      state = inc_state,
+      district = inc_district,
+      RepStatus = ifelse(inc == rep, 1, 0),
+      DemStatus = ifelse(inc == dem, 1, 0),
+      pres_dem = 1,
+      pres_rep = 0
+    )
+}
+
+ dist_combined_df <- left_join(dist_combined_df, dist_expert_2010_2022_df, by = c("year", "state", "district"))
+
+dist_train_df <- dist_combined_df %>%
+  filter(year != 2022) %>%
+  group_by(state, district) %>% 
+  group_nest() %>% 
+  mutate(data = map(data, ~unnest(., cols = c())))
+
+dist_test_df <- dist_combined_df %>% 
+  filter(year == 2022) %>% 
+  group_by(state, district) %>% 
+  group_nest() %>% 
+  mutate(data = map(data, ~unnest(., cols = c())))
+
+models <- dist_train_df %>% 
+  mutate(model = map(data, ~lm(RepVotesMajorPercent ~ RepStatus + DemStatus + pres_dem + pres_rep, 
+                                  data = .x)))
+model_results <- models %>% 
+  mutate(r_squared = map_dbl(model, ~summary(.x)$r.squared))
+
+pred_2022 <- dist_test_df %>%
+  # inner join as there may not be historical models for some districts
+  inner_join(models, by = c("state", "district")) %>% 
+  mutate(pred = map_dbl(.x = model, .y = data.x, ~predict(object = .x, newdata = as.data.frame(.y)))) %>%
+  select(state, district, pred)
+
+nrow(filter(pred_2022, pred > 50))
+```
+
+
+The incumbency predictions forecast a large lead 252:183 seats for Republican candidates.  The regression coefficients indicate that the negative correlation caused by a Democratic presidential position outweighed the majority of Democrat incumbents.  As expected, being a challenger had a negative correlation with voteshare in almost all districts while running for reelection had a positive forecast coefficient.  I intend to reintegrate fundamentals back into the district level model in future iterations of this prediction.
+
+
+
+## References
+Adam R. Brown. Voters Don’t Care Much About Incumbency. Journal of Experimental Political Science, 1(2):132–143, 2014.

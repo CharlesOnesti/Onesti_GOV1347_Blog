@@ -1,0 +1,4 @@
+theme: "hugo-theme-air"
+baseURL: http://example.org/
+languageCode: en-us
+title: Election Analytics Blog

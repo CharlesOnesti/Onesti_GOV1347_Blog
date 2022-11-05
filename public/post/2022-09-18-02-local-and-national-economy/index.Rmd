@@ -1,0 +1,144 @@
+---
+title: 02. Local and National Economy
+author: Charles Onesti
+date: '2022-09-18'
+slug: []
+comments: no
+image: ''
+menu: ''
+share: yes
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, results = FALSE)
+
+# Import Libraries
+library(ggplot2)
+library(tidyverse)
+library(dplyr)
+library(plotly)
+library(usmap)
+library(sf)
+library(rmapshaper)
+library(readr)
+
+
+# Import Data
+unemploy_state_df <- read_csv("./data/unemployment_state_monthly.csv") %>%
+  filter(Year > 1976 & (Year + 2) %% 4 == 0) %>%
+  select(state = "State and area", year = "Year", population = "Population", unemployment_rate = "Unemployed_prct") %>%
+  group_by(state, year) %>% summarise(unemployment_rate = mean(unemployment_rate), population = mean(population)) %>%
+  filter(state != 'District of Columbia' & state != 'Los Angeles County' & state != 'New York city' )
+
+unemploy_nat_df <- read_csv("./data/unemployment_national_quarterly_final.csv") %>%
+  filter(year > 1976 & (year + 2) %% 4 == 0 & quarter_cycle %% 4 != 0) %>%
+  select("year", "quarter_cycle", "UNRATE") %>%
+  group_by(year) %>% summarise(unemployment_rate = mean(UNRATE))
+
+popvote_state_df <- read_csv("./data/house party vote share by district 1948-2020.csv") %>%
+  filter(raceYear > 1976 & (raceYear + 2) %% 4 == 0) %>%
+  select(state = "State", year = "raceYear", "RepVotes", "DemVotes") %>%
+  group_by(year, state) %>%
+  summarise(RepVotes = sum(RepVotes), DemVotes = sum(DemVotes)) %>%
+  mutate(RepVoteMargin = RepVotes/(RepVotes+DemVotes))
+
+popvote_nat_df <- popvote_state_df %>%
+  group_by(year) %>% 
+  summarise(RepVotes = sum(RepVotes), DemVotes = sum(DemVotes)) %>%
+  mutate(RepVoteMargin = RepVotes/(RepVotes+DemVotes))
+
+states <- tibble(State = state.name)
+states <- as.character(states$State)
+
+# ggplot Theme
+my_theme <- function() {
+  theme(
+    # panel.grid.major = element_blank(),
+    # panel.grid.minor = element_blank(),
+    # plot.background = element_rect(fill = "grey"),
+    # panel.background = element_rect(fill = "grey"),
+    legend.position = "right"
+  )
+}
+
+```
+
+## 
+Welcome back to my election analytics blog.  This week we will be looking at economic data as predictors for the popular vote.  Political science theory described by Achen and Bartels in Democracy for Realists suggests that voter behavior can be modeled retrospectively.  When a voter chooses who to vote for, they measure the performance of the incumbent party based on their experiences during the last term when they decide to keep or replace the party candidate.  A large factor influencing the experiences of a voter is their economic prosperity.  When a voter benefits from increases in purchasing power during the term of some representative, they are very likely to keep that party in power.  Likewise, economic deterioration is likely to see the incumbent punished and voted out.  
+This blog will focus in on local economic data because it is my hypothesis that if retrospective voting behavior surrounding the economy will influence the 2022 elections, a voter's local economic condition will be more salient an issue to them than national averages.  The national and local data is collected from past midterm elections and quarterly unemployment reports from the Bureau of Labor Statistics.  We will compare the predictive power of national and local data using models created on historical unemployment data.
+
+## The National Model
+Let's begin by looking at national averages of unemployment and midterm two-party vote share for midterm election years going back to 1978. For example, here is a peek into the underlying data table at play:
+```{r echo=FALSE,results = TRUE}
+# Join national vote data with unemployment
+popvote_unemploy_nat_df <- left_join(popvote_nat_df, unemploy_nat_df, by = 'year')
+print.data.frame(popvote_unemploy_nat_df, row.names = FALSE, digits = 3)
+```
+
+Putting this data into a graph we get the following plot:
+
+```{r}
+ggplot(data = popvote_unemploy_nat_df,
+  aes(x = unemployment_rate, y = RepVoteMargin, label = year)) + 
+  geom_point() + 
+  geom_smooth(formula = y~x, method = lm) + 
+  geom_hline(yintercept = 0.5, color = 'red', linetype = 'dashed') +
+  labs(title = 'Unemployment and Republican Vote Share on Election Years') +
+  xlab('Unemployment Rate') + ylab('Republican Vote Share') +
+  my_theme()
+
+
+nat_lm <- lm(data = popvote_unemploy_nat_df, formula = RepVoteMargin ~ unemployment_rate)
+summary(nat_lm)
+predict(nat_lm, unemploy_nat_df[unemploy_nat_df$year == 2022, 2])
+
+```
+
+A point on this plot represents one row of the data table above.  The red dotted line represents the equal vote share level while the blue solid line attempts to fit the trend of the data.  Evidently, with so few points and such high variability, the model does not have strong predictive power. It has an R squared value of 0.015.  Nonetheless, extrapolating the republican vote share for a current national unemployment rate of 3.8% yields a Republican popular vote share of 0.48 or 48%.
+
+
+## The Local Model
+```{r}
+# Join State vote data with unemployment
+popvote_unemploy_state_df <- left_join(popvote_state_df, unemploy_state_df, by = c('year', 'state'))
+
+ggplot(data = popvote_unemploy_state_df,
+  aes(x = unemployment_rate, y = RepVoteMargin, label = year)) + 
+  geom_point() + 
+  geom_smooth(formula = y~x, method = lm) + 
+  geom_hline(yintercept = 0.5, color = 'red', linetype = 'dashed') +
+  labs(title = 'Unemployment and Republican Vote Share for States on Election Years') +
+  xlab('Unemployment Rate') + ylab('Republican Vote Share') +
+  my_theme()
+
+```
+This chart gives a rough visualization of all data points from 1978 to 2018 for all midterm election years combined.  Each dot represents data from one state on a certain election year.  The midline of 50 percent vote share is marked in red.  A result above the line means that the state's districts were likely won by the Republican candidate and a result below the line similarly favors the Democratic candidate.  The linear trend that the data follows is that on average, low unemployment on election years (2-6%) favors the Republican party and higher unemployment favors the platform of the Democratic Party (6+%).
+
+To make a predictive model from this, we will differentiate between states and weight by their population.  We use state specific unemployment data on each election years to fit a line for each state.  We can then take that state's current unemployment rate to calculate the predicted 2022 Republican vote share in that state.  To weight the values by population, we multiply each prediction by the current state population and divide by the national population.  The sum of the remaining predictions is the new population adjusted national republican popular vote share.  Following this procedure, the model predicts that Republicans will receive 49% of the popular vote.  This is a difference of only 1 percentage point from the simple national model prediction.  The R squared values for each state prediction though was on average 9 times greater than the national model but still a relatively small value of 0.092.  I expect, however, that with more election cycles to use as data, the predictive power would increase.
+```{r}
+rsquareds <- c()
+weighted_preds <- c()
+unemploy_state_2022_df <- unemploy_state_df %>%
+  filter(year == 2022)
+total_pop <- sum(unemploy_state_2022_df[, 4])
+for (statename in states) {
+  state_filtered_df <- popvote_unemploy_state_df %>%
+    filter(state == statename)
+  
+  state_lm <- lm(data = state_filtered_df, formula = RepVoteMargin ~ unemployment_rate)
+  rsquareds <- append(rsquareds, summary(state_lm)$r.squared)
+  pred <- predict(state_lm, unemploy_state_2022_df[unemploy_state_2022_df$state == statename, 3])
+  
+  pop <- unemploy_state_2022_df[unemploy_state_2022_df$state == statename, 4]
+  weighted_preds <- append(weighted_preds, pred[[1]] * pop[[1]] / total_pop)
+}
+print(sum(weighted_preds))
+print(mean(rsquareds))
+
+```
+
+According to retrospective voting, this model predicts that economic performance as measured by current unemployment rates gives a small advantage to the Democratic party in national popular vote.  The effect is very small though which fits with the analysis of John Wright in 2012.  According to Wright, when Democrats are incumbents, they are not punished nor rewarded by decreasing or increasing unemployment levels as much as Republican incumbents.  Since the Democratic party is the majority of incumbent candidates this election, I would not be surprised for this result to remain true according to this blog's analysis.
+
+### References
+Christopher H Achen and Larry M Bartels. Democracy for Realists: Why Elections Do Not Produce Responsive Government, volume 4. Princeton University Press, 2017.
+
+John R Wright. Unemployment and the democratic electoral advantage. American Political Science Review, 106(4):685–702, 2012. ISSN 0003-0554.

@@ -1,0 +1,195 @@
+---
+title: 03. Polling
+author: Charles Onesti
+date: '2022-09-22'
+comments: no
+share: yes
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, results = FALSE)
+
+# Import Libraries
+library(ggplot2)
+library(tidyverse)
+library(plotly)
+library(dplyr)
+library(readr)
+library(stargazer)
+
+
+# Import Data
+polls1948_2020_df <- read_csv("./data/polls_df.csv")
+polls_2022_extended_df <- read_csv("./data/538_generic_ballot_averages_2018-2022.csv",
+    col_types = cols(date = col_date(format = "%m/%d/%y"))) %>%
+  filter(cycle == 2022) %>%
+  select(candidate, pct_estimate, date)
+
+dem_df <- polls_2022_extended_df %>%
+  filter(candidate == "Democrats") %>%
+  mutate(dem_pct = pct_estimate) %>%
+  select(dem_pct, date)
+
+
+rep_df <- polls_2022_extended_df %>%
+  filter(candidate == "Republicans") %>%
+  mutate(rep_pct = pct_estimate) %>%
+  select(rep_pct, date)
+
+polls_2022_extended_df <- merge(dem_df, rep_df, by = "date") %>% 
+  mutate(rep_pct_2_party = rep_pct / (rep_pct + dem_pct),
+         dem_pct_2_party = dem_pct / (rep_pct + dem_pct))
+
+polls_2022_recent_df <- polls_2022_extended_df %>%
+  filter(date >= "2022-06-21")
+
+# ---------------
+poll_1942_2020_df <- read_csv("./data/GenericPolls1942_2020.csv")  %>%
+  mutate(dem_pct = dem / (dem + rep)) %>%
+  select(year, days_until_election, dem_pct) %>%
+  filter(days_until_election > 0)
+
+
+cpi_yearly <- read_csv("../2022-09-18-02-local-and-national-economy/data/CPI_monthly.csv", col_types = cols(DATE = col_date(format = "%Y-%m-%d"))) %>%
+  mutate(year =  format(DATE, "%Y")) %>%
+  group_by(year) %>% summarise(cpi_change = mean(CPIAUCSL)) %>%
+  mutate(cpi_change = cpi_change - lag(cpi_change)) %>%
+  filter(as.numeric(year) %% 2 == 0)
+
+seatshare_df <- read_csv("./data/H_popvote_df_fin.csv") %>%
+  select(year, party, seats, Other_seats, majorvote_pct, winner_party) %>%
+  mutate(seat_share = seats / (435 - Other_seats), year = as.character(year), inc = lag(lag(winner_party)))
+```
+
+There is no better gold standard for election prediction that a direct and simple poll.  If you want to know the outcome of a vote, sample a part of the outcome and extrapolate the microcosmic results to the larger population.  Yet polling is subject to lots of errors associated with temporal and psychological factors.  Gelman and King highlight these problems in their 1993 paper stating that early polls are unrelated to the eventual outcome of an election.  This has to do with poll measuring unformed and uninformed opinions on voter candidate preferences.  Most voters are not actively seeking information related to far out elections.  According to Gelman and King, voters only express their voting preferences later in campaigns around the time when the election is salient and they are forced to make their actual vote.  Predictive polling data is therefore only present in the most recent weeks before election day and polling is therefore much less helpful than anticipated because its fruitful results come too late to be effectively acted upon.  
+
+Lets investigate how professional election forecasters Nate Silver and Elliott Morris use polling data to generate their predictions for midterm elections.
+
+### Silver (2022)
+Representing FiveThirtyEight, Silver's prediction strategy is multilayered and complex.  
+
+* Aggregate as many polls as possible while adjust each one
+  + Likely voter adjustment: Weights a poll based on demographics about whether likely voters tend to be more Democrat or Republican
+  + Timeline adjustment: Factors in trends over time to infer current poll results from the change over time of previous results
+  + House effect adjustment: The model assumes that polling errors in historical races are correlated with current error and use that to tweak polling results if a certain poll shows consistent bias
+* Use poll from similar districts to infer polling results in districts that are not polled
+* Weight polling outcomes with fundamentals model predictions to create a final prediction.
+
+### Morris (2020)
+Morris's Economist article provides much simpler but essentially similar approach to prediction.
+
+* Daily updates with newest poll data
+* Combined "fundamentals" models that factor in variables like incumbency and partisanship
+
+Across both prediction methods, each strategy incorporates poll and fundamentals in a weighted combo to predict outcomes on the district level.  Both strategies then do probabilistic analyses to calculate expected seat share for both parties.  And finally, both predictions involve running thousands of simulations with each of their probabilities to map out a normal distribution of outcomes and see in how many simulations each outcome was observed. The strengths of Silver's model is that in integrates a larger diversity of information sources into its prediction.  Morris's model on the other hand sacrifices additional sources of inference for the strength of greater simplicity.  I think that simplicity in a model is also important because it allows a viewer to understand how each variable more directly impacts the outcome.  This allows insights to be drawn and acted on. For example, a campaign manager could plan the next campaign steps based on which modeled variables benefit their voting goals.  The benefit of simplicity is the same reason its not the best idea to apply machine learning to modeling elections and being none the wiser about why the models predicts a certain outcome.  Silver's model is far from the black box complexity of ML though so on balance I think the FiveThirtyEight model is slightly better than Elliott Morris's model. 
+
+The remaining portion of this post will be to make a combined polling and fundamentals prediction of the 2022 election national seat share outcome.
+
+## A CPI Fundamental Model
+To start off we can make a CPI based model.  The independent variable here is the yearly increase in CPI while the dependent variable is the two party seat share for the incumbent party of each election year.  We can visualize past election results and the linear model fitting the trend in the graph below:
+```{r, results = TRUE}
+seatshare_inc_cpi_df <- seatshare_df %>%
+  filter(party == inc) %>%
+  inner_join(cpi_yearly, by = "year")
+
+cpi_change_seatshare <- lm(seat_share ~ cpi_change, data = seatshare_inc_cpi_df)
+stargazer(cpi_change_seatshare, type = 'text')
+
+ggplot(data = seatshare_inc_cpi_df, aes(x = cpi_change, y = seat_share, label=year)) +
+  geom_point() + geom_text(hjust=1, vjust=-.5) + geom_smooth(method = lm) +
+  labs(title = "Incumbent Seat Share by Change in CPI on Election Year")
+```
+We can notice a weak negative correlation between cpi increase and incumbent party seat share.  Here the incumbent party is measured as the party with the plurality of the pre election incumbent representatives.
+
+## Polls: Total vs. Recent
+The polling model I intend to create tests the theoretical observation that early polls are not effective at election prediction.  My methods are to take generic ballot poll averages leading up to elections and see how their prediction of the two party vote seat share lines up with the true House election results from that year. The total polls version averages all polls taken up to a year before the election date and the recent polls version of the model only looks at polls within the last 30 days of the election date.  I fit a linear model to each dataset and plot the results below:
+
+### Total Polling Model
+```{r, results = TRUE}
+seatshare_df_dem <- seatshare_df %>% filter(party== "D") %>% select(year, seat_share)
+polls_total_df <- poll_1942_2020_df %>%
+  filter(year >= 1948 & year %% 2 == 0) %>%
+  group_by(year) %>% summarise(dem_pct = mean(dem_pct)) %>%
+  mutate(year = as.character(year)) %>%
+  inner_join(seatshare_df_dem, by = "year")
+
+ggplot(data = polls_total_df, aes(x = dem_pct, y = seat_share, label=year)) +
+  geom_point() + geom_text(hjust=1, vjust=-.5) + geom_smooth(method = lm) +
+  labs(title = "Seat Share by Total Polling Average")
+
+polls_total_lm <- lm(seat_share ~ dem_pct, data = polls_total_df)
+stargazer(polls_total_lm, type = 'text')
+```
+
+### Recent Polling Model
+```{r, results = TRUE}
+polls_recent_df <- poll_1942_2020_df %>%
+  filter(year >= 1948 & year %% 2 == 0 & days_until_election <= 30) %>%
+  group_by(year) %>% 
+  summarise(dem_pct = mean(dem_pct)) %>%
+  mutate(year = as.character(year)) %>%
+  inner_join(seatshare_df_dem, by = "year")
+
+ggplot(data = polls_recent_df, aes(x = dem_pct, y = seat_share, label=year)) +
+  geom_point() + geom_text(hjust=1, vjust=-.5) + geom_smooth(method = lm) +
+  labs(title = "Seat Share by Recent Polling Average", subtitle = "(Up to 30 days before election)")
+
+polls_recent_lm <- lm(seat_share ~ dem_pct, data = polls_recent_df)
+stargazer(polls_recent_lm, type = 'text')
+```
+
+Within this dataset it seems that the recent and total models map very closely to one another.  They show similar slopes of 1.035 and 1.180 increase in Democratic seat share percentage for ever 1 percent increase in the generic ballot average for the Democratic party.  They have nearly identical fit statistics and residual standard error.  Next lets apply these historical polling models on current polls for the upcoming 2022 election.
+
+### 2022 Polls
+
+For reference, here are the polling average differences for 2022 generic ballot polls for total and recent time frames:
+```{r}
+ggplot(data = polls_2022_extended_df) +
+  geom_line(aes(x = date, y = dem_pct, color = "Democrat")) + 
+  geom_line(aes(x = date, y = rep_pct, color = "Republican")) +
+  geom_hline(yintercept = mean(polls_2022_extended_df$dem_pct), color = 'blue', linetype = 'dashed') +
+  geom_hline(yintercept =  mean(polls_2022_extended_df$rep_pct), color = 'red', linetype = 'dashed') +
+  scale_color_manual(values=c("blue", "red")) + 
+  xlab("Date") + ylab("Vote Share") + 
+  labs(title = "House Election Poll Averages 4/1/21-9/21/22")
+
+
+
+ggplot(data = polls_2022_recent_df) +
+  geom_line(aes(x = date, y = dem_pct, color = "Democrat")) + 
+  geom_line(aes(x = date, y = rep_pct, color = "Republican")) +
+  geom_hline(yintercept = mean(polls_2022_recent_df$dem_pct), color = 'blue', linetype = 'dashed') +
+  geom_hline(yintercept =  mean(polls_2022_recent_df$rep_pct), color = 'red', linetype = 'dashed') +
+  scale_color_manual(values=c("blue", "red")) + 
+  xlab("Date") + ylab("Vote Share") + 
+  labs(title = "House Election Poll Averages 6/21/22-9/21/22")
+```
+
+Lets use these democrat vote share averages in our model to predict seat share in 2022.  For simplicity let's only use the recent polling data model since it shows marginally better fit than the total one.
+```{r, results=TRUE}
+total_input <- data.frame(dem_pct=c(mean(polls_2022_extended_df$dem_pct_2_party)))
+recent_input <- data.frame(dem_pct=c(mean(polls_2022_recent_df$dem_pct_2_party)))
+input <- mean(polls_2022_recent_df$dem_pct_2_party)
+total_pred <- predict(polls_recent_lm, total_input)
+recent_pred <- predict(polls_recent_lm, recent_input)
+print("Total 2-Party Average: ")
+print(total_pred)
+print("Recent 2-Party Average: ")
+print(recent_pred)
+
+cpi_input <- data.frame(cpi_change=c(17.2492500))
+cpi_pred <- predict(cpi_change_seatshare, cpi_input)
+print(cpi_pred)
+```
+What a close call! Despite the lower recent polling average for Democrats, the model still predicts a close call with either the total and recent polling averages.  Giving preference to the recent data, and combining with the CPI prediction model on 2022 CPI levels at equal weighting, the final prediction of the polling model is a nearly perfect 50% split in house seats: 218 Democrat seats and 217 Republican seats.
+
+
+## References
+Andrew Gelman and Gary King. Why are American presidential election campaign polls so variable when votes are so predictable? British Journal of Political Science, 23(4): 409–451, 1993
+
+G. Elliott Morris. How The Economist presidential forecast works, 2020a
+
+Nate Silver. How FiveThirtyEight’s House, Senate And Governor Models Work, 2022
+
+

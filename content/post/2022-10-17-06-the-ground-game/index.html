@@ -1,0 +1,21 @@
+---
+title: 06. Ground Game
+author: Charles Onesti
+date: '2022-10-17'
+---
+
+
+
+<p>In contrast to the Air War described in last weeks post, the ground game constitutes any non-digital voter outreach conducted by political campaigns. This week’s post is firstly about the axes of persuasion and turnout that air war or ground game strategies might impact. Last week we saw how advertisements have only a short lasting effect on voting behavior. Ground game strategies such as canvassing and voter rallies, however, are considered to be more effective at influencing voters. A study by Enos and Fowler finds that ground game activity can increase voter turnout by around 8 percentage points. Using new citizen voting age population data on districts we can test whether ads create a similar influence on voter turnout within their district. After looking at voter turnout, we will try out a first attempt at binomial logistic regression models to predict district level 2022 vote share outcomes using polling data.</p>
+<div id="close-elections-do-ads-predict-turnout" class="section level2">
+<h2>Close Elections: Do Ads Predict Turnout?</h2>
+<p>Do ads keep up with the effectiveness of the ground game at increasing voter turnout? This section plots data from 2006 - 2018 on districts where ads were run. The visualizations show the relationship between the number of ads run in a certain district against the party voter turnout for that election year for Republicans and Democrats.</p>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-2-1.png" width="672" /><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-2-2.png" width="672" />
+The charts above show a little correlation for Democrat ads and zero for Republican ads. This suggests that ads are largely ineffective at increasing voter turnout for a certain party. It is interesting to see that relative to each other, Democrat campaigns see more success in increasing voter turnout with advertisements.</p>
+</div>
+<div id="probabilistic-poll-models-of-district-level-races" class="section level2">
+<h2>Probabilistic Poll Models of District-Level Races</h2>
+<p>Now we will try to create district probabilistic models using past polls. These models use binomial logistic regression to compute the probability that a voting age citizen of a district will vote for the Republican nominee or vote for the Democrat nominee. The benefit of this sort of model is that it will never output out of bounds values less than zero or greater than one hundred because it uses an inverse logit function that approaches 0 in the negative asymptotic and 1 in the positive asymptotic. The data available is too sparse to use in district level models though so only around 25 districts have enough data points to generate a model. Here are the results:
+<img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-3-1.png" width="672" />
+This approach is clearly not sufficient to make any sort of analysis. In order to make good predictions there needs to be more overlap in the available data about district populations and polling.</p>
+</div>

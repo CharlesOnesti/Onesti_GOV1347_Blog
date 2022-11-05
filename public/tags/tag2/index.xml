@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>tag2 on Election Analytics Blog</title>
+    <link>http://example.org/tags/tag2/</link>
+    <description>Recent content in tag2 on Election Analytics Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 13 Sep 2022 00:00:00 +0000</lastBuildDate><atom:link href="http://example.org/tags/tag2/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>01. Introduction</title>
+      <link>http://example.org/post/2022-09-13-01-introduction/</link>
+      <pubDate>Tue, 13 Sep 2022 00:00:00 +0000</pubDate>
+      
+      <guid>http://example.org/post/2022-09-13-01-introduction/</guid>
+      <description>This is my blog</description>
+    </item>
+    
+  </channel>
+</rss>

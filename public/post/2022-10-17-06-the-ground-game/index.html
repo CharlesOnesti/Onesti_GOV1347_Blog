@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+  	<meta property="og:title" content=" 06. Ground Game &middot;  Election Analytics Blog" />
+  	<meta property="og:site_name" content="Election Analytics Blog" />
+  	<meta property="og:url" content="http://example.org/post/2022-10-17-06-the-ground-game/" />
+    
+    
+  	<meta property="og:type" content="article" />
+
+    <meta property="og:article:published_time" content="2022-10-17T00:00:00Z" />
+
+    
+    
+
+  <title>
+     06. Ground Game &middot;  Election Analytics Blog
+  </title>
+
+    <meta name="description" content="2022 Midterm Election Predictions and Analysis by Charles Onesti" />
+
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link rel="shortcut icon" href="http://example.org/images/favicon.ico">
+	  <link rel="apple-touch-icon" href="http://example.org/images/apple-touch-icon.png" />
+    
+    <link rel="stylesheet" type="text/css" href="http://example.org/css/screen.css" />
+    <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Merriweather:300,700,700italic,300italic|Open+Sans:700,400|Inconsolata" />
+
+
+    
+      
+          <link href="http://example.org/index.xml" rel="alternate" type="application/rss+xml" title="Election Analytics Blog" />
+      
+      
+    
+    <meta name="generator" content="Hugo 0.102.3" />
+
+    <link rel="canonical" href="http://example.org/post/2022-10-17-06-the-ground-game/" />
+
+     
+</head>
+<body class="nav-closed">
+<div id="particles-js"></div>
+  
+
+
+ <div class="site-wrapper">
+
+
+
+<header class="main-header " style="background-image: url(http://example.org/images/user.jpg)">
+
+    <nav class="main-nav overlay clearfix">
+        
+            <a class="blog-logo" href="http://example.org/"><img src="http://example.org/images/user.png" alt="Blog Logo" /></a>
+        
+        
+    </nav>
+<div class="vertical">
+        <div class="main-header-content inner">
+            <h1 class="page-title">
+              <a class="btn-bootstrap-2" href="#content">Election Analytics Blog</a>
+          </h1>
+          <h2 class="page-description">2022 Midterm Election Predictions and Analysis by Charles Onesti</h2>
+        </div>
+</div>
+    <a class="scroll-down icon-arrow-left" href="#content"><span class="hidden">Scroll Down</span></a>
+</header>
+
+  <main id="content" class="content" role="main">
+
+
+  <article class="post post">
+
+    <header class="post-header">
+        <h1 class="post-title">06. Ground Game</h1>
+        <section class="post-meta">
+        
+	<time class="post-date" datetime="2022-10-17">
+            2022-10-17
+          </time>
+        
+         
+        </section>
+    </header>
+
+    <section class="post-content">
+      
+
+
+<p>In contrast to the Air War described in last weeks post, the ground game constitutes any non-digital voter outreach conducted by political campaigns. This week’s post is firstly about the axes of persuasion and turnout that air war or ground game strategies might impact. Last week we saw how advertisements have only a short lasting effect on voting behavior. Ground game strategies such as canvassing and voter rallies, however, are considered to be more effective at influencing voters. A study by Enos and Fowler finds that ground game activity can increase voter turnout by around 8 percentage points. Using new citizen voting age population data on districts we can test whether ads create a similar influence on voter turnout within their district. After looking at voter turnout, we will try out a first attempt at binomial logistic regression models to predict district level 2022 vote share outcomes using polling data.</p>
+<div id="close-elections-do-ads-predict-turnout" class="section level2">
+<h2>Close Elections: Do Ads Predict Turnout?</h2>
+<p>Do ads keep up with the effectiveness of the ground game at increasing voter turnout? This section plots data from 2006 - 2018 on districts where ads were run. The visualizations show the relationship between the number of ads run in a certain district against the party voter turnout for that election year for Republicans and Democrats.</p>
+<p><img src="http://example.org/post/2022-10-17-06-the-ground-game/index_files/figure-html/unnamed-chunk-2-1.png" width="672" /><img src="http://example.org/post/2022-10-17-06-the-ground-game/index_files/figure-html/unnamed-chunk-2-2.png" width="672" />
+The charts above show a little correlation for Democrat ads and zero for Republican ads. This suggests that ads are largely ineffective at increasing voter turnout for a certain party. It is interesting to see that relative to each other, Democrat campaigns see more success in increasing voter turnout with advertisements.</p>
+</div>
+<div id="probabilistic-poll-models-of-district-level-races" class="section level2">
+<h2>Probabilistic Poll Models of District-Level Races</h2>
+<p>Now we will try to create district probabilistic models using past polls. These models use binomial logistic regression to compute the probability that a voting age citizen of a district will vote for the Republican nominee or vote for the Democrat nominee. The benefit of this sort of model is that it will never output out of bounds values less than zero or greater than one hundred because it uses an inverse logit function that approaches 0 in the negative asymptotic and 1 in the positive asymptotic. The data available is too sparse to use in district level models though so only around 25 districts have enough data points to generate a model. Here are the results:
+<img src="http://example.org/post/2022-10-17-06-the-ground-game/index_files/figure-html/unnamed-chunk-3-1.png" width="672" />
+This approach is clearly not sufficient to make any sort of analysis. In order to make good predictions there needs to be more overlap in the available data about district populations and polling.</p>
+</div>
+
+    </section>
+
+
+  <footer class="post-footer">
+
+
+    
+    <figure class="author-image">
+
+        <a class="img" href="http://example.org/" style="background-image: url(http://example.org/images/user.png)"><span class="hidden">Charles Onesti</span></a>
+    </figure>
+    
+
+    <section class="author">
+
+  <p>Charles Onesti</p>
+  
+
+</section>
+
+
+    
+    <section class="share">
+      <h4>Share this post</h4>
+      <a class="icon-twitter" style="font-size: 1.4em" href="https://twitter.com/share?text=06.%20Ground%20Game&amp;url=http%3a%2f%2fexample.org%2fpost%2f2022-10-17-06-the-ground-game%2f"
+          onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+          <span class="hidden">Twitter</span>
+      </a>
+      <a class="icon-facebook" style="font-size: 1.4em" href="https://www.facebook.com/sharer/sharer.php?u=http%3a%2f%2fexample.org%2fpost%2f2022-10-17-06-the-ground-game%2f"
+          onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+          <span class="hidden">Facebook</span>
+      </a>
+      <a class="icon-google-plus" style="font-size: 1.4em" href="https://plus.google.com/share?url=http%3a%2f%2fexample.org%2fpost%2f2022-10-17-06-the-ground-game%2f"
+         onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
+          <span class="hidden">Google+</span>
+      </a>
+    </section>
+    
+
+    
+    
+    
+
+  </footer>
+</article>
+
+</main>
+    <footer class="site-footer clearfix">
+      <script type="text/javascript"
+   src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js">
+</script>
+      <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX", "output/HTML-CSS"],
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+      processEscapes: true
+    },
+    "HTML-CSS": { fonts: ["TeX"] }
+  });
+</script>
+<script type="text/javascript" src="path-to-MathJax/MathJax.js">
+</script>
+        <section class="copyright"><a href="">Election Analytics Blog</a> </section>
+        
+        <section class="poweredby">Proudly generated by <a class="icon-hugo" href="https://gohugo.io">HUGO</a>, with <a class="icon-theme" href="https://github.com/syui/hugo-theme-air">hugo-theme-air</a> theme</section>
+        
+    </footer>
+    </div>
+    <script type="text/javascript" src="http://example.org/js/jquery.js"></script>
+    <script type="text/javascript" src="http://example.org/js/jquery.fitvids.js"></script>
+    <script type="text/javascript" src="http://example.org/js/index.js"></script>
+    <script src="http://example.org/js/particles.min.js"></script>
+    <script src="http://example.org/js/particles.js"></script>  
+
+</body>
+</html>
+

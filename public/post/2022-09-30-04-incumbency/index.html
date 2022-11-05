@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+  	<meta property="og:title" content=" 04. Incumbency and Expert Prediction &middot;  Election Analytics Blog" />
+  	<meta property="og:site_name" content="Election Analytics Blog" />
+  	<meta property="og:url" content="http://example.org/post/2022-09-30-04-incumbency/" />
+    
+    
+  	<meta property="og:type" content="article" />
+
+    <meta property="og:article:published_time" content="2022-10-03T00:00:00Z" />
+
+    
+    
+
+  <title>
+     04. Incumbency and Expert Prediction &middot;  Election Analytics Blog
+  </title>
+
+    <meta name="description" content="2022 Midterm Election Predictions and Analysis by Charles Onesti" />
+
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link rel="shortcut icon" href="http://example.org/images/favicon.ico">
+	  <link rel="apple-touch-icon" href="http://example.org/images/apple-touch-icon.png" />
+    
+    <link rel="stylesheet" type="text/css" href="http://example.org/css/screen.css" />
+    <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Merriweather:300,700,700italic,300italic|Open+Sans:700,400|Inconsolata" />
+
+
+    
+      
+          <link href="http://example.org/index.xml" rel="alternate" type="application/rss+xml" title="Election Analytics Blog" />
+      
+      
+    
+    <meta name="generator" content="Hugo 0.102.3" />
+
+    <link rel="canonical" href="http://example.org/post/2022-09-30-04-incumbency/" />
+
+     
+</head>
+<body class="nav-closed">
+<div id="particles-js"></div>
+  
+
+
+ <div class="site-wrapper">
+
+
+
+<header class="main-header " style="background-image: url(http://example.org/images/user.jpg)">
+
+    <nav class="main-nav overlay clearfix">
+        
+            <a class="blog-logo" href="http://example.org/"><img src="http://example.org/images/user.png" alt="Blog Logo" /></a>
+        
+        
+    </nav>
+<div class="vertical">
+        <div class="main-header-content inner">
+            <h1 class="page-title">
+              <a class="btn-bootstrap-2" href="#content">Election Analytics Blog</a>
+          </h1>
+          <h2 class="page-description">2022 Midterm Election Predictions and Analysis by Charles Onesti</h2>
+        </div>
+</div>
+    <a class="scroll-down icon-arrow-left" href="#content"><span class="hidden">Scroll Down</span></a>
+</header>
+
+  <main id="content" class="content" role="main">
+
+
+  <article class="post post">
+
+    <header class="post-header">
+        <h1 class="post-title">04. Incumbency and Expert Prediction</h1>
+        <section class="post-meta">
+        
+	<time class="post-date" datetime="2022-10-03">
+            2022-10-03
+          </time>
+        
+         
+        </section>
+    </header>
+
+    <section class="post-content">
+      
+
+
+<p>This week we will be adding an incumbency term to our 2022 House elections prediction model and bringing our predictions into the district level. First however, let’s do an analysis of expert predictions. An expert prediction is when a journalist of political pundit make personal predictions about how certain contentious districts will break in the upcoming election. The person or firm informs their decision with their unique knowledge and expertise about the voters and candidates. The prediction takes the form of a 7 option likert scale from “solid”, “likely”, and “lean” towards one party or the other or “Toss Up” if they think the election is too close to make a verdict. The benefit of expert predictions is that, theoretically, expert predictions are already based on solid data collected and considered by each expert and so they are a very easy shortcut to making our own predictions. The major drawback of expert predictions is that they are also packed with the biases of the expert and often tend to be more opinionated than calculated. In the first part of this post lets examine historical expert predictions and see how accurate they were compared to the election results.</p>
+<div id="how-expert-are-the-experts-2018-edition" class="section level2">
+<h2>How Expert are the Experts 2018 Edition</h2>
+<p>The method of testing expert prediction accuracy is to look at the district level and compare the election outcome to the average expert prediction. Up first is a plot of all mainland districts colored in red for higher two party vote share for Republicans, and blue for a higher vote share for Democrats. Districts in white had close elections.
+<img src="http://example.org/post/2022-09-30-04-incumbency/index_files/figure-html/unnamed-chunk-1-1.png" width="672" /></p>
+<p>Next up are the expert predictions following a similar structure but with a 7 point scale. In this visualization a 3 is the highest likelihood of Republican victory and a -3 is the highest likelihood of Democrat victory. States in grey lacked a prediction from any of the expert predictions. This is perhaps because every expert believed the outcome was not close enough to merit attention.</p>
+<p><img src="http://example.org/post/2022-09-30-04-incumbency/index_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
+<p>Overlaying the two maps and showing the absolute difference between prediction and result yields the following combined graph. In this graph a low value of 0 means perfect accuracy and a high value means low accuracy.</p>
+<p><img src="http://example.org/post/2022-09-30-04-incumbency/index_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+<p>In order to make this comparison I decided to convert the vote share outcomes into a 1-7 scale using a tiered bucket system that focused on a vote share margin or up to 6 percent. I clipped off large margins at 6% because I wanted to have the extremes of expert prediction scores be considered accurate for any margin above 6 percentage points and focus on predictions that lay in the middle in margins of 4 percentage points. We can notice in the graph that most average expert predictions are high accuracy and within 2 percentage points of the outcome on average. Geographically, experts seem to be better at predicting northern districts and worse with southern districts such as the Texas, Florida and Oklahoma examples above.</p>
+</div>
+<div id="incumbency" class="section level2">
+<h2>Incumbency</h2>
+<p>There are a couple axes of incumbency to explore. First is the idea of reelection and the other is about party affiliation. The motivation behind using incumbency on the individual level is that candidates running for re-election have the advantage of greater visibility in their district. One complication about a simply incumbency variable is presented in research by Adam Brown in the Journal of Experimental Political Science. Brown argues that inherent incumbency does not matter to voters in elections but that other factors that correlate with incumbency such as fundraising and candidate quality do matter. So in this model, think of incumbency as the simplest heuristic for candidate quality and visibility to voters. The model also fators in presidential party incumbency which</p>
+<p>The incumbency predictions forecast a large lead 252:183 seats for Republican candidates. The regression coefficients indicate that the negative correlation caused by a Democratic presidential position outweighed the majority of Democrat incumbents. As expected, being a challenger had a negative correlation with voteshare in almost all districts while running for reelection had a positive forecast coefficient. I intend to reintegrate fundamentals back into the district level model in future iterations of this prediction.</p>
+</div>
+<div id="references" class="section level2">
+<h2>References</h2>
+<p>Adam R. Brown. Voters Don’t Care Much About Incumbency. Journal of Experimental Political Science, 1(2):132–143, 2014.</p>
+</div>
+
+    </section>
+
+
+  <footer class="post-footer">
+
+
+    
+    <figure class="author-image">
+
+        <a class="img" href="http://example.org/" style="background-image: url(http://example.org/images/user.png)"><span class="hidden">Charles Onesti</span></a>
+    </figure>
+    
+
+    <section class="author">
+
+  <p>Charles Onesti</p>
+  
+
+</section>
+
+
+    
+    <section class="share">
+      <h4>Share this post</h4>
+      <a class="icon-twitter" style="font-size: 1.4em" href="https://twitter.com/share?text=04.%20Incumbency%20and%20Expert%20Prediction&amp;url=http%3a%2f%2fexample.org%2fpost%2f2022-09-30-04-incumbency%2f"
+          onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+          <span class="hidden">Twitter</span>
+      </a>
+      <a class="icon-facebook" style="font-size: 1.4em" href="https://www.facebook.com/sharer/sharer.php?u=http%3a%2f%2fexample.org%2fpost%2f2022-09-30-04-incumbency%2f"
+          onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+          <span class="hidden">Facebook</span>
+      </a>
+      <a class="icon-google-plus" style="font-size: 1.4em" href="https://plus.google.com/share?url=http%3a%2f%2fexample.org%2fpost%2f2022-09-30-04-incumbency%2f"
+         onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
+          <span class="hidden">Google+</span>
+      </a>
+    </section>
+    
+
+    
+    
+    
+
+  </footer>
+</article>
+
+</main>
+    <footer class="site-footer clearfix">
+      <script type="text/javascript"
+   src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js">
+</script>
+      <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX", "output/HTML-CSS"],
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+      processEscapes: true
+    },
+    "HTML-CSS": { fonts: ["TeX"] }
+  });
+</script>
+<script type="text/javascript" src="path-to-MathJax/MathJax.js">
+</script>
+        <section class="copyright"><a href="">Election Analytics Blog</a> </section>
+        
+        <section class="poweredby">Proudly generated by <a class="icon-hugo" href="https://gohugo.io">HUGO</a>, with <a class="icon-theme" href="https://github.com/syui/hugo-theme-air">hugo-theme-air</a> theme</section>
+        
+    </footer>
+    </div>
+    <script type="text/javascript" src="http://example.org/js/jquery.js"></script>
+    <script type="text/javascript" src="http://example.org/js/jquery.fitvids.js"></script>
+    <script type="text/javascript" src="http://example.org/js/index.js"></script>
+    <script src="http://example.org/js/particles.min.js"></script>
+    <script src="http://example.org/js/particles.js"></script>  
+
+</body>
+</html>
+

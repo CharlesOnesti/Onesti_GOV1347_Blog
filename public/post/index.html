@@ -1,0 +1,1244 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+  	<meta property="og:title" content=" Posts &middot;  Election Analytics Blog" />
+  	<meta property="og:site_name" content="Election Analytics Blog" />
+  	<meta property="og:url" content="http://example.org/post/" />
+    
+    
+    <meta property="og:type" content="website" />
+    
+
+  <title>
+     Posts &middot;  Election Analytics Blog
+  </title>
+
+    <meta name="description" content="2022 Midterm Election Predictions and Analysis by Charles Onesti" />
+
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link rel="shortcut icon" href="http://example.org/images/favicon.ico">
+	  <link rel="apple-touch-icon" href="http://example.org/images/apple-touch-icon.png" />
+    
+    <link rel="stylesheet" type="text/css" href="http://example.org/css/screen.css" />
+    <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Merriweather:300,700,700italic,300italic|Open+Sans:700,400|Inconsolata" />
+
+
+    
+      
+          <link href="http://example.org/index.xml" rel="alternate" type="application/rss+xml" title="Election Analytics Blog" />
+      
+      
+        <link href="/post/index.xml" rel="alternate" type="application/rss+xml" title="Posts &middot; Election Analytics Blog" />
+      
+    
+    <meta name="generator" content="Hugo 0.102.3" />
+
+    <link rel="canonical" href="http://example.org/post/" />
+
+     
+</head>
+<body class="nav-closed">
+<div id="particles-js"></div>
+  
+
+
+ <div class="site-wrapper">
+
+
+
+
+	<header class="main-header" style="background-image: url(http://example.org/images/user.jpg)">
+
+    <nav class="main-nav overlay clearfix">
+      
+        <a class="blog-logo" href="http://example.org/"><img src="http://example.org/images/user.png" alt="Home" /></a>
+      
+      
+        
+          <a class="menu-button icon-feed" href="/post/index.xml">&nbsp;&nbsp;Subscribe</a>
+        
+      
+    </nav>
+    <div class="vertical">
+
+        <div class="main-header-content inner">
+            <h1 class="page-title">
+
+              <a class="btn-bootstrap-2" href="#content">Election Analytics Blog</a>
+          </h1>
+        </div>
+</div>
+    <a class="scroll-down icon-arrow-left" href="#content"><span class="hidden">Scroll Down</span></a>
+</header>
+
+<main id="content" class="content" role="main">
+    
+    
+    
+    
+
+	<div class="extra-pagination inner">
+    <nav class="pagination" role="navigation">
+	
+	<span class="page-number">Page 1 of 1</span>
+	
+</nav>
+
+	</div>
+
+	
+	   
+<article class="post post">
+    <header class="post-header">
+        <h2 class="post-title"><a href="/post/2022-10-24-07-shocks/">07. Shocks</a></h2>
+    </header>
+    <section class="post-excerpt">
+      <p>
+          <section class="post-content">
+            
+
+
+<p>Welcome back to the last blog post before I make a final prediction on the 2022 midterm elections. The focus of this week’s post is on voting shocks. A shock is a political or apolitical event that influences a voter’s state of mind. Identifying a potential shock must be followed with some reasoning about how the public responds to that kind of event and then theorize about how which direction voters will move on average between candidates. Useful heuristics to make this theorization easier are incumbency and party ideology heuristics. To judge the valence of a shock we can just consider whether it will make most voters more or less favorable for an incumbent or a party and then adjust our expectations according to those data. Bagues and Volvart (2016) use this approach when talking about how an apolitical shock like winning a lottery will increase the favorability of incumbent candidates. This kind of analysis is replicated by Achen and Bartels (2017) who instead observe that a surge in shark attacks will reduce the favorability of incumbents.
+The unifying conclusion is that events that make people happy will encourage the average voter to support the incumbent candidate in an upcoming election and negative events will hurt incumbent re-election. While Achen and Bartels see this as an instance of purely irrational voting behavior, emotionally motivated voting is not necessarily misguided depending on the nature of the shock. An effective representative should be able to minimize the odds of negative events and increase the odds of positive events.</p>
+<div id="shock-affirmative-action-in-the-supreme-court" class="section level2">
+<h2>Shock: Affirmative Action in the Supreme Court</h2>
+<p>Looking at the upcoming election, I decided to measure the impact of the Supreme Court rulings on affirmative action for college admissions. I chose this topic because it is similar to the Dobbs case in the sense that it is also a judicial ruling, and because it is related to this very blog which is for a Harvard class. To measure the salience of affirmative action as a shock, I used the NYT article API to create the following weekly frequency graph.</p>
+<p><img src="http://example.org/post/2022-10-24-07-shocks/index_files/figure-html/unnamed-chunk-1-1.png" width="672" /></p>
+<p>Each week combines the number of articles that mention the keywords affirmative and action. You can tell that in the beginning of the year, the topic had a spike in discussion which has since died does with small peaks every month or so. For midterm election purposes, according to this graph, the topic is not recent or “shocky” enough to have any macro impact on the election outcomes.</p>
+</div>
+<div id="ongoing-prediction-model" class="section level2">
+<h2>Ongoing prediction model</h2>
+<p>Returning to our running model from previous weeks, I want to take a different approach this week. I have recently been struggling to get powerful predictive results with district level results due to sparse data and rank deficient fits. One way to try and shake things up is to use a pooled model. This means that instead of trying unsuccessfully to make 435 unique models, we can just make one model and run demographics through the model so that predictions still clock on the district level. This will result in districts with similar demographic data having correlated outcomes. Fundementally the assumption in play is that this election will largely be based on voters voting on party lines. Demographics have historically been tightly bound to party afiliation and so the pooled model makes sense to use in this situation.</p>
+<p>This weeks model will use. Candidate and presidential party incumbency, recent generic ballot polls, demographic data on race, ethnicity, and sex. The regression table looks like this:</p>
+<p>Alas, the model is still not quite right. Its final prediction anticipates that republicans will win 324 seats against 110 for Democrats. This prediction is too heavily skewed in favor of Republican candidates. Perhaps one reason for this is a shortcoming of the pooled model. I can see that all demographic variables have positive coefficients which is not logical given well documented trends that black voters tend to vote for Democratic candidates. Going into my final prediction on Nov. 7th, I plan to address this issue and make qualify uncertainty with a probabilistic model.</p>
+</div>
+<div id="references" class="section level2">
+<h2>References</h2>
+<p>Christopher H Achen and Larry M Bartels. Democracy for Realists: Why Elections Do Not Produce Responsive Government, volume 4. Princeton University Press, 2017</p>
+</div>
+
+          </section>
+      </p>
+      
+    </section>
+    <footer class="post-meta">
+        
+            <img class="author-thumb" src="http://example.org/images/user.png" alt="Author image" nopin="nopin" />
+        
+        
+            Charles Onesti
+        
+        
+        <time class="post-date" datetime="2022-10-24T00:00:00Z">
+            24 Oct 2022
+        </time>
+    </footer>
+</article>
+
+	
+	   
+<article class="post post">
+    <header class="post-header">
+        <h2 class="post-title"><a href="/post/2022-10-17-06-the-ground-game/">06. Ground Game</a></h2>
+    </header>
+    <section class="post-excerpt">
+      <p>
+          <section class="post-content">
+            
+
+
+<p>In contrast to the Air War described in last weeks post, the ground game constitutes any non-digital voter outreach conducted by political campaigns. This week’s post is firstly about the axes of persuasion and turnout that air war or ground game strategies might impact. Last week we saw how advertisements have only a short lasting effect on voting behavior. Ground game strategies such as canvassing and voter rallies, however, are considered to be more effective at influencing voters. A study by Enos and Fowler finds that ground game activity can increase voter turnout by around 8 percentage points. Using new citizen voting age population data on districts we can test whether ads create a similar influence on voter turnout within their district. After looking at voter turnout, we will try out a first attempt at binomial logistic regression models to predict district level 2022 vote share outcomes using polling data.</p>
+<div id="close-elections-do-ads-predict-turnout" class="section level2">
+<h2>Close Elections: Do Ads Predict Turnout?</h2>
+<p>Do ads keep up with the effectiveness of the ground game at increasing voter turnout? This section plots data from 2006 - 2018 on districts where ads were run. The visualizations show the relationship between the number of ads run in a certain district against the party voter turnout for that election year for Republicans and Democrats.</p>
+<p><img src="http://example.org/post/2022-10-17-06-the-ground-game/index_files/figure-html/unnamed-chunk-2-1.png" width="672" /><img src="http://example.org/post/2022-10-17-06-the-ground-game/index_files/figure-html/unnamed-chunk-2-2.png" width="672" />
+The charts above show a little correlation for Democrat ads and zero for Republican ads. This suggests that ads are largely ineffective at increasing voter turnout for a certain party. It is interesting to see that relative to each other, Democrat campaigns see more success in increasing voter turnout with advertisements.</p>
+</div>
+<div id="probabilistic-poll-models-of-district-level-races" class="section level2">
+<h2>Probabilistic Poll Models of District-Level Races</h2>
+<p>Now we will try to create district probabilistic models using past polls. These models use binomial logistic regression to compute the probability that a voting age citizen of a district will vote for the Republican nominee or vote for the Democrat nominee. The benefit of this sort of model is that it will never output out of bounds values less than zero or greater than one hundred because it uses an inverse logit function that approaches 0 in the negative asymptotic and 1 in the positive asymptotic. The data available is too sparse to use in district level models though so only around 25 districts have enough data points to generate a model. Here are the results:
+<img src="http://example.org/post/2022-10-17-06-the-ground-game/index_files/figure-html/unnamed-chunk-3-1.png" width="672" />
+This approach is clearly not sufficient to make any sort of analysis. In order to make good predictions there needs to be more overlap in the available data about district populations and polling.</p>
+</div>
+
+          </section>
+      </p>
+      
+    </section>
+    <footer class="post-meta">
+        
+            <img class="author-thumb" src="http://example.org/images/user.png" alt="Author image" nopin="nopin" />
+        
+        
+            Charles Onesti
+        
+        
+        <time class="post-date" datetime="2022-10-17T00:00:00Z">
+            17 Oct 2022
+        </time>
+    </footer>
+</article>
+
+	
+	   
+<article class="post post">
+    <header class="post-header">
+        <h2 class="post-title"><a href="/post/2022-10-06-05-air-war/">05. Air War</a></h2>
+    </header>
+    <section class="post-excerpt">
+      <p>
+          <section class="post-content">
+            
+
+
+<p>This week we will explore how campaign activity matters in congressional elections. So far our predictions have used factors outside of a candidates direct control like the national economy and their party or individual incumbency status. The role of a good campaign can not be overlooked. This post will deal with television advertising conducted by campaigns in what is called the “Air War.” The data studied is from the Wesleyan Media Project which contains data from 2006 - 2018 on campaign ads for House elections. Today’s topics include ad timing, geographic placement, and the insufficiency of the data to make stable 2022 predictions.</p>
+<div id="campaign-ads-timing" class="section level2">
+<h2>Campaign Ads Timing</h2>
+<p>Distribution of campaign ads is something some voters are intuitively aware of. It is no surprise that campaign ads are run only on election years and concentrate to the days before election day. The chart below graphs the ad frequency spikes before each election day represented by a vertical dotted line.<br />
+<img src="http://example.org/post/2022-10-06-05-air-war/index_files/figure-html/unnamed-chunk-1-1.png" width="672" /></p>
+</div>
+<div id="district-level-ads-spending-by-party" class="section level2">
+<h2>2018 District Level Ads Spending by Party</h2>
+<p>According to research from Alan Gerber, campaign advertising has a short term effect of voting behavior. We will test whether this effect is present in the spending data from the Wesleyan Media Project. WMP has detailed datasets on the quantity and qualities of congressional campaign advertisements. This includes an estimated cost variable which we will combine for each district in support of either party. The following maps outline party spending volume over the districts. This behavior is well explained by Alan Gerber’s theory that advertising psychological effects last a limited amount of time. Campaigns aim to have their highest visibility right before a person casts their vote so that the ad’s message is fresh in their mind when making a decision.</p>
+<p><img src="http://example.org/post/2022-10-06-05-air-war/index_files/figure-html/unnamed-chunk-2-1.png" width="672" /><img src="http://example.org/post/2022-10-06-05-air-war/index_files/figure-html/unnamed-chunk-2-2.png" width="672" /></p>
+</div>
+<div id="ads-spending-models-by-district" class="section level2">
+<h2>Ads Spending Models by District</h2>
+<p>Using the 2018 data as an input lets use historical data to create district level models of vote share as a function of partisan media spending.
+<img src="http://example.org/post/2022-10-06-05-air-war/index_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+<p>This attempt to model has several flaws that are evident from this map containing the predictions from each of the district models. First is how few districts had enough regularly intervaled data to train a model that was not rank deficient. The predictions were also very volatile because of the deficient underlying data so many predictions did not have reasonable values. The 2018 actual outcomes differed from these predictions substantially. For these reasons, I chose to leave ads data out of this week’s combined model.</p>
+</div>
+<div id="creating-a-new-combined-model" class="section level2">
+<h2>Creating a New Combined Model</h2>
+<p>Despite containing millions of observations, this weeks data on advertising turns out to me much more sparse in its range and predictive power because it does not span a large time range and has small coverage over the districts. There is also a lack of advertising data for the upcoming election so there wouldnt be anything to input for a 2022 prediction anyway. So to wrap up a combined model, the available coefficients are fundamentals, polling, and incumbency.</p>
+<p>Using
+- Percent change in RDI
+- Reelection coefficients
+- Presidential party incumbency
+- District polls
+Leaving out for lack of 2022 data:
+- Ad expenses</p>
+<p>The data is only sufficient to generate models in states where recent and historical polls have been conducted. Out of the 57 viable models, 33 outcomes anticipated a Republican victory while 24 predicted a Democrat victory.</p>
+<p>The result table is as follows:</p>
+<div id="meaudoggao" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>html {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
+}
+
+#meaudoggao .gt_table {
+  display: table;
+  border-collapse: collapse;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#meaudoggao .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#meaudoggao .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#meaudoggao .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 0;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#meaudoggao .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#meaudoggao .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#meaudoggao .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#meaudoggao .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#meaudoggao .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#meaudoggao .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#meaudoggao .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#meaudoggao .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#meaudoggao .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#meaudoggao .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#meaudoggao .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#meaudoggao .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#meaudoggao .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#meaudoggao .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#meaudoggao .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#meaudoggao .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#meaudoggao .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#meaudoggao .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#meaudoggao .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#meaudoggao .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#meaudoggao .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#meaudoggao .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#meaudoggao .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#meaudoggao .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#meaudoggao .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-left: 4px;
+  padding-right: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#meaudoggao .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#meaudoggao .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#meaudoggao .gt_left {
+  text-align: left;
+}
+
+#meaudoggao .gt_center {
+  text-align: center;
+}
+
+#meaudoggao .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#meaudoggao .gt_font_normal {
+  font-weight: normal;
+}
+
+#meaudoggao .gt_font_bold {
+  font-weight: bold;
+}
+
+#meaudoggao .gt_font_italic {
+  font-style: italic;
+}
+
+#meaudoggao .gt_super {
+  font-size: 65%;
+}
+
+#meaudoggao .gt_footnote_marks {
+  font-style: italic;
+  font-weight: normal;
+  font-size: 75%;
+  vertical-align: 0.4em;
+}
+
+#meaudoggao .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#meaudoggao .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#meaudoggao .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#meaudoggao .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#meaudoggao .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#meaudoggao .gt_indent_5 {
+  text-indent: 25px;
+}
+</style>
+<table class="gt_table">
+  
+  <thead class="gt_col_headings">
+    <tr>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col">state</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col">district</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col">pred</th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr><td class="gt_row gt_left">Arkansas</td>
+<td class="gt_row gt_center">2</td>
+<td class="gt_row gt_center">67.07</td></tr>
+    <tr><td class="gt_row gt_left">California</td>
+<td class="gt_row gt_center">49</td>
+<td class="gt_row gt_center">43.58</td></tr>
+    <tr><td class="gt_row gt_left">Colorado</td>
+<td class="gt_row gt_center">3</td>
+<td class="gt_row gt_center">54.19</td></tr>
+    <tr><td class="gt_row gt_left">Florida</td>
+<td class="gt_row gt_center">16</td>
+<td class="gt_row gt_center">60.61</td></tr>
+    <tr><td class="gt_row gt_left">Florida</td>
+<td class="gt_row gt_center">27</td>
+<td class="gt_row gt_center">46.92</td></tr>
+    <tr><td class="gt_row gt_left">Illinois</td>
+<td class="gt_row gt_center">6</td>
+<td class="gt_row gt_center">46.42</td></tr>
+    <tr><td class="gt_row gt_left">Illinois</td>
+<td class="gt_row gt_center">14</td>
+<td class="gt_row gt_center">47.50</td></tr>
+    <tr><td class="gt_row gt_left">Indiana</td>
+<td class="gt_row gt_center">5</td>
+<td class="gt_row gt_center">56.76</td></tr>
+    <tr><td class="gt_row gt_left">Iowa</td>
+<td class="gt_row gt_center">3</td>
+<td class="gt_row gt_center">48.88</td></tr>
+    <tr><td class="gt_row gt_left">Iowa</td>
+<td class="gt_row gt_center">4</td>
+<td class="gt_row gt_center">51.71</td></tr>
+    <tr><td class="gt_row gt_left">Kansas</td>
+<td class="gt_row gt_center">1</td>
+<td class="gt_row gt_center">68.15</td></tr>
+    <tr><td class="gt_row gt_left">Kansas</td>
+<td class="gt_row gt_center">2</td>
+<td class="gt_row gt_center">96.37</td></tr>
+    <tr><td class="gt_row gt_left">Kansas</td>
+<td class="gt_row gt_center">3</td>
+<td class="gt_row gt_center">45.04</td></tr>
+    <tr><td class="gt_row gt_left">Kansas</td>
+<td class="gt_row gt_center">4</td>
+<td class="gt_row gt_center">86.56</td></tr>
+    <tr><td class="gt_row gt_left">Kentucky</td>
+<td class="gt_row gt_center">6</td>
+<td class="gt_row gt_center">94.78</td></tr>
+    <tr><td class="gt_row gt_left">Maine</td>
+<td class="gt_row gt_center">1</td>
+<td class="gt_row gt_center">50.08</td></tr>
+    <tr><td class="gt_row gt_left">Maine</td>
+<td class="gt_row gt_center">2</td>
+<td class="gt_row gt_center">49.90</td></tr>
+    <tr><td class="gt_row gt_left">Minnesota</td>
+<td class="gt_row gt_center">1</td>
+<td class="gt_row gt_center">51.63</td></tr>
+    <tr><td class="gt_row gt_left">Minnesota</td>
+<td class="gt_row gt_center">2</td>
+<td class="gt_row gt_center">47.24</td></tr>
+    <tr><td class="gt_row gt_left">Minnesota</td>
+<td class="gt_row gt_center">7</td>
+<td class="gt_row gt_center">108.35</td></tr>
+    <tr><td class="gt_row gt_left">Missouri</td>
+<td class="gt_row gt_center">2</td>
+<td class="gt_row gt_center">60.13</td></tr>
+    <tr><td class="gt_row gt_left">Nebraska</td>
+<td class="gt_row gt_center">2</td>
+<td class="gt_row gt_center">59.70</td></tr>
+    <tr><td class="gt_row gt_left">New Hampshire</td>
+<td class="gt_row gt_center">1</td>
+<td class="gt_row gt_center">45.66</td></tr>
+    <tr><td class="gt_row gt_left">New Hampshire</td>
+<td class="gt_row gt_center">2</td>
+<td class="gt_row gt_center">53.59</td></tr>
+    <tr><td class="gt_row gt_left">New Jersey</td>
+<td class="gt_row gt_center">2</td>
+<td class="gt_row gt_center">52.93</td></tr>
+    <tr><td class="gt_row gt_left">New Jersey</td>
+<td class="gt_row gt_center">3</td>
+<td class="gt_row gt_center">49.34</td></tr>
+    <tr><td class="gt_row gt_left">New Jersey</td>
+<td class="gt_row gt_center">7</td>
+<td class="gt_row gt_center">47.45</td></tr>
+    <tr><td class="gt_row gt_left">New Mexico</td>
+<td class="gt_row gt_center">1</td>
+<td class="gt_row gt_center">38.05</td></tr>
+    <tr><td class="gt_row gt_left">New Mexico</td>
+<td class="gt_row gt_center">2</td>
+<td class="gt_row gt_center">49.07</td></tr>
+    <tr><td class="gt_row gt_left">New Mexico</td>
+<td class="gt_row gt_center">3</td>
+<td class="gt_row gt_center">41.32</td></tr>
+    <tr><td class="gt_row gt_left">New York</td>
+<td class="gt_row gt_center">11</td>
+<td class="gt_row gt_center">46.76</td></tr>
+    <tr><td class="gt_row gt_left">Ohio</td>
+<td class="gt_row gt_center">1</td>
+<td class="gt_row gt_center">61.65</td></tr>
+    <tr><td class="gt_row gt_left">Ohio</td>
+<td class="gt_row gt_center">12</td>
+<td class="gt_row gt_center">83.06</td></tr>
+    <tr><td class="gt_row gt_left">Oklahoma</td>
+<td class="gt_row gt_center">1</td>
+<td class="gt_row gt_center">66.09</td></tr>
+    <tr><td class="gt_row gt_left">Oklahoma</td>
+<td class="gt_row gt_center">5</td>
+<td class="gt_row gt_center">49.30</td></tr>
+    <tr><td class="gt_row gt_left">Pennsylvania</td>
+<td class="gt_row gt_center">1</td>
+<td class="gt_row gt_center">85.40</td></tr>
+    <tr><td class="gt_row gt_left">Pennsylvania</td>
+<td class="gt_row gt_center">7</td>
+<td class="gt_row gt_center">44.83</td></tr>
+    <tr><td class="gt_row gt_left">Pennsylvania</td>
+<td class="gt_row gt_center">8</td>
+<td class="gt_row gt_center">63.78</td></tr>
+    <tr><td class="gt_row gt_left">Pennsylvania</td>
+<td class="gt_row gt_center">10</td>
+<td class="gt_row gt_center">64.14</td></tr>
+    <tr><td class="gt_row gt_left">Pennsylvania</td>
+<td class="gt_row gt_center">16</td>
+<td class="gt_row gt_center">98.35</td></tr>
+    <tr><td class="gt_row gt_left">South Carolina</td>
+<td class="gt_row gt_center">1</td>
+<td class="gt_row gt_center">49.31</td></tr>
+    <tr><td class="gt_row gt_left">Texas</td>
+<td class="gt_row gt_center">6</td>
+<td class="gt_row gt_center">54.56</td></tr>
+    <tr><td class="gt_row gt_left">Texas</td>
+<td class="gt_row gt_center">7</td>
+<td class="gt_row gt_center">47.47</td></tr>
+    <tr><td class="gt_row gt_left">Texas</td>
+<td class="gt_row gt_center">10</td>
+<td class="gt_row gt_center">61.65</td></tr>
+    <tr><td class="gt_row gt_left">Texas</td>
+<td class="gt_row gt_center">17</td>
+<td class="gt_row gt_center">57.89</td></tr>
+    <tr><td class="gt_row gt_left">Texas</td>
+<td class="gt_row gt_center">21</td>
+<td class="gt_row gt_center">53.39</td></tr>
+    <tr><td class="gt_row gt_left">Texas</td>
+<td class="gt_row gt_center">23</td>
+<td class="gt_row gt_center">50.23</td></tr>
+    <tr><td class="gt_row gt_left">Texas</td>
+<td class="gt_row gt_center">31</td>
+<td class="gt_row gt_center">72.09</td></tr>
+    <tr><td class="gt_row gt_left">Utah</td>
+<td class="gt_row gt_center">1</td>
+<td class="gt_row gt_center">71.22</td></tr>
+    <tr><td class="gt_row gt_left">Utah</td>
+<td class="gt_row gt_center">2</td>
+<td class="gt_row gt_center">76.05</td></tr>
+    <tr><td class="gt_row gt_left">Utah</td>
+<td class="gt_row gt_center">3</td>
+<td class="gt_row gt_center">76.11</td></tr>
+    <tr><td class="gt_row gt_left">Utah</td>
+<td class="gt_row gt_center">4</td>
+<td class="gt_row gt_center">49.87</td></tr>
+    <tr><td class="gt_row gt_left">Virginia</td>
+<td class="gt_row gt_center">2</td>
+<td class="gt_row gt_center">48.88</td></tr>
+    <tr><td class="gt_row gt_left">Virginia</td>
+<td class="gt_row gt_center">5</td>
+<td class="gt_row gt_center">48.83</td></tr>
+    <tr><td class="gt_row gt_left">Virginia</td>
+<td class="gt_row gt_center">7</td>
+<td class="gt_row gt_center">49.02</td></tr>
+    <tr><td class="gt_row gt_left">Virginia</td>
+<td class="gt_row gt_center">10</td>
+<td class="gt_row gt_center">43.80</td></tr>
+    <tr><td class="gt_row gt_left">Wisconsin</td>
+<td class="gt_row gt_center">1</td>
+<td class="gt_row gt_center">59.35</td></tr>
+  </tbody>
+  <tfoot class="gt_sourcenotes">
+    <tr>
+      <td class="gt_sourcenote" colspan="3"></td>
+    </tr>
+  </tfoot>
+  
+</table>
+</div>
+</div>
+<div id="references" class="section level2">
+<h2>References</h2>
+<ul>
+<li><p>Alan S Gerber, James G Gimpel, Donald P Green, and Daron R Shaw. How Large and Long- lasting are the Persuasive Effects of Televised Campaign Ads? Results from a Randomized Field Experiment. American Political Science Review, 105(01):135–150, 2011.</p></li>
+<li><p>Gregory A Huber and Kevin Arceneaux. Identifying the Persuasive Effects of Presidential Advertising. American Journal of Political Science, 51(4):957–977, 2007</p></li>
+</ul>
+</div>
+
+          </section>
+      </p>
+      
+    </section>
+    <footer class="post-meta">
+        
+            <img class="author-thumb" src="http://example.org/images/user.png" alt="Author image" nopin="nopin" />
+        
+        
+            Charles Onesti
+        
+        
+        <time class="post-date" datetime="2022-10-10T00:00:00Z">
+            10 Oct 2022
+        </time>
+    </footer>
+</article>
+
+	
+	   
+<article class="post post">
+    <header class="post-header">
+        <h2 class="post-title"><a href="/post/2022-09-30-04-incumbency/">04. Incumbency and Expert Prediction</a></h2>
+    </header>
+    <section class="post-excerpt">
+      <p>
+          <section class="post-content">
+            
+
+
+<p>This week we will be adding an incumbency term to our 2022 House elections prediction model and bringing our predictions into the district level. First however, let’s do an analysis of expert predictions. An expert prediction is when a journalist of political pundit make personal predictions about how certain contentious districts will break in the upcoming election. The person or firm informs their decision with their unique knowledge and expertise about the voters and candidates. The prediction takes the form of a 7 option likert scale from “solid”, “likely”, and “lean” towards one party or the other or “Toss Up” if they think the election is too close to make a verdict. The benefit of expert predictions is that, theoretically, expert predictions are already based on solid data collected and considered by each expert and so they are a very easy shortcut to making our own predictions. The major drawback of expert predictions is that they are also packed with the biases of the expert and often tend to be more opinionated than calculated. In the first part of this post lets examine historical expert predictions and see how accurate they were compared to the election results.</p>
+<div id="how-expert-are-the-experts-2018-edition" class="section level2">
+<h2>How Expert are the Experts 2018 Edition</h2>
+<p>The method of testing expert prediction accuracy is to look at the district level and compare the election outcome to the average expert prediction. Up first is a plot of all mainland districts colored in red for higher two party vote share for Republicans, and blue for a higher vote share for Democrats. Districts in white had close elections.
+<img src="http://example.org/post/2022-09-30-04-incumbency/index_files/figure-html/unnamed-chunk-1-1.png" width="672" /></p>
+<p>Next up are the expert predictions following a similar structure but with a 7 point scale. In this visualization a 3 is the highest likelihood of Republican victory and a -3 is the highest likelihood of Democrat victory. States in grey lacked a prediction from any of the expert predictions. This is perhaps because every expert believed the outcome was not close enough to merit attention.</p>
+<p><img src="http://example.org/post/2022-09-30-04-incumbency/index_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
+<p>Overlaying the two maps and showing the absolute difference between prediction and result yields the following combined graph. In this graph a low value of 0 means perfect accuracy and a high value means low accuracy.</p>
+<p><img src="http://example.org/post/2022-09-30-04-incumbency/index_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+<p>In order to make this comparison I decided to convert the vote share outcomes into a 1-7 scale using a tiered bucket system that focused on a vote share margin or up to 6 percent. I clipped off large margins at 6% because I wanted to have the extremes of expert prediction scores be considered accurate for any margin above 6 percentage points and focus on predictions that lay in the middle in margins of 4 percentage points. We can notice in the graph that most average expert predictions are high accuracy and within 2 percentage points of the outcome on average. Geographically, experts seem to be better at predicting northern districts and worse with southern districts such as the Texas, Florida and Oklahoma examples above.</p>
+</div>
+<div id="incumbency" class="section level2">
+<h2>Incumbency</h2>
+<p>There are a couple axes of incumbency to explore. First is the idea of reelection and the other is about party affiliation. The motivation behind using incumbency on the individual level is that candidates running for re-election have the advantage of greater visibility in their district. One complication about a simply incumbency variable is presented in research by Adam Brown in the Journal of Experimental Political Science. Brown argues that inherent incumbency does not matter to voters in elections but that other factors that correlate with incumbency such as fundraising and candidate quality do matter. So in this model, think of incumbency as the simplest heuristic for candidate quality and visibility to voters. The model also fators in presidential party incumbency which</p>
+<p>The incumbency predictions forecast a large lead 252:183 seats for Republican candidates. The regression coefficients indicate that the negative correlation caused by a Democratic presidential position outweighed the majority of Democrat incumbents. As expected, being a challenger had a negative correlation with voteshare in almost all districts while running for reelection had a positive forecast coefficient. I intend to reintegrate fundamentals back into the district level model in future iterations of this prediction.</p>
+</div>
+<div id="references" class="section level2">
+<h2>References</h2>
+<p>Adam R. Brown. Voters Don’t Care Much About Incumbency. Journal of Experimental Political Science, 1(2):132–143, 2014.</p>
+</div>
+
+          </section>
+      </p>
+      
+    </section>
+    <footer class="post-meta">
+        
+            <img class="author-thumb" src="http://example.org/images/user.png" alt="Author image" nopin="nopin" />
+        
+        
+            Charles Onesti
+        
+        
+        <time class="post-date" datetime="2022-10-03T00:00:00Z">
+            3 Oct 2022
+        </time>
+    </footer>
+</article>
+
+	
+	   
+<article class="post post">
+    <header class="post-header">
+        <h2 class="post-title"><a href="/post/2022-09-22-03-polling/">03. Polling</a></h2>
+    </header>
+    <section class="post-excerpt">
+      <p>
+          <section class="post-content">
+            
+
+
+<p>There is no better gold standard for election prediction that a direct and simple poll. If you want to know the outcome of a vote, sample a part of the outcome and extrapolate the microcosmic results to the larger population. Yet polling is subject to lots of errors associated with temporal and psychological factors. Gelman and King highlight these problems in their 1993 paper stating that early polls are unrelated to the eventual outcome of an election. This has to do with poll measuring unformed and uninformed opinions on voter candidate preferences. Most voters are not actively seeking information related to far out elections. According to Gelman and King, voters only express their voting preferences later in campaigns around the time when the election is salient and they are forced to make their actual vote. Predictive polling data is therefore only present in the most recent weeks before election day and polling is therefore much less helpful than anticipated because its fruitful results come too late to be effectively acted upon.</p>
+<p>Lets investigate how professional election forecasters Nate Silver and Elliott Morris use polling data to generate their predictions for midterm elections.</p>
+<div id="silver-2022" class="section level3">
+<h3>Silver (2022)</h3>
+<p>Representing FiveThirtyEight, Silver’s prediction strategy is multilayered and complex.</p>
+<ul>
+<li>Aggregate as many polls as possible while adjust each one
+<ul>
+<li>Likely voter adjustment: Weights a poll based on demographics about whether likely voters tend to be more Democrat or Republican</li>
+<li>Timeline adjustment: Factors in trends over time to infer current poll results from the change over time of previous results</li>
+<li>House effect adjustment: The model assumes that polling errors in historical races are correlated with current error and use that to tweak polling results if a certain poll shows consistent bias</li>
+</ul></li>
+<li>Use poll from similar districts to infer polling results in districts that are not polled</li>
+<li>Weight polling outcomes with fundamentals model predictions to create a final prediction.</li>
+</ul>
+</div>
+<div id="morris-2020" class="section level3">
+<h3>Morris (2020)</h3>
+<p>Morris’s Economist article provides much simpler but essentially similar approach to prediction.</p>
+<ul>
+<li>Daily updates with newest poll data</li>
+<li>Combined “fundamentals” models that factor in variables like incumbency and partisanship</li>
+</ul>
+<p>Across both prediction methods, each strategy incorporates poll and fundamentals in a weighted combo to predict outcomes on the district level. Both strategies then do probabilistic analyses to calculate expected seat share for both parties. And finally, both predictions involve running thousands of simulations with each of their probabilities to map out a normal distribution of outcomes and see in how many simulations each outcome was observed. The strengths of Silver’s model is that in integrates a larger diversity of information sources into its prediction. Morris’s model on the other hand sacrifices additional sources of inference for the strength of greater simplicity. I think that simplicity in a model is also important because it allows a viewer to understand how each variable more directly impacts the outcome. This allows insights to be drawn and acted on. For example, a campaign manager could plan the next campaign steps based on which modeled variables benefit their voting goals. The benefit of simplicity is the same reason its not the best idea to apply machine learning to modeling elections and being none the wiser about why the models predicts a certain outcome. Silver’s model is far from the black box complexity of ML though so on balance I think the FiveThirtyEight model is slightly better than Elliott Morris’s model.</p>
+<p>The remaining portion of this post will be to make a combined polling and fundamentals prediction of the 2022 election national seat share outcome.</p>
+</div>
+<div id="a-cpi-fundamental-model" class="section level2">
+<h2>A CPI Fundamental Model</h2>
+<p>To start off we can make a CPI based model. The independent variable here is the yearly increase in CPI while the dependent variable is the two party seat share for the incumbent party of each election year. We can visualize past election results and the linear model fitting the trend in the graph below:</p>
+<pre><code>## 
+## ===============================================
+##                         Dependent variable:    
+##                     ---------------------------
+##                             seat_share         
+## -----------------------------------------------
+## cpi_change                    -0.004           
+##                               (0.005)          
+##                                                
+## Constant                     0.575***          
+##                               (0.019)          
+##                                                
+## -----------------------------------------------
+## Observations                    36             
+## R2                             0.025           
+## Adjusted R2                   -0.004           
+## Residual Std. Error       0.065 (df = 34)      
+## F Statistic             0.863 (df = 1; 34)     
+## ===============================================
+## Note:               *p&lt;0.1; **p&lt;0.05; ***p&lt;0.01</code></pre>
+<p><img src="http://example.org/post/2022-09-22-03-polling/index_files/figure-html/unnamed-chunk-1-1.png" width="672" />
+We can notice a weak negative correlation between cpi increase and incumbent party seat share. Here the incumbent party is measured as the party with the plurality of the pre election incumbent representatives.</p>
+</div>
+<div id="polls-total-vs.-recent" class="section level2">
+<h2>Polls: Total vs. Recent</h2>
+<p>The polling model I intend to create tests the theoretical observation that early polls are not effective at election prediction. My methods are to take generic ballot poll averages leading up to elections and see how their prediction of the two party vote seat share lines up with the true House election results from that year. The total polls version averages all polls taken up to a year before the election date and the recent polls version of the model only looks at polls within the last 30 days of the election date. I fit a linear model to each dataset and plot the results below:</p>
+<div id="total-polling-model" class="section level3">
+<h3>Total Polling Model</h3>
+<p><img src="http://example.org/post/2022-09-22-03-polling/index_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
+<pre><code>## 
+## ===============================================
+##                         Dependent variable:    
+##                     ---------------------------
+##                             seat_share         
+## -----------------------------------------------
+## dem_pct                      1.035***          
+##                               (0.153)          
+##                                                
+## Constant                      -0.015           
+##                               (0.085)          
+##                                                
+## -----------------------------------------------
+## Observations                    37             
+## R2                             0.567           
+## Adjusted R2                    0.555           
+## Residual Std. Error       0.047 (df = 35)      
+## F Statistic           45.853*** (df = 1; 35)   
+## ===============================================
+## Note:               *p&lt;0.1; **p&lt;0.05; ***p&lt;0.01</code></pre>
+</div>
+<div id="recent-polling-model" class="section level3">
+<h3>Recent Polling Model</h3>
+<p><img src="http://example.org/post/2022-09-22-03-polling/index_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+<pre><code>## 
+## ===============================================
+##                         Dependent variable:    
+##                     ---------------------------
+##                             seat_share         
+## -----------------------------------------------
+## dem_pct                      1.180***          
+##                               (0.176)          
+##                                                
+## Constant                      -0.087           
+##                               (0.096)          
+##                                                
+## -----------------------------------------------
+## Observations                    36             
+## R2                             0.570           
+## Adjusted R2                    0.557           
+## Residual Std. Error       0.047 (df = 34)      
+## F Statistic           44.999*** (df = 1; 34)   
+## ===============================================
+## Note:               *p&lt;0.1; **p&lt;0.05; ***p&lt;0.01</code></pre>
+<p>Within this dataset it seems that the recent and total models map very closely to one another. They show similar slopes of 1.035 and 1.180 increase in Democratic seat share percentage for ever 1 percent increase in the generic ballot average for the Democratic party. They have nearly identical fit statistics and residual standard error. Next lets apply these historical polling models on current polls for the upcoming 2022 election.</p>
+</div>
+<div id="polls" class="section level3">
+<h3>2022 Polls</h3>
+<p>For reference, here are the polling average differences for 2022 generic ballot polls for total and recent time frames:
+<img src="http://example.org/post/2022-09-22-03-polling/index_files/figure-html/unnamed-chunk-4-1.png" width="672" /><img src="http://example.org/post/2022-09-22-03-polling/index_files/figure-html/unnamed-chunk-4-2.png" width="672" /></p>
+<p>Lets use these democrat vote share averages in our model to predict seat share in 2022. For simplicity let’s only use the recent polling data model since it shows marginally better fit than the total one.</p>
+<pre><code>## [1] &quot;Total 2-Party Average: &quot;</code></pre>
+<pre><code>##         1 
+## 0.5086297</code></pre>
+<pre><code>## [1] &quot;Recent 2-Party Average: &quot;</code></pre>
+<pre><code>##         1 
+## 0.5006205</code></pre>
+<pre><code>##         1 
+## 0.5018243</code></pre>
+<p>What a close call! Despite the lower recent polling average for Democrats, the model still predicts a close call with either the total and recent polling averages. Giving preference to the recent data, and combining with the CPI prediction model on 2022 CPI levels at equal weighting, the final prediction of the polling model is a nearly perfect 50% split in house seats: 218 Democrat seats and 217 Republican seats.</p>
+</div>
+</div>
+<div id="references" class="section level2">
+<h2>References</h2>
+<p>Andrew Gelman and Gary King. Why are American presidential election campaign polls so variable when votes are so predictable? British Journal of Political Science, 23(4): 409–451, 1993</p>
+<p>G. Elliott Morris. How The Economist presidential forecast works, 2020a</p>
+<p>Nate Silver. How FiveThirtyEight’s House, Senate And Governor Models Work, 2022</p>
+</div>
+
+          </section>
+      </p>
+      
+    </section>
+    <footer class="post-meta">
+        
+            <img class="author-thumb" src="http://example.org/images/user.png" alt="Author image" nopin="nopin" />
+        
+        
+            Charles Onesti
+        
+        
+        <time class="post-date" datetime="2022-09-22T00:00:00Z">
+            22 Sep 2022
+        </time>
+    </footer>
+</article>
+
+	
+	   
+<article class="post post">
+    <header class="post-header">
+        <h2 class="post-title"><a href="/post/2022-09-18-02-local-and-national-economy/">02. Local and National Economy</a></h2>
+    </header>
+    <section class="post-excerpt">
+      <p>
+          <section class="post-content">
+            
+
+
+<div id="section" class="section level2">
+<h2></h2>
+<p>Welcome back to my election analytics blog. This week we will be looking at economic data as predictors for the popular vote. Political science theory described by Achen and Bartels in Democracy for Realists suggests that voter behavior can be modeled retrospectively. When a voter chooses who to vote for, they measure the performance of the incumbent party based on their experiences during the last term when they decide to keep or replace the party candidate. A large factor influencing the experiences of a voter is their economic prosperity. When a voter benefits from increases in purchasing power during the term of some representative, they are very likely to keep that party in power. Likewise, economic deterioration is likely to see the incumbent punished and voted out.<br />
+This blog will focus in on local economic data because it is my hypothesis that if retrospective voting behavior surrounding the economy will influence the 2022 elections, a voter’s local economic condition will be more salient an issue to them than national averages. The national and local data is collected from past midterm elections and quarterly unemployment reports from the Bureau of Labor Statistics. We will compare the predictive power of national and local data using models created on historical unemployment data.</p>
+</div>
+<div id="the-national-model" class="section level2">
+<h2>The National Model</h2>
+<p>Let’s begin by looking at national averages of unemployment and midterm two-party vote share for midterm election years going back to 1978. For example, here is a peek into the underlying data table at play:</p>
+<pre><code>##  year RepVotes DemVotes RepVoteMargin unemployment_rate
+##  1978 24891165 29517656         0.457              6.23
+##  1982 27796580 35516107         0.439              9.23
+##  1986 26599585 32625513         0.449              6.93
+##  1990 28026690 32942345         0.460              5.43
+##  1994 37099921 32122004         0.536              6.37
+##  1998 32254557 31465334         0.506              4.47
+##  2002 37405702 33811240         0.525              5.80
+##  2006 35944748 42278903         0.460              4.70
+##  2010 43288427 37663261         0.535              9.70
+##  2014 39850411 35469234         0.529              6.33
+##  2018 51017329 60576466         0.457              3.97</code></pre>
+<p>Putting this data into a graph we get the following plot:</p>
+<p><img src="http://example.org/post/2022-09-18-02-local-and-national-economy/index_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
+<p>A point on this plot represents one row of the data table above. The red dotted line represents the equal vote share level while the blue solid line attempts to fit the trend of the data. Evidently, with so few points and such high variability, the model does not have strong predictive power. It has an R squared value of 0.015. Nonetheless, extrapolating the republican vote share for a current national unemployment rate of 3.8% yields a Republican popular vote share of 0.48 or 48%.</p>
+</div>
+<div id="the-local-model" class="section level2">
+<h2>The Local Model</h2>
+<p><img src="http://example.org/post/2022-09-18-02-local-and-national-economy/index_files/figure-html/unnamed-chunk-3-1.png" width="672" />
+This chart gives a rough visualization of all data points from 1978 to 2018 for all midterm election years combined. Each dot represents data from one state on a certain election year. The midline of 50 percent vote share is marked in red. A result above the line means that the state’s districts were likely won by the Republican candidate and a result below the line similarly favors the Democratic candidate. The linear trend that the data follows is that on average, low unemployment on election years (2-6%) favors the Republican party and higher unemployment favors the platform of the Democratic Party (6+%).</p>
+<p>To make a predictive model from this, we will differentiate between states and weight by their population. We use state specific unemployment data on each election years to fit a line for each state. We can then take that state’s current unemployment rate to calculate the predicted 2022 Republican vote share in that state. To weight the values by population, we multiply each prediction by the current state population and divide by the national population. The sum of the remaining predictions is the new population adjusted national republican popular vote share. Following this procedure, the model predicts that Republicans will receive 49% of the popular vote. This is a difference of only 1 percentage point from the simple national model prediction. The R squared values for each state prediction though was on average 9 times greater than the national model but still a relatively small value of 0.092. I expect, however, that with more election cycles to use as data, the predictive power would increase.</p>
+<p>According to retrospective voting, this model predicts that economic performance as measured by current unemployment rates gives a small advantage to the Democratic party in national popular vote. The effect is very small though which fits with the analysis of John Wright in 2012. According to Wright, when Democrats are incumbents, they are not punished nor rewarded by decreasing or increasing unemployment levels as much as Republican incumbents. Since the Democratic party is the majority of incumbent candidates this election, I would not be surprised for this result to remain true according to this blog’s analysis.</p>
+<div id="references" class="section level3">
+<h3>References</h3>
+<p>Christopher H Achen and Larry M Bartels. Democracy for Realists: Why Elections Do Not Produce Responsive Government, volume 4. Princeton University Press, 2017.</p>
+<p>John R Wright. Unemployment and the democratic electoral advantage. American Political Science Review, 106(4):685–702, 2012. ISSN 0003-0554.</p>
+</div>
+</div>
+
+          </section>
+      </p>
+      
+    </section>
+    <footer class="post-meta">
+        
+            <img class="author-thumb" src="http://example.org/images/user.png" alt="Author image" nopin="nopin" />
+        
+        
+            Charles Onesti
+        
+        
+        <time class="post-date" datetime="2022-09-18T00:00:00Z">
+            18 Sep 2022
+        </time>
+    </footer>
+</article>
+
+	
+	   
+<article class="post post">
+    <header class="post-header">
+        <h2 class="post-title"><a href="/post/2022-09-13-01-introduction/">01. Introduction</a></h2>
+    </header>
+    <section class="post-excerpt">
+      <p>
+          <section class="post-content">
+            
+<script src="http://example.org/post/2022-09-13-01-introduction/index_files/htmlwidgets/htmlwidgets.js"></script>
+<script src="http://example.org/post/2022-09-13-01-introduction/index_files/plotly-binding/plotly.js"></script>
+<script src="http://example.org/post/2022-09-13-01-introduction/index_files/typedarray/typedarray.min.js"></script>
+<script src="http://example.org/post/2022-09-13-01-introduction/index_files/jquery/jquery.min.js"></script>
+<link href="http://example.org/post/2022-09-13-01-introduction/index_files/crosstalk/css/crosstalk.min.css" rel="stylesheet" />
+<script src="http://example.org/post/2022-09-13-01-introduction/index_files/crosstalk/js/crosstalk.min.js"></script>
+<link href="http://example.org/post/2022-09-13-01-introduction/index_files/plotly-htmlwidgets-css/plotly-htmlwidgets.css" rel="stylesheet" />
+<script src="http://example.org/post/2022-09-13-01-introduction/index_files/plotly-main/plotly-latest.min.js"></script>
+
+
+<p>This is the first post in a series of weekly publications about the US 2022 midterm elections for the House of Representatives. From today until election day on November 8th 2022 I will be developing a predictive model for estimating the likely outcomes of the election. In the aftermath, I will be able to evaluate the precision of the model and reflect on its strengths and weaknesses.</p>
+<p>For now, we will visualize the two party vote share from the 2014 midterm elections by state and district. Then we will look at seat shares for the states and compare to our popular vote margins to see the voter distribution effects of districting and gerrymandering on seat outcomes. Lastly we well identify historical swing states so we can get a sense of what states to narrow in on for further modeling.</p>
+<div id="trends-in-popular-voting" class="section level2">
+<h2>2014 Trends in Popular Voting:</h2>
+<p>Lets start with a simple map colored in to represent the results of the 2014 House elections. We will try to get a quick answer to: Which way do states lean in their two party popular votes when aggregating all districts?</p>
+<p><img src="http://example.org/post/2022-09-13-01-introduction/index_files/figure-html/2-party%20vote%20share-1.png" width="672" /></p>
+<p>The map above will roughly estimate which seats are locked in for either party. With redistricting happening in the recent 2020 census, popular vote trends have a unique advantage of continuity despite shifting county boundaries.<br />
+The overall picture paints strong Republican presence in the central and mountain time zones as well as strong turnout in the South East. States like Wyoming and Oklahoma in bright red indicate overwhelming Republican popular vote majorities. On the other hand, near the coasts in light pink and white are states like Massachusetts and California which have overwhelming Democrat popular vote majorities.
+It initially seems that most states in orage are likely harder to predict what outcomes they might have. Looking further into districting though gives more concrete insights into how thie popular vote is distributed to win seats in Congress.</p>
+</div>
+<div id="districting-effects" class="section level2">
+<h2>Districting Effects:</h2>
+<p><img src="http://example.org/post/2022-09-13-01-introduction/index_files/figure-html/unnamed-chunk-1-1.png" width="672" /></p>
+<p>The difference when looking at districts is that area and population density are negatively correlated. The map above shows large swaths of red districts with an occasional pink and white island around urban areas.<br />
+Although it seems that republicans have a large advantage in this visualization, do not be misled because the districts on this map are small and the smallest are generally held by Democratic voters and they are worth just the same as the larger red districts.<br />
+Lets aggregate these district results to the state level and compare our earlier map of popular vote to seat outcomes.</p>
+</div>
+<div id="seat-shares-and-gerrymandering" class="section level2">
+<h2>Seat Shares and Gerrymandering:</h2>
+<p><img src="http://example.org/post/2022-09-13-01-introduction/index_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
+<p>The first thing to note is that wholistically, the popular vote and seat share correlate strongly as one might expect. The two graphs differ in their decisiveness. The feeling given off by this chart is that on the state level, states are more one-sided in their outputs than they are in their inputs. A few examples can be seen in the deeper hue of red in the middle states and bright white on the Pacific West and Northeast.<br />
+So why does this descrepancy between democratic outcome and respresentative outcome exist?<br />
+It has to do with the efficient distribution of voters within the districts of each state. House elections are winner take all in each district. A candidate might win their seat regardless of how large the minority of voters against them. Districts won by small and large margins affect the two maps compared above differently. The difference becomes visible when one party is biased by distict layout. As a whole, this means that when Democrats are elected, they win by large margins and when they lose they typically lose by small margins. This is what makes the seat share more red than the popular vote share.<br />
+The impact of districting is critical to house elections and when incumbents use strategic redistricting to exaggerate its leverage over the popular vote, it is called Gerrymandering. The impact of gerrymandering is hard to predict for the upcoming 2022 elections because it is the first to happen on a newly minted district map. It will therefore be less useful for prediction but will surely impact the election results once votes are tallied.</p>
+</div>
+<div id="identifying-swing-states" class="section level2">
+<h2>Identifying Swing States:</h2>
+<div id="htmlwidget-1" style="width:672px;height:480px;" class="plotly html-widget"></div>
+<script type="application/json" data-for="htmlwidget-1">{"x":{"visdat":{"1c9e340e66f3":["function () ","plotlyVisDat"]},"cur_data":"1c9e340e66f3","attrs":{"1c9e340e66f3":{"locationmode":"USA-states","alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"z":{},"locations":{},"color":{},"colors":"Reds","frame":{},"zmin":-0.5,"zmax":0.5,"inherit":true}},"layout":{"margin":{"b":40,"l":60,"t":25,"r":10},"mapType":"geo","scene":{"zaxis":{"title":"swinginess"}},"geo":{"domain":{"x":[0,1],"y":[0,1]},"scope":"usa","projection":{"type":"albers usa"},"showlakes":false,"lakecolor":"rgba(255,255,255,1)"},"hovermode":"closest","showlegend":false,"sliders":[{"currentvalue":{"prefix":"raceYear: ","xanchor":"right","font":{"size":16,"color":"rgba(204,204,204,1)"}},"steps":[{"method":"animate","args":[["1968"],{"transition":{"duration":500,"easing":"linear"},"frame":{"duration":500,"redraw":true},"mode":"immediate"}],"label":"1968","value":"1968"},{"method":"animate","args":[["1970"],{"transition":{"duration":500,"easing":"linear"},"frame":{"duration":500,"redraw":true},"mode":"immediate"}],"label":"1970","value":"1970"},{"method":"animate","args":[["1972"],{"transition":{"duration":500,"easing":"linear"},"frame":{"duration":500,"redraw":true},"mode":"immediate"}],"label":"1972","value":"1972"},{"method":"animate","args":[["1974"],{"transition":{"duration":500,"easing":"linear"},"frame":{"duration":500,"redraw":true},"mode":"immediate"}],"label":"1974","value":"1974"},{"method":"animate","args":[["1976"],{"transition":{"duration":500,"easing":"linear"},"frame":{"duration":500,"redraw":true},"mode":"immediate"}],"label":"1976","value":"1976"},{"method":"animate","args":[["1978"],{"transition":{"duration":500,"easing":"linear"},"frame":{"duration":500,"redraw":true},"mode":"immediate"}],"label":"1978","value":"1978"},{"method":"animate","args":[["1980"],{"transition":{"duration":500,"easing":"linear"},"frame":{"duration":500,"redraw":true},"mode":"immediate"}],"label":"1980","value":"1980"},{"method":"animate","args":[["1982"],{"transition":{"duration":500,"easing":"linear"},"frame":{"duration":500,"redraw":true},"mode":"immediate"}],"label":"1982","value":"1982"},{"method":"animate","args":[["1984"],{"transition":{"duration":500,"easing":"linear"},"frame":{"duration":500,"redraw":true},"mode":"immediate"}],"label":"1984","value":"1984"},{"method":"animate","args":[["1986"],{"transition":{"duration":500,"easing":"linear"},"frame":{"duration":500,"redraw":true},"mode":"immediate"}],"label":"1986","value":"1986"},{"method":"animate","args":[["1988"],{"transition":{"duration":500,"easing":"linear"},"frame":{"duration":500,"redraw":true},"mode":"immediate"}],"label":"1988","value":"1988"},{"method":"animate","args":[["1990"],{"transition":{"duration":500,"easing":"linear"},"frame":{"duration":500,"redraw":true},"mode":"immediate"}],"label":"1990","value":"1990"},{"method":"animate","args":[["1992"],{"transition":{"duration":500,"easing":"linear"},"frame":{"duration":500,"redraw":true},"mode":"immediate"}],"label":"1992","value":"1992"},{"method":"animate","args":[["1994"],{"transition":{"duration":500,"easing":"linear"},"frame":{"duration":500,"redraw":true},"mode":"immediate"}],"label":"1994","value":"1994"},{"method":"animate","args":[["1996"],{"transition":{"duration":500,"easing":"linear"},"frame":{"duration":500,"redraw":true},"mode":"immediate"}],"label":"1996","value":"1996"},{"method":"animate","args":[["1998"],{"transition":{"duration":500,"easing":"linear"},"frame":{"duration":500,"redraw":true},"mode":"immediate"}],"label":"1998","value":"1998"},{"method":"animate","args":[["2000"],{"transition":{"duration":500,"easing":"linear"},"frame":{"duration":500,"redraw":true},"mode":"immediate"}],"label":"2000","value":"2000"},{"method":"animate","args":[["2002"],{"transition":{"duration":500,"easing":"linear"},"frame":{"duration":500,"redraw":true},"mode":"immediate"}],"label":"2002","value":"2002"},{"method":"animate","args":[["2004"],{"transition":{"duration":500,"easing":"linear"},"frame":{"duration":500,"redraw":true},"mode":"immediate"}],"label":"2004","value":"2004"},{"method":"animate","args":[["2006"],{"transition":{"duration":500,"easing":"linear"},"frame":{"duration":500,"redraw":true},"mode":"immediate"}],"label":"2006","value":"2006"},{"method":"animate","args":[["2008"],{"transition":{"duration":500,"easing":"linear"},"frame":{"duration":500,"redraw":true},"mode":"immediate"}],"label":"2008","value":"2008"},{"method":"animate","args":[["2010"],{"transition":{"duration":500,"easing":"linear"},"frame":{"duration":500,"redraw":true},"mode":"immediate"}],"label":"2010","value":"2010"},{"method":"animate","args":[["2012"],{"transition":{"duration":500,"easing":"linear"},"frame":{"duration":500,"redraw":true},"mode":"immediate"}],"label":"2012","value":"2012"},{"method":"animate","args":[["2014"],{"transition":{"duration":500,"easing":"linear"},"frame":{"duration":500,"redraw":true},"mode":"immediate"}],"label":"2014","value":"2014"},{"method":"animate","args":[["2016"],{"transition":{"duration":500,"easing":"linear"},"frame":{"duration":500,"redraw":true},"mode":"immediate"}],"label":"2016","value":"2016"},{"method":"animate","args":[["2018"],{"transition":{"duration":500,"easing":"linear"},"frame":{"duration":500,"redraw":true},"mode":"immediate"}],"label":"2018","value":"2018"},{"method":"animate","args":[["2020"],{"transition":{"duration":500,"easing":"linear"},"frame":{"duration":500,"redraw":true},"mode":"immediate"}],"label":"2020","value":"2020"}],"visible":true,"pad":{"t":40}}],"updatemenus":[{"type":"buttons","direction":"right","showactive":false,"y":0,"x":0,"yanchor":"top","xanchor":"right","pad":{"t":60,"r":5},"buttons":[{"label":"Play","method":"animate","args":[null,{"fromcurrent":true,"mode":"immediate","transition":{"duration":500,"easing":"linear"},"frame":{"duration":500,"redraw":true}}]}]}],"legend":{"yanchor":"top","y":0.5},"title":"Swinginess by state 1968-2020"},"source":"A","config":{"modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"data":[{"colorbar":{"title":"Swinginess","ticklen":2,"len":0.5,"lenmode":"fraction","y":1,"yanchor":"top"},"colorscale":[["0","rgba(255,245,240,1)"],["0.0416666666666667","rgba(255,238,230,1)"],["0.0833333333333333","rgba(255,231,220,1)"],["0.125","rgba(254,224,210,1)"],["0.166666666666667","rgba(254,212,193,1)"],["0.208333333333333","rgba(253,199,177,1)"],["0.25","rgba(252,187,161,1)"],["0.291666666666667","rgba(253,174,145,1)"],["0.333333333333333","rgba(253,160,129,1)"],["0.375","rgba(252,146,114,1)"],["0.416666666666667","rgba(252,133,101,1)"],["0.458333333333333","rgba(252,120,87,1)"],["0.5","rgba(251,106,74,1)"],["0.541666666666667","rgba(247,92,64,1)"],["0.583333333333333","rgba(243,77,54,1)"],["0.625","rgba(239,59,44,1)"],["0.666666666666667","rgba(227,49,39,1)"],["0.708333333333333","rgba(215,37,34,1)"],["0.75","rgba(203,24,29,1)"],["0.791666666666667","rgba(190,21,26,1)"],["0.833333333333333","rgba(178,18,24,1)"],["0.875","rgba(165,15,21,1)"],["0.916666666666667","rgba(144,9,19,1)"],["0.958333333333333","rgba(123,3,16,1)"],["1","rgba(103,0,13,1)"]],"showscale":true,"locationmode":"USA-states","z":[0.233910990214448,0.0199632514735456,-0.0318112058288426,0.0220686749252648,-0.032203134359359,-0.0434186761618243,0.109871720347676,-0.15845012802431,-0.222779353909387,0.121617864499428,0.245709656875134,-0.0372775124278549,0.00152094453796836,0.00581039771278813,0.0783629889133945,-0.132824528949092,-0.300892628679487,0.250628932058378,0.036349865892832,0.0101389458430304,0.0111242523708557,0.0269808669536779,-0.447682668139364,0.365670831362101,0.123829414433194,0.0328697239252425,-0.318875495598926,0.389373251465238,-0.153618007674815,0.00578844205011342,-0.036069974228488,-0.0303306035065877,0.143830337609527,0.0096850496111982,-0.156691109515781,0.0793707389480376,-0.0361339412241221,-0.105499707455593,-0.0594360824147628,0.25730957104359,-0.0749894352244431,-0.23003129302033,0.367234984985728,0.351645999480514,-0.526573409176887,0.00675265368927425,-0.0898707754821723,0.155643511672801,0.0814190182995227],"locations":["AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","IL","IN","IA","KS","KY","LA","ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY","NC","ND","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VT","VA","WA","WV","WI","WY"],"frame":"1968","zmin":-0.5,"zmax":0.5,"type":"choropleth","marker":{"line":{"colorbar":{"title":"","ticklen":2},"cmin":-0.666065574077788,"cmax":0.529821327371351,"colorscale":[["0","rgba(255,245,240,1)"],["0.0416666666666667","rgba(255,238,230,1)"],["0.0833333333333333","rgba(255,231,220,1)"],["0.125","rgba(254,224,210,1)"],["0.166666666666667","rgba(254,212,193,1)"],["0.208333333333333","rgba(253,199,177,1)"],["0.25","rgba(252,187,161,1)"],["0.291666666666667","rgba(253,174,145,1)"],["0.333333333333333","rgba(253,160,129,1)"],["0.375","rgba(252,146,114,1)"],["0.416666666666667","rgba(252,133,101,1)"],["0.458333333333333","rgba(252,120,87,1)"],["0.5","rgba(251,106,74,1)"],["0.541666666666667","rgba(247,92,64,1)"],["0.583333333333333","rgba(243,77,54,1)"],["0.625","rgba(239,59,44,1)"],["0.666666666666667","rgba(227,49,39,1)"],["0.708333333333333","rgba(215,37,34,1)"],["0.75","rgba(203,24,29,1)"],["0.791666666666667","rgba(190,21,26,1)"],["0.833333333333333","rgba(178,18,24,1)"],["0.875","rgba(165,15,21,1)"],["0.916666666666667","rgba(144,9,19,1)"],["0.958333333333333","rgba(123,3,16,1)"],["1","rgba(103,0,13,1)"]],"showscale":false,"color":[0.233910990214448,0.0199632514735456,-0.0318112058288426,0.0220686749252648,-0.032203134359359,-0.0434186761618243,0.109871720347676,-0.15845012802431,-0.222779353909387,0.121617864499428,0.245709656875134,-0.0372775124278549,0.00152094453796836,0.00581039771278813,0.0783629889133945,-0.132824528949092,-0.300892628679487,0.250628932058378,0.036349865892832,0.0101389458430304,0.0111242523708557,0.0269808669536779,-0.447682668139364,0.365670831362101,0.123829414433194,0.0328697239252425,-0.318875495598926,0.389373251465238,-0.153618007674815,0.00578844205011342,-0.036069974228488,-0.0303306035065877,0.143830337609527,0.0096850496111982,-0.156691109515781,0.0793707389480376,-0.0361339412241221,-0.105499707455593,-0.0594360824147628,0.25730957104359,-0.0749894352244431,-0.23003129302033,0.367234984985728,0.351645999480514,-0.526573409176887,0.00675265368927425,-0.0898707754821723,0.155643511672801,0.0814190182995227]}},"geo":"geo","visible":true}],"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"frames":[{"name":"1968","data":[{"colorbar":{"title":"swinginess","ticklen":2},"colorscale":[["0","rgba(255,245,240,1)"],["0.0416666666666667","rgba(255,238,230,1)"],["0.0833333333333333","rgba(255,231,220,1)"],["0.125","rgba(254,224,210,1)"],["0.166666666666667","rgba(254,212,193,1)"],["0.208333333333333","rgba(253,199,177,1)"],["0.25","rgba(252,187,161,1)"],["0.291666666666667","rgba(253,174,145,1)"],["0.333333333333333","rgba(253,160,129,1)"],["0.375","rgba(252,146,114,1)"],["0.416666666666667","rgba(252,133,101,1)"],["0.458333333333333","rgba(252,120,87,1)"],["0.5","rgba(251,106,74,1)"],["0.541666666666667","rgba(247,92,64,1)"],["0.583333333333333","rgba(243,77,54,1)"],["0.625","rgba(239,59,44,1)"],["0.666666666666667","rgba(227,49,39,1)"],["0.708333333333333","rgba(215,37,34,1)"],["0.75","rgba(203,24,29,1)"],["0.791666666666667","rgba(190,21,26,1)"],["0.833333333333333","rgba(178,18,24,1)"],["0.875","rgba(165,15,21,1)"],["0.916666666666667","rgba(144,9,19,1)"],["0.958333333333333","rgba(123,3,16,1)"],["1","rgba(103,0,13,1)"]],"showscale":true,"locationmode":"USA-states","z":[0.233910990214448,0.0199632514735456,-0.0318112058288426,0.0220686749252648,-0.032203134359359,-0.0434186761618243,0.109871720347676,-0.15845012802431,-0.222779353909387,0.121617864499428,0.245709656875134,-0.0372775124278549,0.00152094453796836,0.00581039771278813,0.0783629889133945,-0.132824528949092,-0.300892628679487,0.250628932058378,0.036349865892832,0.0101389458430304,0.0111242523708557,0.0269808669536779,-0.447682668139364,0.365670831362101,0.123829414433194,0.0328697239252425,-0.318875495598926,0.389373251465238,-0.153618007674815,0.00578844205011342,-0.036069974228488,-0.0303306035065877,0.143830337609527,0.0096850496111982,-0.156691109515781,0.0793707389480376,-0.0361339412241221,-0.105499707455593,-0.0594360824147628,0.25730957104359,-0.0749894352244431,-0.23003129302033,0.367234984985728,0.351645999480514,-0.526573409176887,0.00675265368927425,-0.0898707754821723,0.155643511672801,0.0814190182995227],"locations":["AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","IL","IN","IA","KS","KY","LA","ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY","NC","ND","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VT","VA","WA","WV","WI","WY"],"frame":"1968","zmin":-0.5,"zmax":0.5,"type":"choropleth","marker":{"line":{"colorbar":{"title":"","ticklen":2},"cmin":-0.666065574077788,"cmax":0.529821327371351,"colorscale":[["0","rgba(255,245,240,1)"],["0.0416666666666667","rgba(255,238,230,1)"],["0.0833333333333333","rgba(255,231,220,1)"],["0.125","rgba(254,224,210,1)"],["0.166666666666667","rgba(254,212,193,1)"],["0.208333333333333","rgba(253,199,177,1)"],["0.25","rgba(252,187,161,1)"],["0.291666666666667","rgba(253,174,145,1)"],["0.333333333333333","rgba(253,160,129,1)"],["0.375","rgba(252,146,114,1)"],["0.416666666666667","rgba(252,133,101,1)"],["0.458333333333333","rgba(252,120,87,1)"],["0.5","rgba(251,106,74,1)"],["0.541666666666667","rgba(247,92,64,1)"],["0.583333333333333","rgba(243,77,54,1)"],["0.625","rgba(239,59,44,1)"],["0.666666666666667","rgba(227,49,39,1)"],["0.708333333333333","rgba(215,37,34,1)"],["0.75","rgba(203,24,29,1)"],["0.791666666666667","rgba(190,21,26,1)"],["0.833333333333333","rgba(178,18,24,1)"],["0.875","rgba(165,15,21,1)"],["0.916666666666667","rgba(144,9,19,1)"],["0.958333333333333","rgba(123,3,16,1)"],["1","rgba(103,0,13,1)"]],"showscale":false,"color":[0.233910990214448,0.0199632514735456,-0.0318112058288426,0.0220686749252648,-0.032203134359359,-0.0434186761618243,0.109871720347676,-0.15845012802431,-0.222779353909387,0.121617864499428,0.245709656875134,-0.0372775124278549,0.00152094453796836,0.00581039771278813,0.0783629889133945,-0.132824528949092,-0.300892628679487,0.250628932058378,0.036349865892832,0.0101389458430304,0.0111242523708557,0.0269808669536779,-0.447682668139364,0.365670831362101,0.123829414433194,0.0328697239252425,-0.318875495598926,0.389373251465238,-0.153618007674815,0.00578844205011342,-0.036069974228488,-0.0303306035065877,0.143830337609527,0.0096850496111982,-0.156691109515781,0.0793707389480376,-0.0361339412241221,-0.105499707455593,-0.0594360824147628,0.25730957104359,-0.0749894352244431,-0.23003129302033,0.367234984985728,0.351645999480514,-0.526573409176887,0.00675265368927425,-0.0898707754821723,0.155643511672801,0.0814190182995227]}},"geo":"geo","visible":true}],"traces":[0]},{"name":"1970","data":[{"colorbar":{"title":"swinginess","ticklen":2},"colorscale":[["0","rgba(255,245,240,1)"],["0.0416666666666667","rgba(255,238,230,1)"],["0.0833333333333333","rgba(255,231,220,1)"],["0.125","rgba(254,224,210,1)"],["0.166666666666667","rgba(254,212,193,1)"],["0.208333333333333","rgba(253,199,177,1)"],["0.25","rgba(252,187,161,1)"],["0.291666666666667","rgba(253,174,145,1)"],["0.333333333333333","rgba(253,160,129,1)"],["0.375","rgba(252,146,114,1)"],["0.416666666666667","rgba(252,133,101,1)"],["0.458333333333333","rgba(252,120,87,1)"],["0.5","rgba(251,106,74,1)"],["0.541666666666667","rgba(247,92,64,1)"],["0.583333333333333","rgba(243,77,54,1)"],["0.625","rgba(239,59,44,1)"],["0.666666666666667","rgba(227,49,39,1)"],["0.708333333333333","rgba(215,37,34,1)"],["0.75","rgba(203,24,29,1)"],["0.791666666666667","rgba(190,21,26,1)"],["0.833333333333333","rgba(178,18,24,1)"],["0.875","rgba(165,15,21,1)"],["0.916666666666667","rgba(144,9,19,1)"],["0.958333333333333","rgba(123,3,16,1)"],["1","rgba(103,0,13,1)"]],"showscale":true,"locationmode":"USA-states","z":[0.1642144954635,0.0963601533150573,0.121775174564285,-0.169312134963921,0.00834664960717491,-0.00914542689427383,0.0497473719617534,-0.0917039762294169,-0.1982846436774,-0.104094042232742,0.469072958607069,-0.140684906674131,0.0103579901651282,0.00929018405918658,0.0736246744133215,-0.100547110785073,-0.417401667627891,0.328327145438784,0.10280639012236,-0.0741833405672719,0.0725068921378406,-0.0160080814317066,-0.372927422200271,0.319509963785846,0.0173068719341909,0.162139293937894,-0.42031305519114,0.50976531083871,-0.212569406936375,0.0685000950698968,-0.0675917472564354,-0.0293214203640651,0.136561623772728,-0.0175751922842114,-0.126457418074501,0.045427642161271,-0.0290571470792905,-0.0974998768582594,-0.0837884246415534,0.185321829472718,-0.0469481299149387,-0.147607837786833,0.24325528405627,0.194498824553205,-0.229414768529968,-0.071954197558545,-0.0522252793776194,0.0909559584060597,0.0596783426643182],"locations":["AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","IL","IN","IA","KS","KY","LA","ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY","NC","ND","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VT","VA","WA","WV","WI","WY"],"frame":"1970","zmin":-0.5,"zmax":0.5,"type":"choropleth","marker":{"line":{"colorbar":{"title":"","ticklen":2},"cmin":-0.666065574077788,"cmax":0.529821327371351,"colorscale":[["0","rgba(255,245,240,1)"],["0.0416666666666667","rgba(255,238,230,1)"],["0.0833333333333333","rgba(255,231,220,1)"],["0.125","rgba(254,224,210,1)"],["0.166666666666667","rgba(254,212,193,1)"],["0.208333333333333","rgba(253,199,177,1)"],["0.25","rgba(252,187,161,1)"],["0.291666666666667","rgba(253,174,145,1)"],["0.333333333333333","rgba(253,160,129,1)"],["0.375","rgba(252,146,114,1)"],["0.416666666666667","rgba(252,133,101,1)"],["0.458333333333333","rgba(252,120,87,1)"],["0.5","rgba(251,106,74,1)"],["0.541666666666667","rgba(247,92,64,1)"],["0.583333333333333","rgba(243,77,54,1)"],["0.625","rgba(239,59,44,1)"],["0.666666666666667","rgba(227,49,39,1)"],["0.708333333333333","rgba(215,37,34,1)"],["0.75","rgba(203,24,29,1)"],["0.791666666666667","rgba(190,21,26,1)"],["0.833333333333333","rgba(178,18,24,1)"],["0.875","rgba(165,15,21,1)"],["0.916666666666667","rgba(144,9,19,1)"],["0.958333333333333","rgba(123,3,16,1)"],["1","rgba(103,0,13,1)"]],"showscale":false,"color":[0.1642144954635,0.0963601533150573,0.121775174564285,-0.169312134963921,0.00834664960717491,-0.00914542689427383,0.0497473719617534,-0.0917039762294169,-0.1982846436774,-0.104094042232742,0.469072958607069,-0.140684906674131,0.0103579901651282,0.00929018405918658,0.0736246744133215,-0.100547110785073,-0.417401667627891,0.328327145438784,0.10280639012236,-0.0741833405672719,0.0725068921378406,-0.0160080814317066,-0.372927422200271,0.319509963785846,0.0173068719341909,0.162139293937894,-0.42031305519114,0.50976531083871,-0.212569406936375,0.0685000950698968,-0.0675917472564354,-0.0293214203640651,0.136561623772728,-0.0175751922842114,-0.126457418074501,0.045427642161271,-0.0290571470792905,-0.0974998768582594,-0.0837884246415534,0.185321829472718,-0.0469481299149387,-0.147607837786833,0.24325528405627,0.194498824553205,-0.229414768529968,-0.071954197558545,-0.0522252793776194,0.0909559584060597,0.0596783426643182]}},"geo":"geo","visible":true}],"traces":[0]},{"name":"1972","data":[{"colorbar":{"title":"swinginess","ticklen":2},"colorscale":[["0","rgba(255,245,240,1)"],["0.0416666666666667","rgba(255,238,230,1)"],["0.0833333333333333","rgba(255,231,220,1)"],["0.125","rgba(254,224,210,1)"],["0.166666666666667","rgba(254,212,193,1)"],["0.208333333333333","rgba(253,199,177,1)"],["0.25","rgba(252,187,161,1)"],["0.291666666666667","rgba(253,174,145,1)"],["0.333333333333333","rgba(253,160,129,1)"],["0.375","rgba(252,146,114,1)"],["0.416666666666667","rgba(252,133,101,1)"],["0.458333333333333","rgba(252,120,87,1)"],["0.5","rgba(251,106,74,1)"],["0.541666666666667","rgba(247,92,64,1)"],["0.583333333333333","rgba(243,77,54,1)"],["0.625","rgba(239,59,44,1)"],["0.666666666666667","rgba(227,49,39,1)"],["0.708333333333333","rgba(215,37,34,1)"],["0.75","rgba(203,24,29,1)"],["0.791666666666667","rgba(190,21,26,1)"],["0.833333333333333","rgba(178,18,24,1)"],["0.875","rgba(165,15,21,1)"],["0.916666666666667","rgba(144,9,19,1)"],["0.958333333333333","rgba(123,3,16,1)"],["1","rgba(103,0,13,1)"]],"showscale":true,"locationmode":"USA-states","z":[0.0241027850584117,0.084108444443507,0.251157145605806,-0.301092092234508,0.0567143050200075,-0.0160619394261147,0.116758226449771,-0.162897819504133,-0.182704610540372,0.157269719343325,0.193618150381183,-0.125751471151087,0.0292035995354583,-0.0542627662303163,0.190939879769333,-0.177668665336233,-0.365849828407826,0.34025954977526,0.00844087739373223,-0.0858811736710431,0.132949604153863,-0.0679724492618166,-0.136172015060465,0.0802551463575404,-0.00799271702003046,0.264508946853001,-0.137991033277365,0.181161664724566,-0.198110815508527,-0.0677405416981763,0.0346488102179028,-0.0178432323244287,0.274757135505559,-0.176892906704758,-0.16705208408768,0.0644273554941432,0.0633383906115688,-0.149109711759921,0.115363933982034,-0.00955994675248151,0.0697137620833456,-0.247340923184663,0.14788896249817,0.211016663353314,-0.165678791753772,-0.146088589756881,-0.000215913333449336,0.092791975844659,0.0520446748710777],"locations":["AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","IL","IN","IA","KS","KY","LA","ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY","NC","ND","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VT","VA","WA","WV","WI","WY"],"frame":"1972","zmin":-0.5,"zmax":0.5,"type":"choropleth","marker":{"line":{"colorbar":{"title":"","ticklen":2},"cmin":-0.666065574077788,"cmax":0.529821327371351,"colorscale":[["0","rgba(255,245,240,1)"],["0.0416666666666667","rgba(255,238,230,1)"],["0.0833333333333333","rgba(255,231,220,1)"],["0.125","rgba(254,224,210,1)"],["0.166666666666667","rgba(254,212,193,1)"],["0.208333333333333","rgba(253,199,177,1)"],["0.25","rgba(252,187,161,1)"],["0.291666666666667","rgba(253,174,145,1)"],["0.333333333333333","rgba(253,160,129,1)"],["0.375","rgba(252,146,114,1)"],["0.416666666666667","rgba(252,133,101,1)"],["0.458333333333333","rgba(252,120,87,1)"],["0.5","rgba(251,106,74,1)"],["0.541666666666667","rgba(247,92,64,1)"],["0.583333333333333","rgba(243,77,54,1)"],["0.625","rgba(239,59,44,1)"],["0.666666666666667","rgba(227,49,39,1)"],["0.708333333333333","rgba(215,37,34,1)"],["0.75","rgba(203,24,29,1)"],["0.791666666666667","rgba(190,21,26,1)"],["0.833333333333333","rgba(178,18,24,1)"],["0.875","rgba(165,15,21,1)"],["0.916666666666667","rgba(144,9,19,1)"],["0.958333333333333","rgba(123,3,16,1)"],["1","rgba(103,0,13,1)"]],"showscale":false,"color":[0.0241027850584117,0.084108444443507,0.251157145605806,-0.301092092234508,0.0567143050200075,-0.0160619394261147,0.116758226449771,-0.162897819504133,-0.182704610540372,0.157269719343325,0.193618150381183,-0.125751471151087,0.0292035995354583,-0.0542627662303163,0.190939879769333,-0.177668665336233,-0.365849828407826,0.34025954977526,0.00844087739373223,-0.0858811736710431,0.132949604153863,-0.0679724492618166,-0.136172015060465,0.0802551463575404,-0.00799271702003046,0.264508946853001,-0.137991033277365,0.181161664724566,-0.198110815508527,-0.0677405416981763,0.0346488102179028,-0.0178432323244287,0.274757135505559,-0.176892906704758,-0.16705208408768,0.0644273554941432,0.0633383906115688,-0.149109711759921,0.115363933982034,-0.00955994675248151,0.0697137620833456,-0.247340923184663,0.14788896249817,0.211016663353314,-0.165678791753772,-0.146088589756881,-0.000215913333449336,0.092791975844659,0.0520446748710777]}},"geo":"geo","visible":true}],"traces":[0]},{"name":"1974","data":[{"colorbar":{"title":"swinginess","ticklen":2},"colorscale":[["0","rgba(255,245,240,1)"],["0.0416666666666667","rgba(255,238,230,1)"],["0.0833333333333333","rgba(255,231,220,1)"],["0.125","rgba(254,224,210,1)"],["0.166666666666667","rgba(254,212,193,1)"],["0.208333333333333","rgba(253,199,177,1)"],["0.25","rgba(252,187,161,1)"],["0.291666666666667","rgba(253,174,145,1)"],["0.333333333333333","rgba(253,160,129,1)"],["0.375","rgba(252,146,114,1)"],["0.416666666666667","rgba(252,133,101,1)"],["0.458333333333333","rgba(252,120,87,1)"],["0.5","rgba(251,106,74,1)"],["0.541666666666667","rgba(247,92,64,1)"],["0.583333333333333","rgba(243,77,54,1)"],["0.625","rgba(239,59,44,1)"],["0.666666666666667","rgba(227,49,39,1)"],["0.708333333333333","rgba(215,37,34,1)"],["0.75","rgba(203,24,29,1)"],["0.791666666666667","rgba(190,21,26,1)"],["0.833333333333333","rgba(178,18,24,1)"],["0.875","rgba(165,15,21,1)"],["0.916666666666667","rgba(144,9,19,1)"],["0.958333333333333","rgba(123,3,16,1)"],["1","rgba(103,0,13,1)"]],"showscale":true,"locationmode":"USA-states","z":[0.227880093601332,-0.0415179533581507,-0.128283931055167,0.0484427768034066,0.0450425103066835,-0.0468563372582008,0.181220219403079,-0.0473415146630738,-0.264791550625553,0.1048771615964,0.180916574957687,-0.13784777276132,0.0137629044646487,0.0124157478609762,0.1038465479822,-0.202813167517797,-0.0985201003664511,0.340178876756572,-0.203796029683958,-0.141627026562139,0.154633750035097,0.00062473983118394,0.0453183763584691,-0.127476701902773,0.0850075590022161,0.113673492443634,-0.132346674110038,0.163711068375294,-0.168429726569828,0.0890831479062545,-0.0720889406686129,-0.0546478341832594,0.204344350015408,-0.0462795181457879,-0.096759526598271,-0.0549518016713637,0.0642174444897275,-0.180366060823127,0.170914202676524,0.199096154923872,-0.170334615964117,-0.168175909559763,0.139850775132508,0.155293891838654,-0.153410278121043,-0.005188172319185,-0.109273373425034,0.102327217597113,0.0489419189753512],"locations":["AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","IL","IN","IA","KS","KY","LA","ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY","NC","ND","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VT","VA","WA","WV","WI","WY"],"frame":"1974","zmin":-0.5,"zmax":0.5,"type":"choropleth","marker":{"line":{"colorbar":{"title":"","ticklen":2},"cmin":-0.666065574077788,"cmax":0.529821327371351,"colorscale":[["0","rgba(255,245,240,1)"],["0.0416666666666667","rgba(255,238,230,1)"],["0.0833333333333333","rgba(255,231,220,1)"],["0.125","rgba(254,224,210,1)"],["0.166666666666667","rgba(254,212,193,1)"],["0.208333333333333","rgba(253,199,177,1)"],["0.25","rgba(252,187,161,1)"],["0.291666666666667","rgba(253,174,145,1)"],["0.333333333333333","rgba(253,160,129,1)"],["0.375","rgba(252,146,114,1)"],["0.416666666666667","rgba(252,133,101,1)"],["0.458333333333333","rgba(252,120,87,1)"],["0.5","rgba(251,106,74,1)"],["0.541666666666667","rgba(247,92,64,1)"],["0.583333333333333","rgba(243,77,54,1)"],["0.625","rgba(239,59,44,1)"],["0.666666666666667","rgba(227,49,39,1)"],["0.708333333333333","rgba(215,37,34,1)"],["0.75","rgba(203,24,29,1)"],["0.791666666666667","rgba(190,21,26,1)"],["0.833333333333333","rgba(178,18,24,1)"],["0.875","rgba(165,15,21,1)"],["0.916666666666667","rgba(144,9,19,1)"],["0.958333333333333","rgba(123,3,16,1)"],["1","rgba(103,0,13,1)"]],"showscale":false,"color":[0.227880093601332,-0.0415179533581507,-0.128283931055167,0.0484427768034066,0.0450425103066835,-0.0468563372582008,0.181220219403079,-0.0473415146630738,-0.264791550625553,0.1048771615964,0.180916574957687,-0.13784777276132,0.0137629044646487,0.0124157478609762,0.1038465479822,-0.202813167517797,-0.0985201003664511,0.340178876756572,-0.203796029683958,-0.141627026562139,0.154633750035097,0.00062473983118394,0.0453183763584691,-0.127476701902773,0.0850075590022161,0.113673492443634,-0.132346674110038,0.163711068375294,-0.168429726569828,0.0890831479062545,-0.0720889406686129,-0.0546478341832594,0.204344350015408,-0.0462795181457879,-0.096759526598271,-0.0549518016713637,0.0642174444897275,-0.180366060823127,0.170914202676524,0.199096154923872,-0.170334615964117,-0.168175909559763,0.139850775132508,0.155293891838654,-0.153410278121043,-0.005188172319185,-0.109273373425034,0.102327217597113,0.0489419189753512]}},"geo":"geo","visible":true}],"traces":[0]},{"name":"1976","data":[{"colorbar":{"title":"swinginess","ticklen":2},"colorscale":[["0","rgba(255,245,240,1)"],["0.0416666666666667","rgba(255,238,230,1)"],["0.0833333333333333","rgba(255,231,220,1)"],["0.125","rgba(254,224,210,1)"],["0.166666666666667","rgba(254,212,193,1)"],["0.208333333333333","rgba(253,199,177,1)"],["0.25","rgba(252,187,161,1)"],["0.291666666666667","rgba(253,174,145,1)"],["0.333333333333333","rgba(253,160,129,1)"],["0.375","rgba(252,146,114,1)"],["0.416666666666667","rgba(252,133,101,1)"],["0.458333333333333","rgba(252,120,87,1)"],["0.5","rgba(251,106,74,1)"],["0.541666666666667","rgba(247,92,64,1)"],["0.583333333333333","rgba(243,77,54,1)"],["0.625","rgba(239,59,44,1)"],["0.666666666666667","rgba(227,49,39,1)"],["0.708333333333333","rgba(215,37,34,1)"],["0.75","rgba(203,24,29,1)"],["0.791666666666667","rgba(190,21,26,1)"],["0.833333333333333","rgba(178,18,24,1)"],["0.875","rgba(165,15,21,1)"],["0.916666666666667","rgba(144,9,19,1)"],["0.958333333333333","rgba(123,3,16,1)"],["1","rgba(103,0,13,1)"]],"showscale":true,"locationmode":"USA-states","z":[0.389277712886388,-0.220979472498994,-0.264931409673867,0.213172033975911,0.103353049619223,-0.0520611393809982,0.0307800275192752,-0.0650380874646465,-0.197312570146919,0.0396182312431921,0.229867776140934,-0.041822014040613,-0.0405315988740996,-0.0180532657346876,0.183907515041956,-0.228171408514519,-0.0130552538569275,0.306710882937119,-0.300517408680662,-0.0510646195229802,0.118031060029929,-0.0296270777905737,-0.00622272142533631,0.0229978482105434,0.00859171879526827,0.208679061696727,-0.51089828161966,0.326435030711177,-0.0200462260400099,0.0948607321583927,-0.135902902963831,-0.0486065507963483,0.282348390293265,-0.121165417131108,-0.160715536319894,-0.0479796436660992,0.149670887838317,-0.159211472828105,0.0624571351259982,0.395555611031617,-0.384315643400949,-0.018501020911049,0.135046614594324,0.188617848497276,-0.172369185233514,-0.084337690499631,-0.157078979518815,0.129718955125628,0.045638157215467],"locations":["AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","IL","IN","IA","KS","KY","LA","ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY","NC","ND","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VT","VA","WA","WV","WI","WY"],"frame":"1976","zmin":-0.5,"zmax":0.5,"type":"choropleth","marker":{"line":{"colorbar":{"title":"","ticklen":2},"cmin":-0.666065574077788,"cmax":0.529821327371351,"colorscale":[["0","rgba(255,245,240,1)"],["0.0416666666666667","rgba(255,238,230,1)"],["0.0833333333333333","rgba(255,231,220,1)"],["0.125","rgba(254,224,210,1)"],["0.166666666666667","rgba(254,212,193,1)"],["0.208333333333333","rgba(253,199,177,1)"],["0.25","rgba(252,187,161,1)"],["0.291666666666667","rgba(253,174,145,1)"],["0.333333333333333","rgba(253,160,129,1)"],["0.375","rgba(252,146,114,1)"],["0.416666666666667","rgba(252,133,101,1)"],["0.458333333333333","rgba(252,120,87,1)"],["0.5","rgba(251,106,74,1)"],["0.541666666666667","rgba(247,92,64,1)"],["0.583333333333333","rgba(243,77,54,1)"],["0.625","rgba(239,59,44,1)"],["0.666666666666667","rgba(227,49,39,1)"],["0.708333333333333","rgba(215,37,34,1)"],["0.75","rgba(203,24,29,1)"],["0.791666666666667","rgba(190,21,26,1)"],["0.833333333333333","rgba(178,18,24,1)"],["0.875","rgba(165,15,21,1)"],["0.916666666666667","rgba(144,9,19,1)"],["0.958333333333333","rgba(123,3,16,1)"],["1","rgba(103,0,13,1)"]],"showscale":false,"color":[0.389277712886388,-0.220979472498994,-0.264931409673867,0.213172033975911,0.103353049619223,-0.0520611393809982,0.0307800275192752,-0.0650380874646465,-0.197312570146919,0.0396182312431921,0.229867776140934,-0.041822014040613,-0.0405315988740996,-0.0180532657346876,0.183907515041956,-0.228171408514519,-0.0130552538569275,0.306710882937119,-0.300517408680662,-0.0510646195229802,0.118031060029929,-0.0296270777905737,-0.00622272142533631,0.0229978482105434,0.00859171879526827,0.208679061696727,-0.51089828161966,0.326435030711177,-0.0200462260400099,0.0948607321583927,-0.135902902963831,-0.0486065507963483,0.282348390293265,-0.121165417131108,-0.160715536319894,-0.0479796436660992,0.149670887838317,-0.159211472828105,0.0624571351259982,0.395555611031617,-0.384315643400949,-0.018501020911049,0.135046614594324,0.188617848497276,-0.172369185233514,-0.084337690499631,-0.157078979518815,0.129718955125628,0.045638157215467]}},"geo":"geo","visible":true}],"traces":[0]},{"name":"1978","data":[{"colorbar":{"title":"swinginess","ticklen":2},"colorscale":[["0","rgba(255,245,240,1)"],["0.0416666666666667","rgba(255,238,230,1)"],["0.0833333333333333","rgba(255,231,220,1)"],["0.125","rgba(254,224,210,1)"],["0.166666666666667","rgba(254,212,193,1)"],["0.208333333333333","rgba(253,199,177,1)"],["0.25","rgba(252,187,161,1)"],["0.291666666666667","rgba(253,174,145,1)"],["0.333333333333333","rgba(253,160,129,1)"],["0.375","rgba(252,146,114,1)"],["0.416666666666667","rgba(252,133,101,1)"],["0.458333333333333","rgba(252,120,87,1)"],["0.5","rgba(251,106,74,1)"],["0.541666666666667","rgba(247,92,64,1)"],["0.583333333333333","rgba(243,77,54,1)"],["0.625","rgba(239,59,44,1)"],["0.666666666666667","rgba(227,49,39,1)"],["0.708333333333333","rgba(215,37,34,1)"],["0.75","rgba(203,24,29,1)"],["0.791666666666667","rgba(190,21,26,1)"],["0.833333333333333","rgba(178,18,24,1)"],["0.875","rgba(165,15,21,1)"],["0.916666666666667","rgba(144,9,19,1)"],["0.958333333333333","rgba(123,3,16,1)"],["1","rgba(103,0,13,1)"]],"showscale":true,"locationmode":"USA-states","z":[0.245320747972407,-0.0864746105224564,0.197695329931678,-0.184013306304719,0.039070276768782,-0.104404836904124,0.168819146031674,-0.170895261484271,-0.217163264906838,-0.0323166573310107,0.42103115191661,-0.0669223930444008,-0.0443428855363471,0.0267121883595934,0.152308746477843,-0.214667253142311,0.0226749857135374,0.134668334312625,-0.255623562025484,-0.0670354509974175,0.153679741383989,0.0497488475997467,0.00679990136065139,-0.111099293585656,0.120346778073505,0.134872112107321,-0.377377719264413,0.271241832079839,-0.0770515965315387,-0.0303076154171034,0.0507051213052766,-0.0649578572889939,0.284057235019574,-0.149544090181434,-0.0924916936567425,-0.137448206923742,0.182499173468426,-0.0536134801811082,-0.108035248420882,0.203465940008918,-0.0936075386352462,-0.0273439229931422,0.150558789772119,0.236891878775445,-0.223491312938711,-0.102039948946455,-0.127514055259611,0.124902975615022,0.118356749866293],"locations":["AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","IL","IN","IA","KS","KY","LA","ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY","NC","ND","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VT","VA","WA","WV","WI","WY"],"frame":"1978","zmin":-0.5,"zmax":0.5,"type":"choropleth","marker":{"line":{"colorbar":{"title":"","ticklen":2},"cmin":-0.666065574077788,"cmax":0.529821327371351,"colorscale":[["0","rgba(255,245,240,1)"],["0.0416666666666667","rgba(255,238,230,1)"],["0.0833333333333333","rgba(255,231,220,1)"],["0.125","rgba(254,224,210,1)"],["0.166666666666667","rgba(254,212,193,1)"],["0.208333333333333","rgba(253,199,177,1)"],["0.25","rgba(252,187,161,1)"],["0.291666666666667","rgba(253,174,145,1)"],["0.333333333333333","rgba(253,160,129,1)"],["0.375","rgba(252,146,114,1)"],["0.416666666666667","rgba(252,133,101,1)"],["0.458333333333333","rgba(252,120,87,1)"],["0.5","rgba(251,106,74,1)"],["0.541666666666667","rgba(247,92,64,1)"],["0.583333333333333","rgba(243,77,54,1)"],["0.625","rgba(239,59,44,1)"],["0.666666666666667","rgba(227,49,39,1)"],["0.708333333333333","rgba(215,37,34,1)"],["0.75","rgba(203,24,29,1)"],["0.791666666666667","rgba(190,21,26,1)"],["0.833333333333333","rgba(178,18,24,1)"],["0.875","rgba(165,15,21,1)"],["0.916666666666667","rgba(144,9,19,1)"],["0.958333333333333","rgba(123,3,16,1)"],["1","rgba(103,0,13,1)"]],"showscale":false,"color":[0.245320747972407,-0.0864746105224564,0.197695329931678,-0.184013306304719,0.039070276768782,-0.104404836904124,0.168819146031674,-0.170895261484271,-0.217163264906838,-0.0323166573310107,0.42103115191661,-0.0669223930444008,-0.0443428855363471,0.0267121883595934,0.152308746477843,-0.214667253142311,0.0226749857135374,0.134668334312625,-0.255623562025484,-0.0670354509974175,0.153679741383989,0.0497488475997467,0.00679990136065139,-0.111099293585656,0.120346778073505,0.134872112107321,-0.377377719264413,0.271241832079839,-0.0770515965315387,-0.0303076154171034,0.0507051213052766,-0.0649578572889939,0.284057235019574,-0.149544090181434,-0.0924916936567425,-0.137448206923742,0.182499173468426,-0.0536134801811082,-0.108035248420882,0.203465940008918,-0.0936075386352462,-0.0273439229931422,0.150558789772119,0.236891878775445,-0.223491312938711,-0.102039948946455,-0.127514055259611,0.124902975615022,0.118356749866293]}},"geo":"geo","visible":true}],"traces":[0]},{"name":"1980","data":[{"colorbar":{"title":"swinginess","ticklen":2},"colorscale":[["0","rgba(255,245,240,1)"],["0.0416666666666667","rgba(255,238,230,1)"],["0.0833333333333333","rgba(255,231,220,1)"],["0.125","rgba(254,224,210,1)"],["0.166666666666667","rgba(254,212,193,1)"],["0.208333333333333","rgba(253,199,177,1)"],["0.25","rgba(252,187,161,1)"],["0.291666666666667","rgba(253,174,145,1)"],["0.333333333333333","rgba(253,160,129,1)"],["0.375","rgba(252,146,114,1)"],["0.416666666666667","rgba(252,133,101,1)"],["0.458333333333333","rgba(252,120,87,1)"],["0.5","rgba(251,106,74,1)"],["0.541666666666667","rgba(247,92,64,1)"],["0.583333333333333","rgba(243,77,54,1)"],["0.625","rgba(239,59,44,1)"],["0.666666666666667","rgba(227,49,39,1)"],["0.708333333333333","rgba(215,37,34,1)"],["0.75","rgba(203,24,29,1)"],["0.791666666666667","rgba(190,21,26,1)"],["0.833333333333333","rgba(178,18,24,1)"],["0.875","rgba(165,15,21,1)"],["0.916666666666667","rgba(144,9,19,1)"],["0.958333333333333","rgba(123,3,16,1)"],["1","rgba(103,0,13,1)"]],"showscale":true,"locationmode":"USA-states","z":[0.377983028049522,-0.216790394445708,0.266112185671595,-0.25740010356541,0.0178692821247376,-0.0711975102270027,0.142942999842868,-0.209318057240383,-0.131634537705322,-0.205010118959758,0.485048099405034,-0.0200882406906493,-0.0383747374497359,-0.0162337892787306,0.0756669208185464,-0.141118972866134,-0.0439104553874378,0.353906019552501,-0.348459319723124,-0.0431576094174774,0.129508514838346,0.052343870769405,-0.105682610119131,0.042851651513206,0.0207671074968211,0.250002297906811,-0.452724214888152,0.236278745146084,-0.00313458329561056,0.00595363752882128,-0.0217121955725228,-0.0504294335254802,-0.015324764952502,0.115920255024336,-0.0734064097819574,-0.0703480380660967,0.11207294826342,-0.0653695523401314,0.04706330444856,-0.036850264720146,0.0250730025238129,-0.0816995763889587,0.201507553368218,0.397702345223144,-0.325934250440539,-0.181305478851946,-0.0628503219153911,0.0662107590976031,0.189569838312667],"locations":["AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","IL","IN","IA","KS","KY","LA","ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY","NC","ND","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VT","VA","WA","WV","WI","WY"],"frame":"1980","zmin":-0.5,"zmax":0.5,"type":"choropleth","marker":{"line":{"colorbar":{"title":"","ticklen":2},"cmin":-0.666065574077788,"cmax":0.529821327371351,"colorscale":[["0","rgba(255,245,240,1)"],["0.0416666666666667","rgba(255,238,230,1)"],["0.0833333333333333","rgba(255,231,220,1)"],["0.125","rgba(254,224,210,1)"],["0.166666666666667","rgba(254,212,193,1)"],["0.208333333333333","rgba(253,199,177,1)"],["0.25","rgba(252,187,161,1)"],["0.291666666666667","rgba(253,174,145,1)"],["0.333333333333333","rgba(253,160,129,1)"],["0.375","rgba(252,146,114,1)"],["0.416666666666667","rgba(252,133,101,1)"],["0.458333333333333","rgba(252,120,87,1)"],["0.5","rgba(251,106,74,1)"],["0.541666666666667","rgba(247,92,64,1)"],["0.583333333333333","rgba(243,77,54,1)"],["0.625","rgba(239,59,44,1)"],["0.666666666666667","rgba(227,49,39,1)"],["0.708333333333333","rgba(215,37,34,1)"],["0.75","rgba(203,24,29,1)"],["0.791666666666667","rgba(190,21,26,1)"],["0.833333333333333","rgba(178,18,24,1)"],["0.875","rgba(165,15,21,1)"],["0.916666666666667","rgba(144,9,19,1)"],["0.958333333333333","rgba(123,3,16,1)"],["1","rgba(103,0,13,1)"]],"showscale":false,"color":[0.377983028049522,-0.216790394445708,0.266112185671595,-0.25740010356541,0.0178692821247376,-0.0711975102270027,0.142942999842868,-0.209318057240383,-0.131634537705322,-0.205010118959758,0.485048099405034,-0.0200882406906493,-0.0383747374497359,-0.0162337892787306,0.0756669208185464,-0.141118972866134,-0.0439104553874378,0.353906019552501,-0.348459319723124,-0.0431576094174774,0.129508514838346,0.052343870769405,-0.105682610119131,0.042851651513206,0.0207671074968211,0.250002297906811,-0.452724214888152,0.236278745146084,-0.00313458329561056,0.00595363752882128,-0.0217121955725228,-0.0504294335254802,-0.015324764952502,0.115920255024336,-0.0734064097819574,-0.0703480380660967,0.11207294826342,-0.0653695523401314,0.04706330444856,-0.036850264720146,0.0250730025238129,-0.0816995763889587,0.201507553368218,0.397702345223144,-0.325934250440539,-0.181305478851946,-0.0628503219153911,0.0662107590976031,0.189569838312667]}},"geo":"geo","visible":true}],"traces":[0]},{"name":"1982","data":[{"colorbar":{"title":"swinginess","ticklen":2},"colorscale":[["0","rgba(255,245,240,1)"],["0.0416666666666667","rgba(255,238,230,1)"],["0.0833333333333333","rgba(255,231,220,1)"],["0.125","rgba(254,224,210,1)"],["0.166666666666667","rgba(254,212,193,1)"],["0.208333333333333","rgba(253,199,177,1)"],["0.25","rgba(252,187,161,1)"],["0.291666666666667","rgba(253,174,145,1)"],["0.333333333333333","rgba(253,160,129,1)"],["0.375","rgba(252,146,114,1)"],["0.416666666666667","rgba(252,133,101,1)"],["0.458333333333333","rgba(252,120,87,1)"],["0.5","rgba(251,106,74,1)"],["0.541666666666667","rgba(247,92,64,1)"],["0.583333333333333","rgba(243,77,54,1)"],["0.625","rgba(239,59,44,1)"],["0.666666666666667","rgba(227,49,39,1)"],["0.708333333333333","rgba(215,37,34,1)"],["0.75","rgba(203,24,29,1)"],["0.791666666666667","rgba(190,21,26,1)"],["0.833333333333333","rgba(178,18,24,1)"],["0.875","rgba(165,15,21,1)"],["0.916666666666667","rgba(144,9,19,1)"],["0.958333333333333","rgba(123,3,16,1)"],["1","rgba(103,0,13,1)"]],"showscale":true,"locationmode":"USA-states","z":[0.424380321380349,-0.143643860018155,-0.0913693839710535,0.00456248926624925,0.0385808954058087,-0.0628465193759993,0.0125664690402734,-0.0623097616774678,-0.155501581439685,-0.251545528160165,0.529821327371351,-0.111030685486401,0.0888408693679923,-0.0342080259200716,0.0636438723466975,-0.132891115893507,-0.0206252900183168,0.199007460360098,-0.263117926260037,-0.0180112122160256,0.0943166454700858,0.0527123297441338,-0.0351283340312016,0.0151512140240166,0.0333512788849967,0.314141305002729,-0.272285047404343,0.0704962459610882,-0.142742723968232,0.0548072680136762,-0.0604950655954293,0.0243805380781664,-0.170969629792629,0.167128946139426,-0.0807492364800649,0.0648804468436732,0.0332998678283041,0.0114102496865994,-0.0198321572811636,0.029111717347501,-0.0821990015710066,-0.0661654804773903,0.346684201891411,0.0661224276708265,-0.22593337241606,-0.0561206326506007,-0.095883066951747,0.093760679602527,0.246256661828697],"locations":["AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","IL","IN","IA","KS","KY","LA","ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY","NC","ND","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VT","VA","WA","WV","WI","WY"],"frame":"1982","zmin":-0.5,"zmax":0.5,"type":"choropleth","marker":{"line":{"colorbar":{"title":"","ticklen":2},"cmin":-0.666065574077788,"cmax":0.529821327371351,"colorscale":[["0","rgba(255,245,240,1)"],["0.0416666666666667","rgba(255,238,230,1)"],["0.0833333333333333","rgba(255,231,220,1)"],["0.125","rgba(254,224,210,1)"],["0.166666666666667","rgba(254,212,193,1)"],["0.208333333333333","rgba(253,199,177,1)"],["0.25","rgba(252,187,161,1)"],["0.291666666666667","rgba(253,174,145,1)"],["0.333333333333333","rgba(253,160,129,1)"],["0.375","rgba(252,146,114,1)"],["0.416666666666667","rgba(252,133,101,1)"],["0.458333333333333","rgba(252,120,87,1)"],["0.5","rgba(251,106,74,1)"],["0.541666666666667","rgba(247,92,64,1)"],["0.583333333333333","rgba(243,77,54,1)"],["0.625","rgba(239,59,44,1)"],["0.666666666666667","rgba(227,49,39,1)"],["0.708333333333333","rgba(215,37,34,1)"],["0.75","rgba(203,24,29,1)"],["0.791666666666667","rgba(190,21,26,1)"],["0.833333333333333","rgba(178,18,24,1)"],["0.875","rgba(165,15,21,1)"],["0.916666666666667","rgba(144,9,19,1)"],["0.958333333333333","rgba(123,3,16,1)"],["1","rgba(103,0,13,1)"]],"showscale":false,"color":[0.424380321380349,-0.143643860018155,-0.0913693839710535,0.00456248926624925,0.0385808954058087,-0.0628465193759993,0.0125664690402734,-0.0623097616774678,-0.155501581439685,-0.251545528160165,0.529821327371351,-0.111030685486401,0.0888408693679923,-0.0342080259200716,0.0636438723466975,-0.132891115893507,-0.0206252900183168,0.199007460360098,-0.263117926260037,-0.0180112122160256,0.0943166454700858,0.0527123297441338,-0.0351283340312016,0.0151512140240166,0.0333512788849967,0.314141305002729,-0.272285047404343,0.0704962459610882,-0.142742723968232,0.0548072680136762,-0.0604950655954293,0.0243805380781664,-0.170969629792629,0.167128946139426,-0.0807492364800649,0.0648804468436732,0.0332998678283041,0.0114102496865994,-0.0198321572811636,0.029111717347501,-0.0821990015710066,-0.0661654804773903,0.346684201891411,0.0661224276708265,-0.22593337241606,-0.0561206326506007,-0.095883066951747,0.093760679602527,0.246256661828697]}},"geo":"geo","visible":true}],"traces":[0]},{"name":"1984","data":[{"colorbar":{"title":"swinginess","ticklen":2},"colorscale":[["0","rgba(255,245,240,1)"],["0.0416666666666667","rgba(255,238,230,1)"],["0.0833333333333333","rgba(255,231,220,1)"],["0.125","rgba(254,224,210,1)"],["0.166666666666667","rgba(254,212,193,1)"],["0.208333333333333","rgba(253,199,177,1)"],["0.25","rgba(252,187,161,1)"],["0.291666666666667","rgba(253,174,145,1)"],["0.333333333333333","rgba(253,160,129,1)"],["0.375","rgba(252,146,114,1)"],["0.416666666666667","rgba(252,133,101,1)"],["0.458333333333333","rgba(252,120,87,1)"],["0.5","rgba(251,106,74,1)"],["0.541666666666667","rgba(247,92,64,1)"],["0.583333333333333","rgba(243,77,54,1)"],["0.625","rgba(239,59,44,1)"],["0.666666666666667","rgba(227,49,39,1)"],["0.708333333333333","rgba(215,37,34,1)"],["0.75","rgba(203,24,29,1)"],["0.791666666666667","rgba(190,21,26,1)"],["0.833333333333333","rgba(178,18,24,1)"],["0.875","rgba(165,15,21,1)"],["0.916666666666667","rgba(144,9,19,1)"],["0.958333333333333","rgba(123,3,16,1)"],["1","rgba(103,0,13,1)"]],"showscale":true,"locationmode":"USA-states","z":[0.296212885772759,0.0845660702900067,-0.443322793137132,0.295319044630988,0.135823756067004,-0.108461720229152,-0.118200192204539,0.0742565371280434,-0.206096579998688,-0.131238813878402,0.441377737984384,-0.110900390035517,0.046556608338954,0.0021426537175131,0.0239396758673736,-0.108612615187681,-0.126698001143022,0.378479725470462,-0.338397504268386,-0.0563310810421256,0.153892318725677,0.00257575042853042,-0.0751135868985783,0.0597387342131357,0.0438505107370594,0.253926681781174,-0.155469035343068,0.0912738050905602,-0.184119521268782,0.100208620063875,-0.122943568885021,0.00478629306128636,-0.262754719790149,0.289923928233881,-0.0878722868422718,0.0405267459889103,-0.000734025553316087,0.0453231257179348,-0.016245815066254,-0.0575780430604108,0.0214517595495402,-0.0240493900586485,0.226665707299248,0.0599265475739773,-0.152452697938161,-0.112826664743557,-0.0337090270621634,0.0886239836737249,0.250920941266912],"locations":["AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","IL","IN","IA","KS","KY","LA","ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY","NC","ND","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VT","VA","WA","WV","WI","WY"],"frame":"1984","zmin":-0.5,"zmax":0.5,"type":"choropleth","marker":{"line":{"colorbar":{"title":"","ticklen":2},"cmin":-0.666065574077788,"cmax":0.529821327371351,"colorscale":[["0","rgba(255,245,240,1)"],["0.0416666666666667","rgba(255,238,230,1)"],["0.0833333333333333","rgba(255,231,220,1)"],["0.125","rgba(254,224,210,1)"],["0.166666666666667","rgba(254,212,193,1)"],["0.208333333333333","rgba(253,199,177,1)"],["0.25","rgba(252,187,161,1)"],["0.291666666666667","rgba(253,174,145,1)"],["0.333333333333333","rgba(253,160,129,1)"],["0.375","rgba(252,146,114,1)"],["0.416666666666667","rgba(252,133,101,1)"],["0.458333333333333","rgba(252,120,87,1)"],["0.5","rgba(251,106,74,1)"],["0.541666666666667","rgba(247,92,64,1)"],["0.583333333333333","rgba(243,77,54,1)"],["0.625","rgba(239,59,44,1)"],["0.666666666666667","rgba(227,49,39,1)"],["0.708333333333333","rgba(215,37,34,1)"],["0.75","rgba(203,24,29,1)"],["0.791666666666667","rgba(190,21,26,1)"],["0.833333333333333","rgba(178,18,24,1)"],["0.875","rgba(165,15,21,1)"],["0.916666666666667","rgba(144,9,19,1)"],["0.958333333333333","rgba(123,3,16,1)"],["1","rgba(103,0,13,1)"]],"showscale":false,"color":[0.296212885772759,0.0845660702900067,-0.443322793137132,0.295319044630988,0.135823756067004,-0.108461720229152,-0.118200192204539,0.0742565371280434,-0.206096579998688,-0.131238813878402,0.441377737984384,-0.110900390035517,0.046556608338954,0.0021426537175131,0.0239396758673736,-0.108612615187681,-0.126698001143022,0.378479725470462,-0.338397504268386,-0.0563310810421256,0.153892318725677,0.00257575042853042,-0.0751135868985783,0.0597387342131357,0.0438505107370594,0.253926681781174,-0.155469035343068,0.0912738050905602,-0.184119521268782,0.100208620063875,-0.122943568885021,0.00478629306128636,-0.262754719790149,0.289923928233881,-0.0878722868422718,0.0405267459889103,-0.000734025553316087,0.0453231257179348,-0.016245815066254,-0.0575780430604108,0.0214517595495402,-0.0240493900586485,0.226665707299248,0.0599265475739773,-0.152452697938161,-0.112826664743557,-0.0337090270621634,0.0886239836737249,0.250920941266912]}},"geo":"geo","visible":true}],"traces":[0]},{"name":"1986","data":[{"colorbar":{"title":"swinginess","ticklen":2},"colorscale":[["0","rgba(255,245,240,1)"],["0.0416666666666667","rgba(255,238,230,1)"],["0.0833333333333333","rgba(255,231,220,1)"],["0.125","rgba(254,224,210,1)"],["0.166666666666667","rgba(254,212,193,1)"],["0.208333333333333","rgba(253,199,177,1)"],["0.25","rgba(252,187,161,1)"],["0.291666666666667","rgba(253,174,145,1)"],["0.333333333333333","rgba(253,160,129,1)"],["0.375","rgba(252,146,114,1)"],["0.416666666666667","rgba(252,133,101,1)"],["0.458333333333333","rgba(252,120,87,1)"],["0.5","rgba(251,106,74,1)"],["0.541666666666667","rgba(247,92,64,1)"],["0.583333333333333","rgba(243,77,54,1)"],["0.625","rgba(239,59,44,1)"],["0.666666666666667","rgba(227,49,39,1)"],["0.708333333333333","rgba(215,37,34,1)"],["0.75","rgba(203,24,29,1)"],["0.791666666666667","rgba(190,21,26,1)"],["0.833333333333333","rgba(178,18,24,1)"],["0.875","rgba(165,15,21,1)"],["0.916666666666667","rgba(144,9,19,1)"],["0.958333333333333","rgba(123,3,16,1)"],["1","rgba(103,0,13,1)"]],"showscale":true,"locationmode":"USA-states","z":[0.187564254061931,0.0959639371899115,-0.265226420886841,0.060999902568726,0.0867357111032234,-0.114038836080716,-0.107528396643687,0.1252104915726,-0.188828341125168,0.147315762129118,0.141699912274823,-0.0992686116685688,0.0276237731031332,0.0292445415038546,0.083934441229818,-0.199839882662503,-0.120079990582695,0.31799953958396,-0.229810559652423,-0.198142388324971,0.248471763798874,-0.0199169351304034,-0.00406106429320402,0.0226666225553391,0.0386052329107096,0.186992249311342,-0.120997236107049,0.12441882614272,-0.169745971881273,0.0570062194995347,-0.0978195282208779,-0.00448779301094004,-0.197483344518001,0.267444149987792,-0.100514823602719,0.029510188882275,0.0310045289328352,0.111849655636931,-0.209935884736636,0.0423247962372563,0.00548882549748575,0.0102332081050063,0.114827454951494,0.461264071294559,-0.538649873776562,-0.0542267530703903,-0.16240607741256,0.242387723777716,0.20761357461023],"locations":["AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","IL","IN","IA","KS","KY","LA","ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY","NC","ND","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VT","VA","WA","WV","WI","WY"],"frame":"1986","zmin":-0.5,"zmax":0.5,"type":"choropleth","marker":{"line":{"colorbar":{"title":"","ticklen":2},"cmin":-0.666065574077788,"cmax":0.529821327371351,"colorscale":[["0","rgba(255,245,240,1)"],["0.0416666666666667","rgba(255,238,230,1)"],["0.0833333333333333","rgba(255,231,220,1)"],["0.125","rgba(254,224,210,1)"],["0.166666666666667","rgba(254,212,193,1)"],["0.208333333333333","rgba(253,199,177,1)"],["0.25","rgba(252,187,161,1)"],["0.291666666666667","rgba(253,174,145,1)"],["0.333333333333333","rgba(253,160,129,1)"],["0.375","rgba(252,146,114,1)"],["0.416666666666667","rgba(252,133,101,1)"],["0.458333333333333","rgba(252,120,87,1)"],["0.5","rgba(251,106,74,1)"],["0.541666666666667","rgba(247,92,64,1)"],["0.583333333333333","rgba(243,77,54,1)"],["0.625","rgba(239,59,44,1)"],["0.666666666666667","rgba(227,49,39,1)"],["0.708333333333333","rgba(215,37,34,1)"],["0.75","rgba(203,24,29,1)"],["0.791666666666667","rgba(190,21,26,1)"],["0.833333333333333","rgba(178,18,24,1)"],["0.875","rgba(165,15,21,1)"],["0.916666666666667","rgba(144,9,19,1)"],["0.958333333333333","rgba(123,3,16,1)"],["1","rgba(103,0,13,1)"]],"showscale":false,"color":[0.187564254061931,0.0959639371899115,-0.265226420886841,0.060999902568726,0.0867357111032234,-0.114038836080716,-0.107528396643687,0.1252104915726,-0.188828341125168,0.147315762129118,0.141699912274823,-0.0992686116685688,0.0276237731031332,0.0292445415038546,0.083934441229818,-0.199839882662503,-0.120079990582695,0.31799953958396,-0.229810559652423,-0.198142388324971,0.248471763798874,-0.0199169351304034,-0.00406106429320402,0.0226666225553391,0.0386052329107096,0.186992249311342,-0.120997236107049,0.12441882614272,-0.169745971881273,0.0570062194995347,-0.0978195282208779,-0.00448779301094004,-0.197483344518001,0.267444149987792,-0.100514823602719,0.029510188882275,0.0310045289328352,0.111849655636931,-0.209935884736636,0.0423247962372563,0.00548882549748575,0.0102332081050063,0.114827454951494,0.461264071294559,-0.538649873776562,-0.0542267530703903,-0.16240607741256,0.242387723777716,0.20761357461023]}},"geo":"geo","visible":true}],"traces":[0]},{"name":"1988","data":[{"colorbar":{"title":"swinginess","ticklen":2},"colorscale":[["0","rgba(255,245,240,1)"],["0.0416666666666667","rgba(255,238,230,1)"],["0.0833333333333333","rgba(255,231,220,1)"],["0.125","rgba(254,224,210,1)"],["0.166666666666667","rgba(254,212,193,1)"],["0.208333333333333","rgba(253,199,177,1)"],["0.25","rgba(252,187,161,1)"],["0.291666666666667","rgba(253,174,145,1)"],["0.333333333333333","rgba(253,160,129,1)"],["0.375","rgba(252,146,114,1)"],["0.416666666666667","rgba(252,133,101,1)"],["0.458333333333333","rgba(252,120,87,1)"],["0.5","rgba(251,106,74,1)"],["0.541666666666667","rgba(247,92,64,1)"],["0.583333333333333","rgba(243,77,54,1)"],["0.625","rgba(239,59,44,1)"],["0.666666666666667","rgba(227,49,39,1)"],["0.708333333333333","rgba(215,37,34,1)"],["0.75","rgba(203,24,29,1)"],["0.791666666666667","rgba(190,21,26,1)"],["0.833333333333333","rgba(178,18,24,1)"],["0.875","rgba(165,15,21,1)"],["0.916666666666667","rgba(144,9,19,1)"],["0.958333333333333","rgba(123,3,16,1)"],["1","rgba(103,0,13,1)"]],"showscale":true,"locationmode":"USA-states","z":[0.252134681510532,0.0776483880065472,-0.287049857806906,0.0406093291464249,0.0504830692561775,-0.00208294024481659,-0.181320041453865,0.205478099990386,-0.197319037938327,-0.0284813307281698,0.201914616260155,-0.0403977372068224,0.0165870170920051,0.0285264840903841,0.0953696427447581,-0.0928048139171723,-0.0534280044673204,0.0415387142778934,-0.102055939942869,-0.177996520669579,0.246279271625045,-0.0546170637114097,-0.0770329286290871,0.105611368751611,0.0285915010078588,0.179118443028331,-0.175507658631357,0.113747390260778,-0.0742159396682303,0.0167847701719538,-0.0777208935606207,-0.0112381115202871,-0.157192857376054,0.214402334689663,-0.0275327700891706,-0.121331391766304,0.144454043887805,0.146883399571501,-0.196941191509491,-0.161675920242989,0.105904848571617,0.0128004356914945,0.165976034494486,0.118479030533002,-0.112586002149825,-0.144120403448601,-0.196991885757771,0.258563268958824,0.186105473935077],"locations":["AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","IL","IN","IA","KS","KY","LA","ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY","NC","ND","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VT","VA","WA","WV","WI","WY"],"frame":"1988","zmin":-0.5,"zmax":0.5,"type":"choropleth","marker":{"line":{"colorbar":{"title":"","ticklen":2},"cmin":-0.666065574077788,"cmax":0.529821327371351,"colorscale":[["0","rgba(255,245,240,1)"],["0.0416666666666667","rgba(255,238,230,1)"],["0.0833333333333333","rgba(255,231,220,1)"],["0.125","rgba(254,224,210,1)"],["0.166666666666667","rgba(254,212,193,1)"],["0.208333333333333","rgba(253,199,177,1)"],["0.25","rgba(252,187,161,1)"],["0.291666666666667","rgba(253,174,145,1)"],["0.333333333333333","rgba(253,160,129,1)"],["0.375","rgba(252,146,114,1)"],["0.416666666666667","rgba(252,133,101,1)"],["0.458333333333333","rgba(252,120,87,1)"],["0.5","rgba(251,106,74,1)"],["0.541666666666667","rgba(247,92,64,1)"],["0.583333333333333","rgba(243,77,54,1)"],["0.625","rgba(239,59,44,1)"],["0.666666666666667","rgba(227,49,39,1)"],["0.708333333333333","rgba(215,37,34,1)"],["0.75","rgba(203,24,29,1)"],["0.791666666666667","rgba(190,21,26,1)"],["0.833333333333333","rgba(178,18,24,1)"],["0.875","rgba(165,15,21,1)"],["0.916666666666667","rgba(144,9,19,1)"],["0.958333333333333","rgba(123,3,16,1)"],["1","rgba(103,0,13,1)"]],"showscale":false,"color":[0.252134681510532,0.0776483880065472,-0.287049857806906,0.0406093291464249,0.0504830692561775,-0.00208294024481659,-0.181320041453865,0.205478099990386,-0.197319037938327,-0.0284813307281698,0.201914616260155,-0.0403977372068224,0.0165870170920051,0.0285264840903841,0.0953696427447581,-0.0928048139171723,-0.0534280044673204,0.0415387142778934,-0.102055939942869,-0.177996520669579,0.246279271625045,-0.0546170637114097,-0.0770329286290871,0.105611368751611,0.0285915010078588,0.179118443028331,-0.175507658631357,0.113747390260778,-0.0742159396682303,0.0167847701719538,-0.0777208935606207,-0.0112381115202871,-0.157192857376054,0.214402334689663,-0.0275327700891706,-0.121331391766304,0.144454043887805,0.146883399571501,-0.196941191509491,-0.161675920242989,0.105904848571617,0.0128004356914945,0.165976034494486,0.118479030533002,-0.112586002149825,-0.144120403448601,-0.196991885757771,0.258563268958824,0.186105473935077]}},"geo":"geo","visible":true}],"traces":[0]},{"name":"1990","data":[{"colorbar":{"title":"swinginess","ticklen":2},"colorscale":[["0","rgba(255,245,240,1)"],["0.0416666666666667","rgba(255,238,230,1)"],["0.0833333333333333","rgba(255,231,220,1)"],["0.125","rgba(254,224,210,1)"],["0.166666666666667","rgba(254,212,193,1)"],["0.208333333333333","rgba(253,199,177,1)"],["0.25","rgba(252,187,161,1)"],["0.291666666666667","rgba(253,174,145,1)"],["0.333333333333333","rgba(253,160,129,1)"],["0.375","rgba(252,146,114,1)"],["0.416666666666667","rgba(252,133,101,1)"],["0.458333333333333","rgba(252,120,87,1)"],["0.5","rgba(251,106,74,1)"],["0.541666666666667","rgba(247,92,64,1)"],["0.583333333333333","rgba(243,77,54,1)"],["0.625","rgba(239,59,44,1)"],["0.666666666666667","rgba(227,49,39,1)"],["0.708333333333333","rgba(215,37,34,1)"],["0.75","rgba(203,24,29,1)"],["0.791666666666667","rgba(190,21,26,1)"],["0.833333333333333","rgba(178,18,24,1)"],["0.875","rgba(165,15,21,1)"],["0.916666666666667","rgba(144,9,19,1)"],["0.958333333333333","rgba(123,3,16,1)"],["1","rgba(103,0,13,1)"]],"showscale":true,"locationmode":"USA-states","z":[0.205954389007579,0.123875842339743,-0.198205716382566,0.0391326910897441,0.00780078879534485,0.0355037591197013,-0.194366684893304,0.156549819687273,-0.102843078761646,-0.0338902367272048,0.0651816973064638,0.032431654712011,0.000743555101282489,0.0387917921878168,0.00592755859651101,0.0334234242577411,-0.107028620941837,0.0275827258152694,0.0278886452041525,-0.192443287667581,0.166584519812272,-0.037785811758146,-0.22623450107917,0.273966020151662,0.0431460086979973,0.0226949508438542,-0.0163641774794576,0.00229255218488844,0.00759875771960294,0.0738331254402088,-0.118954970669674,-0.0111644111025886,-0.116791414240096,0.119395992633088,-0.0733955877327098,-0.0550636606561767,0.206624672222001,-0.0702013688176861,-0.0577851241708187,-0.0931978560206317,0.114236406211726,0.0206227139734823,-0.00963544233664643,0.479558158005009,-0.546527151924846,0.0786528597877397,-0.132199233045648,0.192541340273434,0.0292209103239677],"locations":["AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","IL","IN","IA","KS","KY","LA","ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY","NC","ND","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VT","VA","WA","WV","WI","WY"],"frame":"1990","zmin":-0.5,"zmax":0.5,"type":"choropleth","marker":{"line":{"colorbar":{"title":"","ticklen":2},"cmin":-0.666065574077788,"cmax":0.529821327371351,"colorscale":[["0","rgba(255,245,240,1)"],["0.0416666666666667","rgba(255,238,230,1)"],["0.0833333333333333","rgba(255,231,220,1)"],["0.125","rgba(254,224,210,1)"],["0.166666666666667","rgba(254,212,193,1)"],["0.208333333333333","rgba(253,199,177,1)"],["0.25","rgba(252,187,161,1)"],["0.291666666666667","rgba(253,174,145,1)"],["0.333333333333333","rgba(253,160,129,1)"],["0.375","rgba(252,146,114,1)"],["0.416666666666667","rgba(252,133,101,1)"],["0.458333333333333","rgba(252,120,87,1)"],["0.5","rgba(251,106,74,1)"],["0.541666666666667","rgba(247,92,64,1)"],["0.583333333333333","rgba(243,77,54,1)"],["0.625","rgba(239,59,44,1)"],["0.666666666666667","rgba(227,49,39,1)"],["0.708333333333333","rgba(215,37,34,1)"],["0.75","rgba(203,24,29,1)"],["0.791666666666667","rgba(190,21,26,1)"],["0.833333333333333","rgba(178,18,24,1)"],["0.875","rgba(165,15,21,1)"],["0.916666666666667","rgba(144,9,19,1)"],["0.958333333333333","rgba(123,3,16,1)"],["1","rgba(103,0,13,1)"]],"showscale":false,"color":[0.205954389007579,0.123875842339743,-0.198205716382566,0.0391326910897441,0.00780078879534485,0.0355037591197013,-0.194366684893304,0.156549819687273,-0.102843078761646,-0.0338902367272048,0.0651816973064638,0.032431654712011,0.000743555101282489,0.0387917921878168,0.00592755859651101,0.0334234242577411,-0.107028620941837,0.0275827258152694,0.0278886452041525,-0.192443287667581,0.166584519812272,-0.037785811758146,-0.22623450107917,0.273966020151662,0.0431460086979973,0.0226949508438542,-0.0163641774794576,0.00229255218488844,0.00759875771960294,0.0738331254402088,-0.118954970669674,-0.0111644111025886,-0.116791414240096,0.119395992633088,-0.0733955877327098,-0.0550636606561767,0.206624672222001,-0.0702013688176861,-0.0577851241708187,-0.0931978560206317,0.114236406211726,0.0206227139734823,-0.00963544233664643,0.479558158005009,-0.546527151924846,0.0786528597877397,-0.132199233045648,0.192541340273434,0.0292209103239677]}},"geo":"geo","visible":true}],"traces":[0]},{"name":"1992","data":[{"colorbar":{"title":"swinginess","ticklen":2},"colorscale":[["0","rgba(255,245,240,1)"],["0.0416666666666667","rgba(255,238,230,1)"],["0.0833333333333333","rgba(255,231,220,1)"],["0.125","rgba(254,224,210,1)"],["0.166666666666667","rgba(254,212,193,1)"],["0.208333333333333","rgba(253,199,177,1)"],["0.25","rgba(252,187,161,1)"],["0.291666666666667","rgba(253,174,145,1)"],["0.333333333333333","rgba(253,160,129,1)"],["0.375","rgba(252,146,114,1)"],["0.416666666666667","rgba(252,133,101,1)"],["0.458333333333333","rgba(252,120,87,1)"],["0.5","rgba(251,106,74,1)"],["0.541666666666667","rgba(247,92,64,1)"],["0.583333333333333","rgba(243,77,54,1)"],["0.625","rgba(239,59,44,1)"],["0.666666666666667","rgba(227,49,39,1)"],["0.708333333333333","rgba(215,37,34,1)"],["0.75","rgba(203,24,29,1)"],["0.791666666666667","rgba(190,21,26,1)"],["0.833333333333333","rgba(178,18,24,1)"],["0.875","rgba(165,15,21,1)"],["0.916666666666667","rgba(144,9,19,1)"],["0.958333333333333","rgba(123,3,16,1)"],["1","rgba(103,0,13,1)"]],"showscale":true,"locationmode":"USA-states","z":[0.10413619762641,0.0375343465859783,-0.155035374562915,0.0402697599342786,0.0779627804064934,-0.00246895399613645,0.0454657890462068,-0.0391894654713476,-0.0753369224758944,-0.212879420619819,0.270763690353284,-0.0700332511155624,0.0137648583479667,0.143880448571705,-0.0489715709690022,-0.0785620454780718,0.0731485514166152,-0.1088446734261,-0.0158001836766246,-0.0570785551757382,0.131618351469804,-0.0509361097438966,-0.151570823750822,0.1596206728914,0.0325948051750132,0.119374656410236,-0.135891451433089,-0.00490306030486443,0.0653300206571439,-0.021184814450014,-0.0364793128784952,0.015948497998224,-0.0746039637171636,0.0853373687088641,-0.097488211205092,0.00394804901157758,0.120033932454892,-0.0301113959639409,0.0432901940840892,-0.254840147776694,0.175395789637819,0.0338906763420933,0.0331871992426726,0.273686692967115,-0.297234587260423,-0.0742815980745575,-0.205481060624861,0.29309968995292,0.0832608781037724],"locations":["AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","IL","IN","IA","KS","KY","LA","ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY","NC","ND","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VT","VA","WA","WV","WI","WY"],"frame":"1992","zmin":-0.5,"zmax":0.5,"type":"choropleth","marker":{"line":{"colorbar":{"title":"","ticklen":2},"cmin":-0.666065574077788,"cmax":0.529821327371351,"colorscale":[["0","rgba(255,245,240,1)"],["0.0416666666666667","rgba(255,238,230,1)"],["0.0833333333333333","rgba(255,231,220,1)"],["0.125","rgba(254,224,210,1)"],["0.166666666666667","rgba(254,212,193,1)"],["0.208333333333333","rgba(253,199,177,1)"],["0.25","rgba(252,187,161,1)"],["0.291666666666667","rgba(253,174,145,1)"],["0.333333333333333","rgba(253,160,129,1)"],["0.375","rgba(252,146,114,1)"],["0.416666666666667","rgba(252,133,101,1)"],["0.458333333333333","rgba(252,120,87,1)"],["0.5","rgba(251,106,74,1)"],["0.541666666666667","rgba(247,92,64,1)"],["0.583333333333333","rgba(243,77,54,1)"],["0.625","rgba(239,59,44,1)"],["0.666666666666667","rgba(227,49,39,1)"],["0.708333333333333","rgba(215,37,34,1)"],["0.75","rgba(203,24,29,1)"],["0.791666666666667","rgba(190,21,26,1)"],["0.833333333333333","rgba(178,18,24,1)"],["0.875","rgba(165,15,21,1)"],["0.916666666666667","rgba(144,9,19,1)"],["0.958333333333333","rgba(123,3,16,1)"],["1","rgba(103,0,13,1)"]],"showscale":false,"color":[0.10413619762641,0.0375343465859783,-0.155035374562915,0.0402697599342786,0.0779627804064934,-0.00246895399613645,0.0454657890462068,-0.0391894654713476,-0.0753369224758944,-0.212879420619819,0.270763690353284,-0.0700332511155624,0.0137648583479667,0.143880448571705,-0.0489715709690022,-0.0785620454780718,0.0731485514166152,-0.1088446734261,-0.0158001836766246,-0.0570785551757382,0.131618351469804,-0.0509361097438966,-0.151570823750822,0.1596206728914,0.0325948051750132,0.119374656410236,-0.135891451433089,-0.00490306030486443,0.0653300206571439,-0.021184814450014,-0.0364793128784952,0.015948497998224,-0.0746039637171636,0.0853373687088641,-0.097488211205092,0.00394804901157758,0.120033932454892,-0.0301113959639409,0.0432901940840892,-0.254840147776694,0.175395789637819,0.0338906763420933,0.0331871992426726,0.273686692967115,-0.297234587260423,-0.0742815980745575,-0.205481060624861,0.29309968995292,0.0832608781037724]}},"geo":"geo","visible":true}],"traces":[0]},{"name":"1994","data":[{"colorbar":{"title":"swinginess","ticklen":2},"colorscale":[["0","rgba(255,245,240,1)"],["0.0416666666666667","rgba(255,238,230,1)"],["0.0833333333333333","rgba(255,231,220,1)"],["0.125","rgba(254,224,210,1)"],["0.166666666666667","rgba(254,212,193,1)"],["0.208333333333333","rgba(253,199,177,1)"],["0.25","rgba(252,187,161,1)"],["0.291666666666667","rgba(253,174,145,1)"],["0.333333333333333","rgba(253,160,129,1)"],["0.375","rgba(252,146,114,1)"],["0.416666666666667","rgba(252,133,101,1)"],["0.458333333333333","rgba(252,120,87,1)"],["0.5","rgba(251,106,74,1)"],["0.541666666666667","rgba(247,92,64,1)"],["0.583333333333333","rgba(243,77,54,1)"],["0.625","rgba(239,59,44,1)"],["0.666666666666667","rgba(227,49,39,1)"],["0.708333333333333","rgba(215,37,34,1)"],["0.75","rgba(203,24,29,1)"],["0.791666666666667","rgba(190,21,26,1)"],["0.833333333333333","rgba(178,18,24,1)"],["0.875","rgba(165,15,21,1)"],["0.916666666666667","rgba(144,9,19,1)"],["0.958333333333333","rgba(123,3,16,1)"],["1","rgba(103,0,13,1)"]],"showscale":true,"locationmode":"USA-states","z":[0.1329508757496,-0.0204482205099894,-0.0884998127471663,-0.0190575378896569,0.146573070487898,-0.148620224200128,0.222189177844426,-0.12872034263884,-0.0530731298371026,-0.19235666193934,0.296672595970289,-0.130314453258565,0.0480807369928635,0.0116757228205561,0.0561219491908169,-0.0473151503626181,-0.0679176156377929,-0.0219059401780657,0.00957461896205208,-0.204384593253111,0.216160872048842,-0.0299860838574925,-0.0695842851564427,0.0630956416636109,-0.0182279369578947,0.178180225942053,-0.0321728949208672,-0.00380818735794985,-0.0531835017297452,0.0305708488240791,-0.0799936058364632,0.0669598411360758,-0.108577533150633,0.129243100521968,0.00934630198386066,-0.165772202605489,0.115601191383873,-0.163713250505559,0.250865729489144,-0.258425904348513,0.17828969777796,0.0114961693820005,-0.0308488992824457,0.461334813612878,-0.408645110082125,-0.0833335981920726,-0.169420235065596,0.281289592299363,-0.0567894022489011],"locations":["AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","IL","IN","IA","KS","KY","LA","ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY","NC","ND","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VT","VA","WA","WV","WI","WY"],"frame":"1994","zmin":-0.5,"zmax":0.5,"type":"choropleth","marker":{"line":{"colorbar":{"title":"","ticklen":2},"cmin":-0.666065574077788,"cmax":0.529821327371351,"colorscale":[["0","rgba(255,245,240,1)"],["0.0416666666666667","rgba(255,238,230,1)"],["0.0833333333333333","rgba(255,231,220,1)"],["0.125","rgba(254,224,210,1)"],["0.166666666666667","rgba(254,212,193,1)"],["0.208333333333333","rgba(253,199,177,1)"],["0.25","rgba(252,187,161,1)"],["0.291666666666667","rgba(253,174,145,1)"],["0.333333333333333","rgba(253,160,129,1)"],["0.375","rgba(252,146,114,1)"],["0.416666666666667","rgba(252,133,101,1)"],["0.458333333333333","rgba(252,120,87,1)"],["0.5","rgba(251,106,74,1)"],["0.541666666666667","rgba(247,92,64,1)"],["0.583333333333333","rgba(243,77,54,1)"],["0.625","rgba(239,59,44,1)"],["0.666666666666667","rgba(227,49,39,1)"],["0.708333333333333","rgba(215,37,34,1)"],["0.75","rgba(203,24,29,1)"],["0.791666666666667","rgba(190,21,26,1)"],["0.833333333333333","rgba(178,18,24,1)"],["0.875","rgba(165,15,21,1)"],["0.916666666666667","rgba(144,9,19,1)"],["0.958333333333333","rgba(123,3,16,1)"],["1","rgba(103,0,13,1)"]],"showscale":false,"color":[0.1329508757496,-0.0204482205099894,-0.0884998127471663,-0.0190575378896569,0.146573070487898,-0.148620224200128,0.222189177844426,-0.12872034263884,-0.0530731298371026,-0.19235666193934,0.296672595970289,-0.130314453258565,0.0480807369928635,0.0116757228205561,0.0561219491908169,-0.0473151503626181,-0.0679176156377929,-0.0219059401780657,0.00957461896205208,-0.204384593253111,0.216160872048842,-0.0299860838574925,-0.0695842851564427,0.0630956416636109,-0.0182279369578947,0.178180225942053,-0.0321728949208672,-0.00380818735794985,-0.0531835017297452,0.0305708488240791,-0.0799936058364632,0.0669598411360758,-0.108577533150633,0.129243100521968,0.00934630198386066,-0.165772202605489,0.115601191383873,-0.163713250505559,0.250865729489144,-0.258425904348513,0.17828969777796,0.0114961693820005,-0.0308488992824457,0.461334813612878,-0.408645110082125,-0.0833335981920726,-0.169420235065596,0.281289592299363,-0.0567894022489011]}},"geo":"geo","visible":true}],"traces":[0]},{"name":"1996","data":[{"colorbar":{"title":"swinginess","ticklen":2},"colorscale":[["0","rgba(255,245,240,1)"],["0.0416666666666667","rgba(255,238,230,1)"],["0.0833333333333333","rgba(255,231,220,1)"],["0.125","rgba(254,224,210,1)"],["0.166666666666667","rgba(254,212,193,1)"],["0.208333333333333","rgba(253,199,177,1)"],["0.25","rgba(252,187,161,1)"],["0.291666666666667","rgba(253,174,145,1)"],["0.333333333333333","rgba(253,160,129,1)"],["0.375","rgba(252,146,114,1)"],["0.416666666666667","rgba(252,133,101,1)"],["0.458333333333333","rgba(252,120,87,1)"],["0.5","rgba(251,106,74,1)"],["0.541666666666667","rgba(247,92,64,1)"],["0.583333333333333","rgba(243,77,54,1)"],["0.625","rgba(239,59,44,1)"],["0.666666666666667","rgba(227,49,39,1)"],["0.708333333333333","rgba(215,37,34,1)"],["0.75","rgba(203,24,29,1)"],["0.791666666666667","rgba(190,21,26,1)"],["0.833333333333333","rgba(178,18,24,1)"],["0.875","rgba(165,15,21,1)"],["0.916666666666667","rgba(144,9,19,1)"],["0.958333333333333","rgba(123,3,16,1)"],["1","rgba(103,0,13,1)"]],"showscale":true,"locationmode":"USA-states","z":[0.0750337318369394,-0.0142212333668982,-0.0701775540401082,-0.0586088128593962,0.105690508423055,-0.152046015215143,0.286407577297629,-0.152513086403117,-0.0319246131208184,-0.12318363088425,0.190393429018957,-0.155477101426003,0.0979090406683663,0.00733380686194329,0.0322413039802427,0.00841445554234366,-0.104229208016352,-0.128203273109072,0.107323724498591,-0.13510379483762,0.133282063220874,-0.0319046372551782,0.119809501652263,-0.123740601160677,0.121049971485372,0.139190787122362,-0.0975680305547405,-0.0627366735723824,-0.0187823409144166,-0.0181327203831774,-0.0537175481214689,0.10445054166103,-0.101409947808231,0.0793014298684993,0.107742381679696,-0.19191848523702,0.0433668409347777,-0.169122813389364,0.355123898811436,-0.0550007870580101,-0.100061124987672,0.0179125265172051,0.0666422734455985,0.183238571758584,-0.255953436029159,-0.046385671486008,-0.352249322002201,0.403039317200479,0.0496215089926508],"locations":["AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","IL","IN","IA","KS","KY","LA","ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY","NC","ND","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VT","VA","WA","WV","WI","WY"],"frame":"1996","zmin":-0.5,"zmax":0.5,"type":"choropleth","marker":{"line":{"colorbar":{"title":"","ticklen":2},"cmin":-0.666065574077788,"cmax":0.529821327371351,"colorscale":[["0","rgba(255,245,240,1)"],["0.0416666666666667","rgba(255,238,230,1)"],["0.0833333333333333","rgba(255,231,220,1)"],["0.125","rgba(254,224,210,1)"],["0.166666666666667","rgba(254,212,193,1)"],["0.208333333333333","rgba(253,199,177,1)"],["0.25","rgba(252,187,161,1)"],["0.291666666666667","rgba(253,174,145,1)"],["0.333333333333333","rgba(253,160,129,1)"],["0.375","rgba(252,146,114,1)"],["0.416666666666667","rgba(252,133,101,1)"],["0.458333333333333","rgba(252,120,87,1)"],["0.5","rgba(251,106,74,1)"],["0.541666666666667","rgba(247,92,64,1)"],["0.583333333333333","rgba(243,77,54,1)"],["0.625","rgba(239,59,44,1)"],["0.666666666666667","rgba(227,49,39,1)"],["0.708333333333333","rgba(215,37,34,1)"],["0.75","rgba(203,24,29,1)"],["0.791666666666667","rgba(190,21,26,1)"],["0.833333333333333","rgba(178,18,24,1)"],["0.875","rgba(165,15,21,1)"],["0.916666666666667","rgba(144,9,19,1)"],["0.958333333333333","rgba(123,3,16,1)"],["1","rgba(103,0,13,1)"]],"showscale":false,"color":[0.0750337318369394,-0.0142212333668982,-0.0701775540401082,-0.0586088128593962,0.105690508423055,-0.152046015215143,0.286407577297629,-0.152513086403117,-0.0319246131208184,-0.12318363088425,0.190393429018957,-0.155477101426003,0.0979090406683663,0.00733380686194329,0.0322413039802427,0.00841445554234366,-0.104229208016352,-0.128203273109072,0.107323724498591,-0.13510379483762,0.133282063220874,-0.0319046372551782,0.119809501652263,-0.123740601160677,0.121049971485372,0.139190787122362,-0.0975680305547405,-0.0627366735723824,-0.0187823409144166,-0.0181327203831774,-0.0537175481214689,0.10445054166103,-0.101409947808231,0.0793014298684993,0.107742381679696,-0.19191848523702,0.0433668409347777,-0.169122813389364,0.355123898811436,-0.0550007870580101,-0.100061124987672,0.0179125265172051,0.0666422734455985,0.183238571758584,-0.255953436029159,-0.046385671486008,-0.352249322002201,0.403039317200479,0.0496215089926508]}},"geo":"geo","visible":true}],"traces":[0]},{"name":"1998","data":[{"colorbar":{"title":"swinginess","ticklen":2},"colorscale":[["0","rgba(255,245,240,1)"],["0.0416666666666667","rgba(255,238,230,1)"],["0.0833333333333333","rgba(255,231,220,1)"],["0.125","rgba(254,224,210,1)"],["0.166666666666667","rgba(254,212,193,1)"],["0.208333333333333","rgba(253,199,177,1)"],["0.25","rgba(252,187,161,1)"],["0.291666666666667","rgba(253,174,145,1)"],["0.333333333333333","rgba(253,160,129,1)"],["0.375","rgba(252,146,114,1)"],["0.416666666666667","rgba(252,133,101,1)"],["0.458333333333333","rgba(252,120,87,1)"],["0.5","rgba(251,106,74,1)"],["0.541666666666667","rgba(247,92,64,1)"],["0.583333333333333","rgba(243,77,54,1)"],["0.625","rgba(239,59,44,1)"],["0.666666666666667","rgba(227,49,39,1)"],["0.708333333333333","rgba(215,37,34,1)"],["0.75","rgba(203,24,29,1)"],["0.791666666666667","rgba(190,21,26,1)"],["0.833333333333333","rgba(178,18,24,1)"],["0.875","rgba(165,15,21,1)"],["0.916666666666667","rgba(144,9,19,1)"],["0.958333333333333","rgba(123,3,16,1)"],["1","rgba(103,0,13,1)"]],"showscale":true,"locationmode":"USA-states","z":[0.0943330059185846,-0.0588725960960366,0.0698636021933762,-0.19000664282176,0.108135236782424,-0.101585601037064,0.204441679917592,-0.185921895932284,0.147194099353397,-0.323395127564108,0.233242191669628,-0.0378590726946875,0.0522546614950862,0.058393282326615,0.00323925374172407,-0.0403461294733232,-0.252065186971749,-0.0227029636303388,0.157380283456676,-0.225331076068231,0.254699136233128,-0.0529324526642049,0.0275005526566032,0.0179663745244965,0.0571803382609059,0.245348829357847,-0.0135135316386282,-0.170939227987073,-0.117805954718486,0.0315209590594743,-0.0698991274706858,0.101641616189245,-0.128373524326225,0.10130002342649,0.107580884453453,-0.242504153668403,0.127235510494737,-0.242653935074905,0.337321255669358,0.140156716911459,-0.218415891442775,0.00608845677394942,0.167820003460225,0.293677932774787,-0.486854221497921,-0.0580682756931197,-0.361814846282878,0.442817984539454,0.0629400983178751],"locations":["AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","IL","IN","IA","KS","KY","LA","ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY","NC","ND","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VT","VA","WA","WV","WI","WY"],"frame":"1998","zmin":-0.5,"zmax":0.5,"type":"choropleth","marker":{"line":{"colorbar":{"title":"","ticklen":2},"cmin":-0.666065574077788,"cmax":0.529821327371351,"colorscale":[["0","rgba(255,245,240,1)"],["0.0416666666666667","rgba(255,238,230,1)"],["0.0833333333333333","rgba(255,231,220,1)"],["0.125","rgba(254,224,210,1)"],["0.166666666666667","rgba(254,212,193,1)"],["0.208333333333333","rgba(253,199,177,1)"],["0.25","rgba(252,187,161,1)"],["0.291666666666667","rgba(253,174,145,1)"],["0.333333333333333","rgba(253,160,129,1)"],["0.375","rgba(252,146,114,1)"],["0.416666666666667","rgba(252,133,101,1)"],["0.458333333333333","rgba(252,120,87,1)"],["0.5","rgba(251,106,74,1)"],["0.541666666666667","rgba(247,92,64,1)"],["0.583333333333333","rgba(243,77,54,1)"],["0.625","rgba(239,59,44,1)"],["0.666666666666667","rgba(227,49,39,1)"],["0.708333333333333","rgba(215,37,34,1)"],["0.75","rgba(203,24,29,1)"],["0.791666666666667","rgba(190,21,26,1)"],["0.833333333333333","rgba(178,18,24,1)"],["0.875","rgba(165,15,21,1)"],["0.916666666666667","rgba(144,9,19,1)"],["0.958333333333333","rgba(123,3,16,1)"],["1","rgba(103,0,13,1)"]],"showscale":false,"color":[0.0943330059185846,-0.0588725960960366,0.0698636021933762,-0.19000664282176,0.108135236782424,-0.101585601037064,0.204441679917592,-0.185921895932284,0.147194099353397,-0.323395127564108,0.233242191669628,-0.0378590726946875,0.0522546614950862,0.058393282326615,0.00323925374172407,-0.0403461294733232,-0.252065186971749,-0.0227029636303388,0.157380283456676,-0.225331076068231,0.254699136233128,-0.0529324526642049,0.0275005526566032,0.0179663745244965,0.0571803382609059,0.245348829357847,-0.0135135316386282,-0.170939227987073,-0.117805954718486,0.0315209590594743,-0.0698991274706858,0.101641616189245,-0.128373524326225,0.10130002342649,0.107580884453453,-0.242504153668403,0.127235510494737,-0.242653935074905,0.337321255669358,0.140156716911459,-0.218415891442775,0.00608845677394942,0.167820003460225,0.293677932774787,-0.486854221497921,-0.0580682756931197,-0.361814846282878,0.442817984539454,0.0629400983178751]}},"geo":"geo","visible":true}],"traces":[0]},{"name":"2000","data":[{"colorbar":{"title":"swinginess","ticklen":2},"colorscale":[["0","rgba(255,245,240,1)"],["0.0416666666666667","rgba(255,238,230,1)"],["0.0833333333333333","rgba(255,231,220,1)"],["0.125","rgba(254,224,210,1)"],["0.166666666666667","rgba(254,212,193,1)"],["0.208333333333333","rgba(253,199,177,1)"],["0.25","rgba(252,187,161,1)"],["0.291666666666667","rgba(253,174,145,1)"],["0.333333333333333","rgba(253,160,129,1)"],["0.375","rgba(252,146,114,1)"],["0.416666666666667","rgba(252,133,101,1)"],["0.458333333333333","rgba(252,120,87,1)"],["0.5","rgba(251,106,74,1)"],["0.541666666666667","rgba(247,92,64,1)"],["0.583333333333333","rgba(243,77,54,1)"],["0.625","rgba(239,59,44,1)"],["0.666666666666667","rgba(227,49,39,1)"],["0.708333333333333","rgba(215,37,34,1)"],["0.75","rgba(203,24,29,1)"],["0.791666666666667","rgba(190,21,26,1)"],["0.833333333333333","rgba(178,18,24,1)"],["0.875","rgba(165,15,21,1)"],["0.916666666666667","rgba(144,9,19,1)"],["0.958333333333333","rgba(123,3,16,1)"],["1","rgba(103,0,13,1)"]],"showscale":true,"locationmode":"USA-states","z":[0.171756711270816,-0.202855650290924,-0.166913367544846,0.013074910844663,0.210090362107398,-0.201673100938018,0.227357530695767,-0.0963511742924722,0.0293985839704575,-0.286312623067303,0.366574645451072,-0.262969116260927,0.107392554617302,0.0295838535482084,0.0928704905768331,-0.0723136162734096,0.0914081635291751,-0.361341733621243,0.121695772295149,-0.298044889925131,0.302121131644994,-0.00478614060455324,0.0399497440098709,0.0140423224885476,0.0267811269494539,0.205340465568351,-0.136654344039147,-0.0359531535383008,-0.0848346092643756,0.00288532270441172,-0.0415095582260039,0.123307876251721,-0.102257636870516,0.0588411880257648,0.159741199319208,-0.241194053302378,0.0600071232395503,-0.228757942017407,0.315744023775468,0.165443059946816,-0.199135514203165,-0.0360953962823696,0.0716606813025774,0.193699085093902,-0.260684661809865,-0.0715726688172776,-0.239338705623126,0.319325233881135,0.175809388606985],"locations":["AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","IL","IN","IA","KS","KY","LA","ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY","NC","ND","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VT","VA","WA","WV","WI","WY"],"frame":"2000","zmin":-0.5,"zmax":0.5,"type":"choropleth","marker":{"line":{"colorbar":{"title":"","ticklen":2},"cmin":-0.666065574077788,"cmax":0.529821327371351,"colorscale":[["0","rgba(255,245,240,1)"],["0.0416666666666667","rgba(255,238,230,1)"],["0.0833333333333333","rgba(255,231,220,1)"],["0.125","rgba(254,224,210,1)"],["0.166666666666667","rgba(254,212,193,1)"],["0.208333333333333","rgba(253,199,177,1)"],["0.25","rgba(252,187,161,1)"],["0.291666666666667","rgba(253,174,145,1)"],["0.333333333333333","rgba(253,160,129,1)"],["0.375","rgba(252,146,114,1)"],["0.416666666666667","rgba(252,133,101,1)"],["0.458333333333333","rgba(252,120,87,1)"],["0.5","rgba(251,106,74,1)"],["0.541666666666667","rgba(247,92,64,1)"],["0.583333333333333","rgba(243,77,54,1)"],["0.625","rgba(239,59,44,1)"],["0.666666666666667","rgba(227,49,39,1)"],["0.708333333333333","rgba(215,37,34,1)"],["0.75","rgba(203,24,29,1)"],["0.791666666666667","rgba(190,21,26,1)"],["0.833333333333333","rgba(178,18,24,1)"],["0.875","rgba(165,15,21,1)"],["0.916666666666667","rgba(144,9,19,1)"],["0.958333333333333","rgba(123,3,16,1)"],["1","rgba(103,0,13,1)"]],"showscale":false,"color":[0.171756711270816,-0.202855650290924,-0.166913367544846,0.013074910844663,0.210090362107398,-0.201673100938018,0.227357530695767,-0.0963511742924722,0.0293985839704575,-0.286312623067303,0.366574645451072,-0.262969116260927,0.107392554617302,0.0295838535482084,0.0928704905768331,-0.0723136162734096,0.0914081635291751,-0.361341733621243,0.121695772295149,-0.298044889925131,0.302121131644994,-0.00478614060455324,0.0399497440098709,0.0140423224885476,0.0267811269494539,0.205340465568351,-0.136654344039147,-0.0359531535383008,-0.0848346092643756,0.00288532270441172,-0.0415095582260039,0.123307876251721,-0.102257636870516,0.0588411880257648,0.159741199319208,-0.241194053302378,0.0600071232395503,-0.228757942017407,0.315744023775468,0.165443059946816,-0.199135514203165,-0.0360953962823696,0.0716606813025774,0.193699085093902,-0.260684661809865,-0.0715726688172776,-0.239338705623126,0.319325233881135,0.175809388606985]}},"geo":"geo","visible":true}],"traces":[0]},{"name":"2002","data":[{"colorbar":{"title":"swinginess","ticklen":2},"colorscale":[["0","rgba(255,245,240,1)"],["0.0416666666666667","rgba(255,238,230,1)"],["0.0833333333333333","rgba(255,231,220,1)"],["0.125","rgba(254,224,210,1)"],["0.166666666666667","rgba(254,212,193,1)"],["0.208333333333333","rgba(253,199,177,1)"],["0.25","rgba(252,187,161,1)"],["0.291666666666667","rgba(253,174,145,1)"],["0.333333333333333","rgba(253,160,129,1)"],["0.375","rgba(252,146,114,1)"],["0.416666666666667","rgba(252,133,101,1)"],["0.458333333333333","rgba(252,120,87,1)"],["0.5","rgba(251,106,74,1)"],["0.541666666666667","rgba(247,92,64,1)"],["0.583333333333333","rgba(243,77,54,1)"],["0.625","rgba(239,59,44,1)"],["0.666666666666667","rgba(227,49,39,1)"],["0.708333333333333","rgba(215,37,34,1)"],["0.75","rgba(203,24,29,1)"],["0.791666666666667","rgba(190,21,26,1)"],["0.833333333333333","rgba(178,18,24,1)"],["0.875","rgba(165,15,21,1)"],["0.916666666666667","rgba(144,9,19,1)"],["0.958333333333333","rgba(123,3,16,1)"],["1","rgba(103,0,13,1)"]],"showscale":true,"locationmode":"USA-states","z":[0.233718420423127,-0.22083573884708,-0.171050156014609,0.0438335379876355,0.0972341864029606,-0.0829872262985922,0.25165891566609,-0.145190791383223,-0.00876133377930544,-0.241299771464468,0.315664194513379,-0.162259387710253,0.0798192738201964,-0.0211333764051082,0.127033641897231,-0.00933466489093759,-0.0389409727865395,-0.20970675324724,0.038867463136088,-0.294653891891887,0.334782290275381,-0.0105175643273853,0.0302096688041349,0.029015433552107,0.121046114610244,0.227775227220701,-0.254422625244664,-0.0459871583225079,-0.116084287986445,-0.0746662237660547,0.0782958045630779,0.0755354984182395,-0.0787236382285177,0.0954956622554564,0.0110670204722584,-0.143837365666847,0.140916850750154,-0.277741690321639,0.319642077001271,-0.0819755441594993,-0.0184709055152873,0.0275191611925966,0.043995957328162,0.407446258375706,-0.304149832864599,-0.233955271496149,-0.122817901727399,0.228678874117119,0.057869876905474],"locations":["AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","IL","IN","IA","KS","KY","LA","ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY","NC","ND","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VT","VA","WA","WV","WI","WY"],"frame":"2002","zmin":-0.5,"zmax":0.5,"type":"choropleth","marker":{"line":{"colorbar":{"title":"","ticklen":2},"cmin":-0.666065574077788,"cmax":0.529821327371351,"colorscale":[["0","rgba(255,245,240,1)"],["0.0416666666666667","rgba(255,238,230,1)"],["0.0833333333333333","rgba(255,231,220,1)"],["0.125","rgba(254,224,210,1)"],["0.166666666666667","rgba(254,212,193,1)"],["0.208333333333333","rgba(253,199,177,1)"],["0.25","rgba(252,187,161,1)"],["0.291666666666667","rgba(253,174,145,1)"],["0.333333333333333","rgba(253,160,129,1)"],["0.375","rgba(252,146,114,1)"],["0.416666666666667","rgba(252,133,101,1)"],["0.458333333333333","rgba(252,120,87,1)"],["0.5","rgba(251,106,74,1)"],["0.541666666666667","rgba(247,92,64,1)"],["0.583333333333333","rgba(243,77,54,1)"],["0.625","rgba(239,59,44,1)"],["0.666666666666667","rgba(227,49,39,1)"],["0.708333333333333","rgba(215,37,34,1)"],["0.75","rgba(203,24,29,1)"],["0.791666666666667","rgba(190,21,26,1)"],["0.833333333333333","rgba(178,18,24,1)"],["0.875","rgba(165,15,21,1)"],["0.916666666666667","rgba(144,9,19,1)"],["0.958333333333333","rgba(123,3,16,1)"],["1","rgba(103,0,13,1)"]],"showscale":false,"color":[0.233718420423127,-0.22083573884708,-0.171050156014609,0.0438335379876355,0.0972341864029606,-0.0829872262985922,0.25165891566609,-0.145190791383223,-0.00876133377930544,-0.241299771464468,0.315664194513379,-0.162259387710253,0.0798192738201964,-0.0211333764051082,0.127033641897231,-0.00933466489093759,-0.0389409727865395,-0.20970675324724,0.038867463136088,-0.294653891891887,0.334782290275381,-0.0105175643273853,0.0302096688041349,0.029015433552107,0.121046114610244,0.227775227220701,-0.254422625244664,-0.0459871583225079,-0.116084287986445,-0.0746662237660547,0.0782958045630779,0.0755354984182395,-0.0787236382285177,0.0954956622554564,0.0110670204722584,-0.143837365666847,0.140916850750154,-0.277741690321639,0.319642077001271,-0.0819755441594993,-0.0184709055152873,0.0275191611925966,0.043995957328162,0.407446258375706,-0.304149832864599,-0.233955271496149,-0.122817901727399,0.228678874117119,0.057869876905474]}},"geo":"geo","visible":true}],"traces":[0]},{"name":"2004","data":[{"colorbar":{"title":"swinginess","ticklen":2},"colorscale":[["0","rgba(255,245,240,1)"],["0.0416666666666667","rgba(255,238,230,1)"],["0.0833333333333333","rgba(255,231,220,1)"],["0.125","rgba(254,224,210,1)"],["0.166666666666667","rgba(254,212,193,1)"],["0.208333333333333","rgba(253,199,177,1)"],["0.25","rgba(252,187,161,1)"],["0.291666666666667","rgba(253,174,145,1)"],["0.333333333333333","rgba(253,160,129,1)"],["0.375","rgba(252,146,114,1)"],["0.416666666666667","rgba(252,133,101,1)"],["0.458333333333333","rgba(252,120,87,1)"],["0.5","rgba(251,106,74,1)"],["0.541666666666667","rgba(247,92,64,1)"],["0.583333333333333","rgba(243,77,54,1)"],["0.625","rgba(239,59,44,1)"],["0.666666666666667","rgba(227,49,39,1)"],["0.708333333333333","rgba(215,37,34,1)"],["0.75","rgba(203,24,29,1)"],["0.791666666666667","rgba(190,21,26,1)"],["0.833333333333333","rgba(178,18,24,1)"],["0.875","rgba(165,15,21,1)"],["0.916666666666667","rgba(144,9,19,1)"],["0.958333333333333","rgba(123,3,16,1)"],["1","rgba(103,0,13,1)"]],"showscale":true,"locationmode":"USA-states","z":[0.156890528858216,-0.107066239902096,-0.197331080841567,-0.00929599577803836,0.0521278797297741,-0.0541635240998516,0.254440257685337,-0.09935057309718,0.0146020164428488,-0.252893022927777,0.339399047807631,-0.24195913043717,0.12114787073972,-0.0119394435039906,0.083202255040518,-0.02339858175139,-0.00265027137519813,-0.221900502969712,0.00241304835994877,-0.231652959038843,0.330664756586705,-0.03611556282942,0.193034172927513,-0.116807625930238,0.11749614487941,0.0279759545363913,-0.133165239790646,0.0617307569123454,-0.151163882049641,0.0136808709401454,-0.0823642235410155,0.111338513241555,-0.106363075119705,0.108748020682811,0.179120508091551,-0.247731440267367,0.0641016686243452,-0.220651595284015,0.365498986552091,-0.190975358225809,0.0669019989847979,0.0671428506394278,-0.00652075935257512,0.184013731491368,-0.134218944072683,-0.234698738587048,0.0167053642035495,0.0804268609973181,0.0669575827653],"locations":["AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","IL","IN","IA","KS","KY","LA","ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY","NC","ND","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VT","VA","WA","WV","WI","WY"],"frame":"2004","zmin":-0.5,"zmax":0.5,"type":"choropleth","marker":{"line":{"colorbar":{"title":"","ticklen":2},"cmin":-0.666065574077788,"cmax":0.529821327371351,"colorscale":[["0","rgba(255,245,240,1)"],["0.0416666666666667","rgba(255,238,230,1)"],["0.0833333333333333","rgba(255,231,220,1)"],["0.125","rgba(254,224,210,1)"],["0.166666666666667","rgba(254,212,193,1)"],["0.208333333333333","rgba(253,199,177,1)"],["0.25","rgba(252,187,161,1)"],["0.291666666666667","rgba(253,174,145,1)"],["0.333333333333333","rgba(253,160,129,1)"],["0.375","rgba(252,146,114,1)"],["0.416666666666667","rgba(252,133,101,1)"],["0.458333333333333","rgba(252,120,87,1)"],["0.5","rgba(251,106,74,1)"],["0.541666666666667","rgba(247,92,64,1)"],["0.583333333333333","rgba(243,77,54,1)"],["0.625","rgba(239,59,44,1)"],["0.666666666666667","rgba(227,49,39,1)"],["0.708333333333333","rgba(215,37,34,1)"],["0.75","rgba(203,24,29,1)"],["0.791666666666667","rgba(190,21,26,1)"],["0.833333333333333","rgba(178,18,24,1)"],["0.875","rgba(165,15,21,1)"],["0.916666666666667","rgba(144,9,19,1)"],["0.958333333333333","rgba(123,3,16,1)"],["1","rgba(103,0,13,1)"]],"showscale":false,"color":[0.156890528858216,-0.107066239902096,-0.197331080841567,-0.00929599577803836,0.0521278797297741,-0.0541635240998516,0.254440257685337,-0.09935057309718,0.0146020164428488,-0.252893022927777,0.339399047807631,-0.24195913043717,0.12114787073972,-0.0119394435039906,0.083202255040518,-0.02339858175139,-0.00265027137519813,-0.221900502969712,0.00241304835994877,-0.231652959038843,0.330664756586705,-0.03611556282942,0.193034172927513,-0.116807625930238,0.11749614487941,0.0279759545363913,-0.133165239790646,0.0617307569123454,-0.151163882049641,0.0136808709401454,-0.0823642235410155,0.111338513241555,-0.106363075119705,0.108748020682811,0.179120508091551,-0.247731440267367,0.0641016686243452,-0.220651595284015,0.365498986552091,-0.190975358225809,0.0669019989847979,0.0671428506394278,-0.00652075935257512,0.184013731491368,-0.134218944072683,-0.234698738587048,0.0167053642035495,0.0804268609973181,0.0669575827653]}},"geo":"geo","visible":true}],"traces":[0]},{"name":"2006","data":[{"colorbar":{"title":"swinginess","ticklen":2},"colorscale":[["0","rgba(255,245,240,1)"],["0.0416666666666667","rgba(255,238,230,1)"],["0.0833333333333333","rgba(255,231,220,1)"],["0.125","rgba(254,224,210,1)"],["0.166666666666667","rgba(254,212,193,1)"],["0.208333333333333","rgba(253,199,177,1)"],["0.25","rgba(252,187,161,1)"],["0.291666666666667","rgba(253,174,145,1)"],["0.333333333333333","rgba(253,160,129,1)"],["0.375","rgba(252,146,114,1)"],["0.416666666666667","rgba(252,133,101,1)"],["0.458333333333333","rgba(252,120,87,1)"],["0.5","rgba(251,106,74,1)"],["0.541666666666667","rgba(247,92,64,1)"],["0.583333333333333","rgba(243,77,54,1)"],["0.625","rgba(239,59,44,1)"],["0.666666666666667","rgba(227,49,39,1)"],["0.708333333333333","rgba(215,37,34,1)"],["0.75","rgba(203,24,29,1)"],["0.791666666666667","rgba(190,21,26,1)"],["0.833333333333333","rgba(178,18,24,1)"],["0.875","rgba(165,15,21,1)"],["0.916666666666667","rgba(144,9,19,1)"],["0.958333333333333","rgba(123,3,16,1)"],["1","rgba(103,0,13,1)"]],"showscale":true,"locationmode":"USA-states","z":[0.0302129844102401,-0.0342674081482166,-0.149856905718544,0.0108955759993566,0.0157078634508429,-0.0352669524374731,0.202982080098608,-0.0188991052296251,-0.0273105382982998,-0.200164126416855,0.233549727760364,-0.162436029069663,0.0851849908080225,0.008637756249532,0.039860411213155,-0.0502198604081573,0.205922766518048,-0.392543065217411,0.0146523002551827,-0.223729308619958,0.349474805738557,-0.0127977422222258,0.0938199903674763,-0.0249623716741556,0.0867725292661631,-0.0401358638195723,-0.0857566482391597,0.000306029004435382,-0.047316374403113,0.0139451208563922,-0.11791759858595,0.147004387833806,-0.127685168303333,0.130064035863741,0.10819246807153,-0.160179643284777,0.0160019900308224,-0.300886130809958,0.422777835005947,-0.261103977741736,0.183472311160885,0.0627830642339258,0.000165655918993424,-0.0888555672189171,0.107895863922786,-0.172748831106705,0.0290313601254537,0.0892254927419835,-0.00630809231013196],"locations":["AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","IL","IN","IA","KS","KY","LA","ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY","NC","ND","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VT","VA","WA","WV","WI","WY"],"frame":"2006","zmin":-0.5,"zmax":0.5,"type":"choropleth","marker":{"line":{"colorbar":{"title":"","ticklen":2},"cmin":-0.666065574077788,"cmax":0.529821327371351,"colorscale":[["0","rgba(255,245,240,1)"],["0.0416666666666667","rgba(255,238,230,1)"],["0.0833333333333333","rgba(255,231,220,1)"],["0.125","rgba(254,224,210,1)"],["0.166666666666667","rgba(254,212,193,1)"],["0.208333333333333","rgba(253,199,177,1)"],["0.25","rgba(252,187,161,1)"],["0.291666666666667","rgba(253,174,145,1)"],["0.333333333333333","rgba(253,160,129,1)"],["0.375","rgba(252,146,114,1)"],["0.416666666666667","rgba(252,133,101,1)"],["0.458333333333333","rgba(252,120,87,1)"],["0.5","rgba(251,106,74,1)"],["0.541666666666667","rgba(247,92,64,1)"],["0.583333333333333","rgba(243,77,54,1)"],["0.625","rgba(239,59,44,1)"],["0.666666666666667","rgba(227,49,39,1)"],["0.708333333333333","rgba(215,37,34,1)"],["0.75","rgba(203,24,29,1)"],["0.791666666666667","rgba(190,21,26,1)"],["0.833333333333333","rgba(178,18,24,1)"],["0.875","rgba(165,15,21,1)"],["0.916666666666667","rgba(144,9,19,1)"],["0.958333333333333","rgba(123,3,16,1)"],["1","rgba(103,0,13,1)"]],"showscale":false,"color":[0.0302129844102401,-0.0342674081482166,-0.149856905718544,0.0108955759993566,0.0157078634508429,-0.0352669524374731,0.202982080098608,-0.0188991052296251,-0.0273105382982998,-0.200164126416855,0.233549727760364,-0.162436029069663,0.0851849908080225,0.008637756249532,0.039860411213155,-0.0502198604081573,0.205922766518048,-0.392543065217411,0.0146523002551827,-0.223729308619958,0.349474805738557,-0.0127977422222258,0.0938199903674763,-0.0249623716741556,0.0867725292661631,-0.0401358638195723,-0.0857566482391597,0.000306029004435382,-0.047316374403113,0.0139451208563922,-0.11791759858595,0.147004387833806,-0.127685168303333,0.130064035863741,0.10819246807153,-0.160179643284777,0.0160019900308224,-0.300886130809958,0.422777835005947,-0.261103977741736,0.183472311160885,0.0627830642339258,0.000165655918993424,-0.0888555672189171,0.107895863922786,-0.172748831106705,0.0290313601254537,0.0892254927419835,-0.00630809231013196]}},"geo":"geo","visible":true}],"traces":[0]},{"name":"2008","data":[{"colorbar":{"title":"swinginess","ticklen":2},"colorscale":[["0","rgba(255,245,240,1)"],["0.0416666666666667","rgba(255,238,230,1)"],["0.0833333333333333","rgba(255,231,220,1)"],["0.125","rgba(254,224,210,1)"],["0.166666666666667","rgba(254,212,193,1)"],["0.208333333333333","rgba(253,199,177,1)"],["0.25","rgba(252,187,161,1)"],["0.291666666666667","rgba(253,174,145,1)"],["0.333333333333333","rgba(253,160,129,1)"],["0.375","rgba(252,146,114,1)"],["0.416666666666667","rgba(252,133,101,1)"],["0.458333333333333","rgba(252,120,87,1)"],["0.5","rgba(251,106,74,1)"],["0.541666666666667","rgba(247,92,64,1)"],["0.583333333333333","rgba(243,77,54,1)"],["0.625","rgba(239,59,44,1)"],["0.666666666666667","rgba(227,49,39,1)"],["0.708333333333333","rgba(215,37,34,1)"],["0.75","rgba(203,24,29,1)"],["0.791666666666667","rgba(190,21,26,1)"],["0.833333333333333","rgba(178,18,24,1)"],["0.875","rgba(165,15,21,1)"],["0.916666666666667","rgba(144,9,19,1)"],["0.958333333333333","rgba(123,3,16,1)"],["1","rgba(103,0,13,1)"]],"showscale":true,"locationmode":"USA-states","z":[-0.0822655862351779,-0.035228412083887,-0.150719916307543,0.0384489793765742,0.0605985661730365,-0.10292889560842,0.279202494513971,-0.0918131286361233,-0.0331418712901489,-0.286510066011036,0.387271613818493,-0.210595923863929,0.0900387479599079,0.00721672476991703,0.115811913192299,-0.0383073726466899,0.0421220306670949,-0.206855656839481,-0.0792278898765139,-0.188351366447981,0.332365572246322,-0.0578949488482412,0.0201395797845349,0.0628553178526889,0.182574716749871,-0.00584508212180079,-0.202254913310916,-0.00937483535116534,-0.0134530294460521,-0.02071808374717,-0.0906703098503679,0.131311874701975,-0.0729700942796134,0.0948905168376828,0.139277430307713,-0.318303895375286,0.14381013972482,-0.158775679626561,0.22426790049833,-0.180982801957632,0.125432490637606,0.13535851149319,-0.0238774821456978,-0.561356076455032,0.461942369263607,-0.0539265529708631,-0.0774698411512071,0.14903874163541,0.0718560274184797],"locations":["AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","IL","IN","IA","KS","KY","LA","ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY","NC","ND","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VT","VA","WA","WV","WI","WY"],"frame":"2008","zmin":-0.5,"zmax":0.5,"type":"choropleth","marker":{"line":{"colorbar":{"title":"","ticklen":2},"cmin":-0.666065574077788,"cmax":0.529821327371351,"colorscale":[["0","rgba(255,245,240,1)"],["0.0416666666666667","rgba(255,238,230,1)"],["0.0833333333333333","rgba(255,231,220,1)"],["0.125","rgba(254,224,210,1)"],["0.166666666666667","rgba(254,212,193,1)"],["0.208333333333333","rgba(253,199,177,1)"],["0.25","rgba(252,187,161,1)"],["0.291666666666667","rgba(253,174,145,1)"],["0.333333333333333","rgba(253,160,129,1)"],["0.375","rgba(252,146,114,1)"],["0.416666666666667","rgba(252,133,101,1)"],["0.458333333333333","rgba(252,120,87,1)"],["0.5","rgba(251,106,74,1)"],["0.541666666666667","rgba(247,92,64,1)"],["0.583333333333333","rgba(243,77,54,1)"],["0.625","rgba(239,59,44,1)"],["0.666666666666667","rgba(227,49,39,1)"],["0.708333333333333","rgba(215,37,34,1)"],["0.75","rgba(203,24,29,1)"],["0.791666666666667","rgba(190,21,26,1)"],["0.833333333333333","rgba(178,18,24,1)"],["0.875","rgba(165,15,21,1)"],["0.916666666666667","rgba(144,9,19,1)"],["0.958333333333333","rgba(123,3,16,1)"],["1","rgba(103,0,13,1)"]],"showscale":false,"color":[-0.0822655862351779,-0.035228412083887,-0.150719916307543,0.0384489793765742,0.0605985661730365,-0.10292889560842,0.279202494513971,-0.0918131286361233,-0.0331418712901489,-0.286510066011036,0.387271613818493,-0.210595923863929,0.0900387479599079,0.00721672476991703,0.115811913192299,-0.0383073726466899,0.0421220306670949,-0.206855656839481,-0.0792278898765139,-0.188351366447981,0.332365572246322,-0.0578949488482412,0.0201395797845349,0.0628553178526889,0.182574716749871,-0.00584508212180079,-0.202254913310916,-0.00937483535116534,-0.0134530294460521,-0.02071808374717,-0.0906703098503679,0.131311874701975,-0.0729700942796134,0.0948905168376828,0.139277430307713,-0.318303895375286,0.14381013972482,-0.158775679626561,0.22426790049833,-0.180982801957632,0.125432490637606,0.13535851149319,-0.0238774821456978,-0.561356076455032,0.461942369263607,-0.0539265529708631,-0.0774698411512071,0.14903874163541,0.0718560274184797]}},"geo":"geo","visible":true}],"traces":[0]},{"name":"2010","data":[{"colorbar":{"title":"swinginess","ticklen":2},"colorscale":[["0","rgba(255,245,240,1)"],["0.0416666666666667","rgba(255,238,230,1)"],["0.0833333333333333","rgba(255,231,220,1)"],["0.125","rgba(254,224,210,1)"],["0.166666666666667","rgba(254,212,193,1)"],["0.208333333333333","rgba(253,199,177,1)"],["0.25","rgba(252,187,161,1)"],["0.291666666666667","rgba(253,174,145,1)"],["0.333333333333333","rgba(253,160,129,1)"],["0.375","rgba(252,146,114,1)"],["0.416666666666667","rgba(252,133,101,1)"],["0.458333333333333","rgba(252,120,87,1)"],["0.5","rgba(251,106,74,1)"],["0.541666666666667","rgba(247,92,64,1)"],["0.583333333333333","rgba(243,77,54,1)"],["0.625","rgba(239,59,44,1)"],["0.666666666666667","rgba(227,49,39,1)"],["0.708333333333333","rgba(215,37,34,1)"],["0.75","rgba(203,24,29,1)"],["0.791666666666667","rgba(190,21,26,1)"],["0.833333333333333","rgba(178,18,24,1)"],["0.875","rgba(165,15,21,1)"],["0.916666666666667","rgba(144,9,19,1)"],["0.958333333333333","rgba(123,3,16,1)"],["1","rgba(103,0,13,1)"]],"showscale":true,"locationmode":"USA-states","z":[0.00744636090349615,-0.134735984936978,0.0194361539413681,-0.128939129870372,0.0752491649547537,-0.116297319613343,0.0116018329146895,0.198870549045296,0.000629617057673837,-0.25589146364823,0.272890188721837,-0.157788875123095,0.11046697429966,-0.0341828430667275,0.103045131775229,-0.0324895440427418,0.0594449901742813,-0.244790693935567,-0.0606119682520085,-0.00215120468365515,0.18266844559288,-0.0675980317888454,0.0549952439217754,0.0620308156462304,0.0318453049587107,0.0636313322233056,-0.175297881841857,0.00519523619924589,-0.0271226180511764,-0.023456899960938,-0.0676807816808017,0.128445243206489,0.00455215777624118,0.0111005325918849,0.140355567474889,-0.228124951311283,0.0468594790231494,-0.113365849334483,0.174874370055581,-0.0690619452977493,0.126317904952927,0.0401731837131193,-0.0365670350708227,-0.310171900958408,0.233961589505684,-0.0987328161156756,0.0872192098139853,-9.5098111596692e-05,0.188098757120146],"locations":["AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","IL","IN","IA","KS","KY","LA","ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY","NC","ND","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VT","VA","WA","WV","WI","WY"],"frame":"2010","zmin":-0.5,"zmax":0.5,"type":"choropleth","marker":{"line":{"colorbar":{"title":"","ticklen":2},"cmin":-0.666065574077788,"cmax":0.529821327371351,"colorscale":[["0","rgba(255,245,240,1)"],["0.0416666666666667","rgba(255,238,230,1)"],["0.0833333333333333","rgba(255,231,220,1)"],["0.125","rgba(254,224,210,1)"],["0.166666666666667","rgba(254,212,193,1)"],["0.208333333333333","rgba(253,199,177,1)"],["0.25","rgba(252,187,161,1)"],["0.291666666666667","rgba(253,174,145,1)"],["0.333333333333333","rgba(253,160,129,1)"],["0.375","rgba(252,146,114,1)"],["0.416666666666667","rgba(252,133,101,1)"],["0.458333333333333","rgba(252,120,87,1)"],["0.5","rgba(251,106,74,1)"],["0.541666666666667","rgba(247,92,64,1)"],["0.583333333333333","rgba(243,77,54,1)"],["0.625","rgba(239,59,44,1)"],["0.666666666666667","rgba(227,49,39,1)"],["0.708333333333333","rgba(215,37,34,1)"],["0.75","rgba(203,24,29,1)"],["0.791666666666667","rgba(190,21,26,1)"],["0.833333333333333","rgba(178,18,24,1)"],["0.875","rgba(165,15,21,1)"],["0.916666666666667","rgba(144,9,19,1)"],["0.958333333333333","rgba(123,3,16,1)"],["1","rgba(103,0,13,1)"]],"showscale":false,"color":[0.00744636090349615,-0.134735984936978,0.0194361539413681,-0.128939129870372,0.0752491649547537,-0.116297319613343,0.0116018329146895,0.198870549045296,0.000629617057673837,-0.25589146364823,0.272890188721837,-0.157788875123095,0.11046697429966,-0.0341828430667275,0.103045131775229,-0.0324895440427418,0.0594449901742813,-0.244790693935567,-0.0606119682520085,-0.00215120468365515,0.18266844559288,-0.0675980317888454,0.0549952439217754,0.0620308156462304,0.0318453049587107,0.0636313322233056,-0.175297881841857,0.00519523619924589,-0.0271226180511764,-0.023456899960938,-0.0676807816808017,0.128445243206489,0.00455215777624118,0.0111005325918849,0.140355567474889,-0.228124951311283,0.0468594790231494,-0.113365849334483,0.174874370055581,-0.0690619452977493,0.126317904952927,0.0401731837131193,-0.0365670350708227,-0.310171900958408,0.233961589505684,-0.0987328161156756,0.0872192098139853,-9.5098111596692e-05,0.188098757120146]}},"geo":"geo","visible":true}],"traces":[0]},{"name":"2012","data":[{"colorbar":{"title":"swinginess","ticklen":2},"colorscale":[["0","rgba(255,245,240,1)"],["0.0416666666666667","rgba(255,238,230,1)"],["0.0833333333333333","rgba(255,231,220,1)"],["0.125","rgba(254,224,210,1)"],["0.166666666666667","rgba(254,212,193,1)"],["0.208333333333333","rgba(253,199,177,1)"],["0.25","rgba(252,187,161,1)"],["0.291666666666667","rgba(253,174,145,1)"],["0.333333333333333","rgba(253,160,129,1)"],["0.375","rgba(252,146,114,1)"],["0.416666666666667","rgba(252,133,101,1)"],["0.458333333333333","rgba(252,120,87,1)"],["0.5","rgba(251,106,74,1)"],["0.541666666666667","rgba(247,92,64,1)"],["0.583333333333333","rgba(243,77,54,1)"],["0.625","rgba(239,59,44,1)"],["0.666666666666667","rgba(227,49,39,1)"],["0.708333333333333","rgba(215,37,34,1)"],["0.75","rgba(203,24,29,1)"],["0.791666666666667","rgba(190,21,26,1)"],["0.833333333333333","rgba(178,18,24,1)"],["0.875","rgba(165,15,21,1)"],["0.916666666666667","rgba(144,9,19,1)"],["0.958333333333333","rgba(123,3,16,1)"],["1","rgba(103,0,13,1)"]],"showscale":true,"locationmode":"USA-states","z":[0.0506901660349317,-0.146407886675875,0.132168640563122,-0.289779128222222,0.127429177101619,-0.169584785712483,-0.00290959013365982,0.188323611882679,0.0621405159583174,-0.266721594147765,0.335879695419122,-0.215479890645821,0.0960496609866512,-0.057241886077833,0.306540839205579,-0.191126675910655,0.187331291924751,-0.404070855047011,-0.0379729245091473,-0.0942880209827562,0.221576528869793,-0.0359337568444726,0.194292982440355,-0.0644522812716887,-0.0117175480723318,0.0875417305838136,-0.140258515264793,-0.0245990697765407,-0.0339994068907922,0.00489015083352579,-0.0970077794385968,0.139238267532761,0.0773906522950664,-0.047425330543279,0.155550342658523,-0.256140708606158,0.0723623667978152,-0.0820673843683256,0.169733669086789,-0.00558591668994457,0.0577808565533929,-0.0320386057048642,0.0661716341855575,-0.42181694123366,0.265009312720746,-0.0540417824619477,0.143565966232052,-0.106683077637743,0.250561655750418],"locations":["AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","IL","IN","IA","KS","KY","LA","ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY","NC","ND","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VT","VA","WA","WV","WI","WY"],"frame":"2012","zmin":-0.5,"zmax":0.5,"type":"choropleth","marker":{"line":{"colorbar":{"title":"","ticklen":2},"cmin":-0.666065574077788,"cmax":0.529821327371351,"colorscale":[["0","rgba(255,245,240,1)"],["0.0416666666666667","rgba(255,238,230,1)"],["0.0833333333333333","rgba(255,231,220,1)"],["0.125","rgba(254,224,210,1)"],["0.166666666666667","rgba(254,212,193,1)"],["0.208333333333333","rgba(253,199,177,1)"],["0.25","rgba(252,187,161,1)"],["0.291666666666667","rgba(253,174,145,1)"],["0.333333333333333","rgba(253,160,129,1)"],["0.375","rgba(252,146,114,1)"],["0.416666666666667","rgba(252,133,101,1)"],["0.458333333333333","rgba(252,120,87,1)"],["0.5","rgba(251,106,74,1)"],["0.541666666666667","rgba(247,92,64,1)"],["0.583333333333333","rgba(243,77,54,1)"],["0.625","rgba(239,59,44,1)"],["0.666666666666667","rgba(227,49,39,1)"],["0.708333333333333","rgba(215,37,34,1)"],["0.75","rgba(203,24,29,1)"],["0.791666666666667","rgba(190,21,26,1)"],["0.833333333333333","rgba(178,18,24,1)"],["0.875","rgba(165,15,21,1)"],["0.916666666666667","rgba(144,9,19,1)"],["0.958333333333333","rgba(123,3,16,1)"],["1","rgba(103,0,13,1)"]],"showscale":false,"color":[0.0506901660349317,-0.146407886675875,0.132168640563122,-0.289779128222222,0.127429177101619,-0.169584785712483,-0.00290959013365982,0.188323611882679,0.0621405159583174,-0.266721594147765,0.335879695419122,-0.215479890645821,0.0960496609866512,-0.057241886077833,0.306540839205579,-0.191126675910655,0.187331291924751,-0.404070855047011,-0.0379729245091473,-0.0942880209827562,0.221576528869793,-0.0359337568444726,0.194292982440355,-0.0644522812716887,-0.0117175480723318,0.0875417305838136,-0.140258515264793,-0.0245990697765407,-0.0339994068907922,0.00489015083352579,-0.0970077794385968,0.139238267532761,0.0773906522950664,-0.047425330543279,0.155550342658523,-0.256140708606158,0.0723623667978152,-0.0820673843683256,0.169733669086789,-0.00558591668994457,0.0577808565533929,-0.0320386057048642,0.0661716341855575,-0.42181694123366,0.265009312720746,-0.0540417824619477,0.143565966232052,-0.106683077637743,0.250561655750418]}},"geo":"geo","visible":true}],"traces":[0]},{"name":"2014","data":[{"colorbar":{"title":"swinginess","ticklen":2},"colorscale":[["0","rgba(255,245,240,1)"],["0.0416666666666667","rgba(255,238,230,1)"],["0.0833333333333333","rgba(255,231,220,1)"],["0.125","rgba(254,224,210,1)"],["0.166666666666667","rgba(254,212,193,1)"],["0.208333333333333","rgba(253,199,177,1)"],["0.25","rgba(252,187,161,1)"],["0.291666666666667","rgba(253,174,145,1)"],["0.333333333333333","rgba(253,160,129,1)"],["0.375","rgba(252,146,114,1)"],["0.416666666666667","rgba(252,133,101,1)"],["0.458333333333333","rgba(252,120,87,1)"],["0.5","rgba(251,106,74,1)"],["0.541666666666667","rgba(247,92,64,1)"],["0.583333333333333","rgba(243,77,54,1)"],["0.625","rgba(239,59,44,1)"],["0.666666666666667","rgba(227,49,39,1)"],["0.708333333333333","rgba(215,37,34,1)"],["0.75","rgba(203,24,29,1)"],["0.791666666666667","rgba(190,21,26,1)"],["0.833333333333333","rgba(178,18,24,1)"],["0.875","rgba(165,15,21,1)"],["0.916666666666667","rgba(144,9,19,1)"],["0.958333333333333","rgba(123,3,16,1)"],["1","rgba(103,0,13,1)"]],"showscale":true,"locationmode":"USA-states","z":[-0.125476732277872,0.0313573803758139,0.0809659548724732,-0.247789837699762,0.0975538622909324,-0.120557176714475,-0.0130538244240281,0.177302635515571,0.0250129687323906,-0.247367254993404,0.294327215823746,-0.14636616473915,0.126767830810988,-0.0733151220306363,0.0952591661088498,0.00133729909409974,0.044178941138705,-0.252347226220376,-0.00902501988313659,-0.245644089910456,0.318267935079414,-0.010257539316696,0.107673140424481,0.0314248664942318,-0.0418280864019446,0.0696201986029482,-0.0559648710719063,-0.10763643628598,0.00542278083608694,-0.019673805643346,-0.0338869208132629,0.121461523657326,0.0331315287758731,0.00947773875827751,0.124280501823002,-0.296210086558031,0.127102665200955,-0.166405439549248,0.268746604420705,0.0075729081635284,-0.0109621967972939,-0.00878344653785634,0.0111707615925469,-0.331567241929657,0.249683793034027,-0.11096379141512,0.107061670289064,-0.0429478801990818,0.221397176199207],"locations":["AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","IL","IN","IA","KS","KY","LA","ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY","NC","ND","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VT","VA","WA","WV","WI","WY"],"frame":"2014","zmin":-0.5,"zmax":0.5,"type":"choropleth","marker":{"line":{"colorbar":{"title":"","ticklen":2},"cmin":-0.666065574077788,"cmax":0.529821327371351,"colorscale":[["0","rgba(255,245,240,1)"],["0.0416666666666667","rgba(255,238,230,1)"],["0.0833333333333333","rgba(255,231,220,1)"],["0.125","rgba(254,224,210,1)"],["0.166666666666667","rgba(254,212,193,1)"],["0.208333333333333","rgba(253,199,177,1)"],["0.25","rgba(252,187,161,1)"],["0.291666666666667","rgba(253,174,145,1)"],["0.333333333333333","rgba(253,160,129,1)"],["0.375","rgba(252,146,114,1)"],["0.416666666666667","rgba(252,133,101,1)"],["0.458333333333333","rgba(252,120,87,1)"],["0.5","rgba(251,106,74,1)"],["0.541666666666667","rgba(247,92,64,1)"],["0.583333333333333","rgba(243,77,54,1)"],["0.625","rgba(239,59,44,1)"],["0.666666666666667","rgba(227,49,39,1)"],["0.708333333333333","rgba(215,37,34,1)"],["0.75","rgba(203,24,29,1)"],["0.791666666666667","rgba(190,21,26,1)"],["0.833333333333333","rgba(178,18,24,1)"],["0.875","rgba(165,15,21,1)"],["0.916666666666667","rgba(144,9,19,1)"],["0.958333333333333","rgba(123,3,16,1)"],["1","rgba(103,0,13,1)"]],"showscale":false,"color":[-0.125476732277872,0.0313573803758139,0.0809659548724732,-0.247789837699762,0.0975538622909324,-0.120557176714475,-0.0130538244240281,0.177302635515571,0.0250129687323906,-0.247367254993404,0.294327215823746,-0.14636616473915,0.126767830810988,-0.0733151220306363,0.0952591661088498,0.00133729909409974,0.044178941138705,-0.252347226220376,-0.00902501988313659,-0.245644089910456,0.318267935079414,-0.010257539316696,0.107673140424481,0.0314248664942318,-0.0418280864019446,0.0696201986029482,-0.0559648710719063,-0.10763643628598,0.00542278083608694,-0.019673805643346,-0.0338869208132629,0.121461523657326,0.0331315287758731,0.00947773875827751,0.124280501823002,-0.296210086558031,0.127102665200955,-0.166405439549248,0.268746604420705,0.0075729081635284,-0.0109621967972939,-0.00878344653785634,0.0111707615925469,-0.331567241929657,0.249683793034027,-0.11096379141512,0.107061670289064,-0.0429478801990818,0.221397176199207]}},"geo":"geo","visible":true}],"traces":[0]},{"name":"2016","data":[{"colorbar":{"title":"swinginess","ticklen":2},"colorscale":[["0","rgba(255,245,240,1)"],["0.0416666666666667","rgba(255,238,230,1)"],["0.0833333333333333","rgba(255,231,220,1)"],["0.125","rgba(254,224,210,1)"],["0.166666666666667","rgba(254,212,193,1)"],["0.208333333333333","rgba(253,199,177,1)"],["0.25","rgba(252,187,161,1)"],["0.291666666666667","rgba(253,174,145,1)"],["0.333333333333333","rgba(253,160,129,1)"],["0.375","rgba(252,146,114,1)"],["0.416666666666667","rgba(252,133,101,1)"],["0.458333333333333","rgba(252,120,87,1)"],["0.5","rgba(251,106,74,1)"],["0.541666666666667","rgba(247,92,64,1)"],["0.583333333333333","rgba(243,77,54,1)"],["0.625","rgba(239,59,44,1)"],["0.666666666666667","rgba(227,49,39,1)"],["0.708333333333333","rgba(215,37,34,1)"],["0.75","rgba(203,24,29,1)"],["0.791666666666667","rgba(190,21,26,1)"],["0.833333333333333","rgba(178,18,24,1)"],["0.875","rgba(165,15,21,1)"],["0.916666666666667","rgba(144,9,19,1)"],["0.958333333333333","rgba(123,3,16,1)"],["1","rgba(103,0,13,1)"]],"showscale":true,"locationmode":"USA-states","z":[-0.0799219251044759,-0.0328500250066134,0.322320492019299,-0.508893612577043,0.141483432127115,-0.140271361018762,0.0599462366639641,0.118391343328603,0.0597014874911294,-0.389573381760628,0.468616959789506,-0.221335080661235,0.117806423619146,-0.0313496425288922,0.139296220170107,0.0210511947888961,-0.0179675659148256,-0.208784543427252,-0.110114075479292,-0.208911689395372,0.344202853784027,-0.0236067517427377,0.120148467389385,0.00372859444984863,-0.0249896338528013,0.135296737545052,-0.2211198171865,-0.0106731565754613,-0.0259780195002398,-0.0185042610448557,-0.0781403477483376,0.171457366619902,0.211124991968457,-0.162623113400696,0.137494635087012,-0.303371073356268,0.125382030677556,-0.192218028449239,0.249520332882489,0.0425300808871308,0.00619533472516054,-0.0404155240788919,0.0592579046418242,-0.666065574077788,0.497783081193031,-0.0433032594133236,0.210254458975402,-0.185433453482468,0.19491196660757],"locations":["AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","IL","IN","IA","KS","KY","LA","ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY","NC","ND","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VT","VA","WA","WV","WI","WY"],"frame":"2016","zmin":-0.5,"zmax":0.5,"type":"choropleth","marker":{"line":{"colorbar":{"title":"","ticklen":2},"cmin":-0.666065574077788,"cmax":0.529821327371351,"colorscale":[["0","rgba(255,245,240,1)"],["0.0416666666666667","rgba(255,238,230,1)"],["0.0833333333333333","rgba(255,231,220,1)"],["0.125","rgba(254,224,210,1)"],["0.166666666666667","rgba(254,212,193,1)"],["0.208333333333333","rgba(253,199,177,1)"],["0.25","rgba(252,187,161,1)"],["0.291666666666667","rgba(253,174,145,1)"],["0.333333333333333","rgba(253,160,129,1)"],["0.375","rgba(252,146,114,1)"],["0.416666666666667","rgba(252,133,101,1)"],["0.458333333333333","rgba(252,120,87,1)"],["0.5","rgba(251,106,74,1)"],["0.541666666666667","rgba(247,92,64,1)"],["0.583333333333333","rgba(243,77,54,1)"],["0.625","rgba(239,59,44,1)"],["0.666666666666667","rgba(227,49,39,1)"],["0.708333333333333","rgba(215,37,34,1)"],["0.75","rgba(203,24,29,1)"],["0.791666666666667","rgba(190,21,26,1)"],["0.833333333333333","rgba(178,18,24,1)"],["0.875","rgba(165,15,21,1)"],["0.916666666666667","rgba(144,9,19,1)"],["0.958333333333333","rgba(123,3,16,1)"],["1","rgba(103,0,13,1)"]],"showscale":false,"color":[-0.0799219251044759,-0.0328500250066134,0.322320492019299,-0.508893612577043,0.141483432127115,-0.140271361018762,0.0599462366639641,0.118391343328603,0.0597014874911294,-0.389573381760628,0.468616959789506,-0.221335080661235,0.117806423619146,-0.0313496425288922,0.139296220170107,0.0210511947888961,-0.0179675659148256,-0.208784543427252,-0.110114075479292,-0.208911689395372,0.344202853784027,-0.0236067517427377,0.120148467389385,0.00372859444984863,-0.0249896338528013,0.135296737545052,-0.2211198171865,-0.0106731565754613,-0.0259780195002398,-0.0185042610448557,-0.0781403477483376,0.171457366619902,0.211124991968457,-0.162623113400696,0.137494635087012,-0.303371073356268,0.125382030677556,-0.192218028449239,0.249520332882489,0.0425300808871308,0.00619533472516054,-0.0404155240788919,0.0592579046418242,-0.666065574077788,0.497783081193031,-0.0433032594133236,0.210254458975402,-0.185433453482468,0.19491196660757]}},"geo":"geo","visible":true}],"traces":[0]},{"name":"2018","data":[{"colorbar":{"title":"swinginess","ticklen":2},"colorscale":[["0","rgba(255,245,240,1)"],["0.0416666666666667","rgba(255,238,230,1)"],["0.0833333333333333","rgba(255,231,220,1)"],["0.125","rgba(254,224,210,1)"],["0.166666666666667","rgba(254,212,193,1)"],["0.208333333333333","rgba(253,199,177,1)"],["0.25","rgba(252,187,161,1)"],["0.291666666666667","rgba(253,174,145,1)"],["0.333333333333333","rgba(253,160,129,1)"],["0.375","rgba(252,146,114,1)"],["0.416666666666667","rgba(252,133,101,1)"],["0.458333333333333","rgba(252,120,87,1)"],["0.5","rgba(251,106,74,1)"],["0.541666666666667","rgba(247,92,64,1)"],["0.583333333333333","rgba(243,77,54,1)"],["0.625","rgba(239,59,44,1)"],["0.666666666666667","rgba(227,49,39,1)"],["0.708333333333333","rgba(215,37,34,1)"],["0.75","rgba(203,24,29,1)"],["0.791666666666667","rgba(190,21,26,1)"],["0.833333333333333","rgba(178,18,24,1)"],["0.875","rgba(165,15,21,1)"],["0.916666666666667","rgba(144,9,19,1)"],["0.958333333333333","rgba(123,3,16,1)"],["1","rgba(103,0,13,1)"]],"showscale":true,"locationmode":"USA-states","z":[-0.0567113603894865,-0.0416770537434113,0.148586497112432,-0.308713405218209,0.114378339292613,-0.0656568530474851,-0.024520310735175,0.170904279160831,-0.00364792425548954,-0.289955622603313,0.406897508242043,-0.250816945857681,0.16628851132722,-0.0756224424917275,0.0685717856028509,0.0560124433046987,0.0254436695928427,-0.182646146680458,-0.116131215148893,-0.126808660392332,0.256141432432798,-0.0180644573687168,0.0995813344937995,0.0226170745639892,-0.0403681649407587,0.0964355299285435,-0.147974918450552,-0.0278804630797895,-0.0521375561403232,0.00352884127956721,-0.0780136986412534,0.192550156709943,0.118215127818297,-0.104728819886861,0.106469761869121,-0.232047647389221,0.05025175667075,-0.0998850135726449,0.20152941719649,0.0759582560002292,-0.0242498778673589,-0.0841883859762761,0.105025428154979,-0.349987731987717,0.15731073023997,-0.063365776002386,0.223039063080089,-0.127996979372299,0.219425788530697],"locations":["AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","IL","IN","IA","KS","KY","LA","ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY","NC","ND","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VT","VA","WA","WV","WI","WY"],"frame":"2018","zmin":-0.5,"zmax":0.5,"type":"choropleth","marker":{"line":{"colorbar":{"title":"","ticklen":2},"cmin":-0.666065574077788,"cmax":0.529821327371351,"colorscale":[["0","rgba(255,245,240,1)"],["0.0416666666666667","rgba(255,238,230,1)"],["0.0833333333333333","rgba(255,231,220,1)"],["0.125","rgba(254,224,210,1)"],["0.166666666666667","rgba(254,212,193,1)"],["0.208333333333333","rgba(253,199,177,1)"],["0.25","rgba(252,187,161,1)"],["0.291666666666667","rgba(253,174,145,1)"],["0.333333333333333","rgba(253,160,129,1)"],["0.375","rgba(252,146,114,1)"],["0.416666666666667","rgba(252,133,101,1)"],["0.458333333333333","rgba(252,120,87,1)"],["0.5","rgba(251,106,74,1)"],["0.541666666666667","rgba(247,92,64,1)"],["0.583333333333333","rgba(243,77,54,1)"],["0.625","rgba(239,59,44,1)"],["0.666666666666667","rgba(227,49,39,1)"],["0.708333333333333","rgba(215,37,34,1)"],["0.75","rgba(203,24,29,1)"],["0.791666666666667","rgba(190,21,26,1)"],["0.833333333333333","rgba(178,18,24,1)"],["0.875","rgba(165,15,21,1)"],["0.916666666666667","rgba(144,9,19,1)"],["0.958333333333333","rgba(123,3,16,1)"],["1","rgba(103,0,13,1)"]],"showscale":false,"color":[-0.0567113603894865,-0.0416770537434113,0.148586497112432,-0.308713405218209,0.114378339292613,-0.0656568530474851,-0.024520310735175,0.170904279160831,-0.00364792425548954,-0.289955622603313,0.406897508242043,-0.250816945857681,0.16628851132722,-0.0756224424917275,0.0685717856028509,0.0560124433046987,0.0254436695928427,-0.182646146680458,-0.116131215148893,-0.126808660392332,0.256141432432798,-0.0180644573687168,0.0995813344937995,0.0226170745639892,-0.0403681649407587,0.0964355299285435,-0.147974918450552,-0.0278804630797895,-0.0521375561403232,0.00352884127956721,-0.0780136986412534,0.192550156709943,0.118215127818297,-0.104728819886861,0.106469761869121,-0.232047647389221,0.05025175667075,-0.0998850135726449,0.20152941719649,0.0759582560002292,-0.0242498778673589,-0.0841883859762761,0.105025428154979,-0.349987731987717,0.15731073023997,-0.063365776002386,0.223039063080089,-0.127996979372299,0.219425788530697]}},"geo":"geo","visible":true}],"traces":[0]},{"name":"2020","data":[{"colorbar":{"title":"swinginess","ticklen":2},"colorscale":[["0","rgba(255,245,240,1)"],["0.0416666666666667","rgba(255,238,230,1)"],["0.0833333333333333","rgba(255,231,220,1)"],["0.125","rgba(254,224,210,1)"],["0.166666666666667","rgba(254,212,193,1)"],["0.208333333333333","rgba(253,199,177,1)"],["0.25","rgba(252,187,161,1)"],["0.291666666666667","rgba(253,174,145,1)"],["0.333333333333333","rgba(253,160,129,1)"],["0.375","rgba(252,146,114,1)"],["0.416666666666667","rgba(252,133,101,1)"],["0.458333333333333","rgba(252,120,87,1)"],["0.5","rgba(251,106,74,1)"],["0.541666666666667","rgba(247,92,64,1)"],["0.583333333333333","rgba(243,77,54,1)"],["0.625","rgba(239,59,44,1)"],["0.666666666666667","rgba(227,49,39,1)"],["0.708333333333333","rgba(215,37,34,1)"],["0.75","rgba(203,24,29,1)"],["0.791666666666667","rgba(190,21,26,1)"],["0.833333333333333","rgba(178,18,24,1)"],["0.875","rgba(165,15,21,1)"],["0.916666666666667","rgba(144,9,19,1)"],["0.958333333333333","rgba(123,3,16,1)"],["1","rgba(103,0,13,1)"]],"showscale":true,"locationmode":"USA-states","z":[-0.153486589944906,-0.0439757502534869,0.21292738560408,-0.36359303785869,0.0996066030098909,-0.0592816354790813,0.0195322961516862,0.114246491727536,-0.015339900561165,-0.205606001481928,0.382851192313137,-0.268504864288993,0.173987610644555,-0.0627383880108119,0.0520484923099745,0.0676966478751123,0.0145868412028963,-0.24383195616509,-0.0708473875014132,-0.129903750581585,0.273642030357674,-0.00647438634487951,0.170242777516625,-0.0618381199285768,-0.0314100527124561,0.0783671393667984,-0.154428683130289,-0.0267698941915904,-0.0404539743150679,0.0307287384017862,-0.0819032574676224,0.127837527398112,0.217297649375261,-0.133885520692106,0.106346447767147,-0.257722484187294,0.077056963842237,-0.246248527616209,0.307375119678503,0.432539205931513,-0.396137368890265,-0.0562786728563791,0.0856005790422004,-0.346831644632322,0.189663174812912,-0.0655146586184052,0.265126012575813,-0.160954877157873,0.2214594848316],"locations":["AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","IL","IN","IA","KS","KY","LA","ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY","NC","ND","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VT","VA","WA","WV","WI","WY"],"frame":"2020","zmin":-0.5,"zmax":0.5,"type":"choropleth","marker":{"line":{"colorbar":{"title":"","ticklen":2},"cmin":-0.666065574077788,"cmax":0.529821327371351,"colorscale":[["0","rgba(255,245,240,1)"],["0.0416666666666667","rgba(255,238,230,1)"],["0.0833333333333333","rgba(255,231,220,1)"],["0.125","rgba(254,224,210,1)"],["0.166666666666667","rgba(254,212,193,1)"],["0.208333333333333","rgba(253,199,177,1)"],["0.25","rgba(252,187,161,1)"],["0.291666666666667","rgba(253,174,145,1)"],["0.333333333333333","rgba(253,160,129,1)"],["0.375","rgba(252,146,114,1)"],["0.416666666666667","rgba(252,133,101,1)"],["0.458333333333333","rgba(252,120,87,1)"],["0.5","rgba(251,106,74,1)"],["0.541666666666667","rgba(247,92,64,1)"],["0.583333333333333","rgba(243,77,54,1)"],["0.625","rgba(239,59,44,1)"],["0.666666666666667","rgba(227,49,39,1)"],["0.708333333333333","rgba(215,37,34,1)"],["0.75","rgba(203,24,29,1)"],["0.791666666666667","rgba(190,21,26,1)"],["0.833333333333333","rgba(178,18,24,1)"],["0.875","rgba(165,15,21,1)"],["0.916666666666667","rgba(144,9,19,1)"],["0.958333333333333","rgba(123,3,16,1)"],["1","rgba(103,0,13,1)"]],"showscale":false,"color":[-0.153486589944906,-0.0439757502534869,0.21292738560408,-0.36359303785869,0.0996066030098909,-0.0592816354790813,0.0195322961516862,0.114246491727536,-0.015339900561165,-0.205606001481928,0.382851192313137,-0.268504864288993,0.173987610644555,-0.0627383880108119,0.0520484923099745,0.0676966478751123,0.0145868412028963,-0.24383195616509,-0.0708473875014132,-0.129903750581585,0.273642030357674,-0.00647438634487951,0.170242777516625,-0.0618381199285768,-0.0314100527124561,0.0783671393667984,-0.154428683130289,-0.0267698941915904,-0.0404539743150679,0.0307287384017862,-0.0819032574676224,0.127837527398112,0.217297649375261,-0.133885520692106,0.106346447767147,-0.257722484187294,0.077056963842237,-0.246248527616209,0.307375119678503,0.432539205931513,-0.396137368890265,-0.0562786728563791,0.0856005790422004,-0.346831644632322,0.189663174812912,-0.0655146586184052,0.265126012575813,-0.160954877157873,0.2214594848316]}},"geo":"geo","visible":true}],"traces":[0]}],"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+<p>To clear the obvious confusion of: What in the world is “Swinginess”? A state’s propensity to be a swing state is taken to mean: How volatile is the two party voting turnout over many election cycles? To measure this, we can use time series data going back to 1968 on congressional elections.
+The Swinginess formula is: <span class="math inline">\(R_{x}/(D_{x}+R_{x})-R_{x-2}/(D_{x-2}+R_{x-2})\)</span> Where R and D are total votes for Republican and Democratic candidates respectively and x is the election year.
+In other words it measures the difference between which direction the state voted in the last election to the next election.
+Looking across time, Virginia, South Carolina and Florida seem to recently have high volatility in their two party vote shares while a state like California has settled down and not moved significantly recently.
+Data on swing states is useful for prediction because is will indicate where prediction confidence should be dialed up or down for measuring the overall confidence of a prediction.</p>
+</div>
+
+          </section>
+      </p>
+      
+    </section>
+    <footer class="post-meta">
+        
+            <img class="author-thumb" src="http://example.org/images/user.png" alt="Author image" nopin="nopin" />
+        
+        
+            Charles Onesti
+        
+        
+        <time class="post-date" datetime="2022-09-13T00:00:00Z">
+            13 Sep 2022
+        </time>
+    </footer>
+</article>
+
+	
+
+	<nav class="pagination" role="navigation">
+	
+	<span class="page-number">Page 1 of 1</span>
+	
+</nav>
+
+</main>
+
+
+
+    <footer class="site-footer clearfix">
+      <script type="text/javascript"
+   src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js">
+</script>
+      <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX", "output/HTML-CSS"],
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+      processEscapes: true
+    },
+    "HTML-CSS": { fonts: ["TeX"] }
+  });
+</script>
+<script type="text/javascript" src="path-to-MathJax/MathJax.js">
+</script>
+        <section class="copyright"><a href="">Election Analytics Blog</a> </section>
+        
+        <section class="poweredby">Proudly generated by <a class="icon-hugo" href="https://gohugo.io">HUGO</a>, with <a class="icon-theme" href="https://github.com/syui/hugo-theme-air">hugo-theme-air</a> theme</section>
+        
+    </footer>
+    </div>
+    <script type="text/javascript" src="http://example.org/js/jquery.js"></script>
+    <script type="text/javascript" src="http://example.org/js/jquery.fitvids.js"></script>
+    <script type="text/javascript" src="http://example.org/js/index.js"></script>
+    <script src="http://example.org/js/particles.min.js"></script>
+    <script src="http://example.org/js/particles.js"></script>  
+
+</body>
+</html>
+

@@ -1,0 +1,293 @@
+---
+title: 05. Air War
+author: Charles Onesti
+date: '2022-10-10'
+---
+
+
+This week we will explore how campaign activity matters in congressional elections.  So far our predictions have used factors outside of a candidates direct control like the national economy and their party or individual incumbency status.  The role of a good campaign can not be overlooked.  This post will deal with television advertising conducted by campaigns in what is called the "Air War."  The data studied is from the Wesleyan Media Project which contains data from 2006 - 2018 on campaign ads for House elections. Today's topics include ad timing, geographic placement, and the insufficiency of the data to make stable 2022 predictions.
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+	echo = FALSE,
+	message = FALSE,
+	warning = FALSE,
+	results = FALSE
+)
+# Import Libraries
+library(ggplot2)
+library(tidyverse)
+library(rmapshaper)
+library(dplyr)
+library(readr)
+library(stargazer)
+library(sf)
+library(insight)
+
+getmode <- function(v) {
+   uniqv <- unique(v)
+   uniqv[which.max(tabulate(match(v, uniqv)))]
+}
+
+# Import Data
+
+## VOTE SHARE
+dist_voteshare_1948_2020_df <- read_csv("../2022-09-30-04-incumbency/data/house party vote share by district 1948-2020.csv") %>%
+  mutate(st_cd_fips = paste(
+    ifelse(nchar(as.character(st_fips)) == 1, paste("0", as.character(st_fips), sep=""), as.character(st_fips)), 
+    ifelse(nchar(as.character(district_num)) == 1, paste("0", as.character(district_num), sep=""), as.character(district_num)), 
+    sep="")
+  ) %>%
+  select(cycle=raceYear, state=State, district=district_num, st_cd_fips, RepStatus, DemStatus, RepVotes, DemVotes, RepVotesMajorPercent, DemVotesMajorPercent)
+
+## RDI
+RDI_quarterly_1959_2022_df <- read_csv("../2022-09-18-02-local-and-national-economy/data/RDI_quarterly.csv") %>%
+  filter(quarter_yr == 3 | (year == 2022 & quarter_yr == 2)) %>% select(cycle = year, rdi_pct = DSPIC_change_pct)
+
+## POLLING
+dist_polls_2018_2022_df <- read_csv("../2022-09-30-04-incumbency/data/dist_polls_2018-2022.csv") %>%
+  filter(stage == "general", state != "Puerto Rico") %>%
+  select(cycle, state, district = seat_number, st_cd_fips, party, candidate_name, pct, question_id) %>%
+  mutate(district = as.character(district)) 
+
+dem_df <- dist_polls_2018_2022_df %>%
+  filter(party == "DEM") %>%
+  select(-party) %>%
+  rename(dem_candidate = candidate_name, dem_pct = pct)
+rep_df <- dist_polls_2018_2022_df %>%
+  filter(party == "REP") %>%
+  select(-party) %>%
+  rename(rep_candidate = candidate_name, rep_pct = pct)
+dist_polls_2018_2022_df <- inner_join(dem_df, rep_df, by=c("state","cycle","district","question_id","st_cd_fips")) %>%
+  mutate(dem_poll_pct = dem_pct / (dem_pct + rep_pct), rep_poll_pct = rep_pct / (dem_pct + rep_pct)) %>%
+  group_by(cycle, state, district, st_cd_fips) %>%
+  summarise(dem_poll_pct = mean(dem_poll_pct), rep_poll_pct = mean(rep_poll_pct), rep_candidate = getmode(rep_candidate), dem_candidate = getmode(dem_candidate))
+
+## INCUMBENCY
+inc_dist_1948_2022_df <- read_csv("../2022-09-30-04-incumbency/data/incumb_dist_1948-2022 (2).csv") %>%
+  select(cycle = year, state, district = district_num, st_cd_fips, RepStatus, DemStatus, RepVotesMajorPercent, DemCandidate, RepCandidate) %>%
+  mutate(district = case_when(district == "00" ~ "AL", TRUE ~ as.character(as.numeric(district)))) %>%
+  na.omit(c("district", "state")) %>%
+  mutate(RepStatus = ifelse(RepStatus == "Challenger", 0, 1),
+         DemStatus = ifelse(DemStatus == "Challenger", 0, 1)) 
+inc_dist_1948_2022_df$RepCandidate <- sub("(\\w+),\\s(\\w+)","\\2 \\1", inc_dist_1948_2022_df$RepCandidate)
+inc_dist_1948_2022_df$DemCandidate <- sub("(\\w+),\\s(\\w+)","\\2 \\1", inc_dist_1948_2022_df$DemCandidate)
+
+## ADS
+ads_issues_df <- read_csv("./data/ads_issues_2012-2018 (1).csv") %>% 
+  drop_na(party, ad_tone, ad_purpose, st_cd_fips) %>%
+  select(cycle, state, district, st_cd_fips, party, ad_tone, ad_purpose, est_cost)
+ads_df <- read_csv("./data/ads_2006_2018 (1).csv") %>%
+  drop_na(party, state, district, ad_tone, ad_purpose, cycle, st_cd_fips, st_fips, airdate) %>%
+  select(cycle, state, district, st_cd_fips, airdate, party, ad_tone, ad_purpose) %>%
+  mutate(airdate = as.Date(airdate))
+
+# ad_tone: attack, contrast, promote
+# ad_purpose: policy, personal, both
+
+## GEO
+cd114 <- st_read("../2022-09-30-04-incumbency/districtShapes/districts114.shp")
+cd114 <- cd114 %>% rename(district = DISTRICT, state = STATENAME)
+cd114 <- rmapshaper::ms_simplify(cd114, keep = 0.01)
+
+```
+
+## Campaign Ads Timing
+Distribution of campaign ads is something some voters are intuitively aware of.  It is no surprise that campaign ads are run only on election years and concentrate to the days before election day. The chart below graphs the ad frequency spikes before each election day represented by a vertical dotted line.  
+```{r}
+ggplot(data = ads_df, aes(x = airdate)) +
+  geom_bar() +
+  geom_vline(xintercept = as.Date("2006-11-20"), linetype = "dotted") +
+  geom_vline(xintercept = as.Date("2010-11-20"), linetype = "dotted") +
+  geom_vline(xintercept = as.Date("2012-11-20"), linetype = "dotted") +
+  geom_vline(xintercept = as.Date("2014-11-20"), linetype = "dotted") +
+  geom_vline(xintercept = as.Date("2018-11-20"), linetype = "dotted") +
+  labs(title = "Timing for Campaign Air Time")
+```
+
+
+## 2018 District Level Ads Spending by Party
+According to research from Alan Gerber, campaign advertising has a short term effect of voting behavior.  We will test whether this effect is present in the spending data from the Wesleyan Media Project.  WMP has detailed datasets on the quantity and qualities of congressional campaign advertisements.  This includes an estimated cost variable which we will combine for each district in support of either party. The following maps outline party spending volume over the districts.  This behavior is well explained by Alan Gerber's theory that advertising psychological effects last a limited amount of time.  Campaigns aim to have their highest visibility right before a person casts their vote so that the ad's message is fresh in their mind when making a decision.
+
+```{r}
+ads_dist_cost_df <- ads_issues_df %>%
+  group_by(cycle, state, district, st_cd_fips, party) %>%
+  summarise(est_cost = sum(est_cost))
+dem_df <- ads_dist_cost_df %>%
+  filter(party == "Democrat") %>%
+  select(-party) %>%
+  rename(dem_est_cost = est_cost)
+rep_df <- ads_dist_cost_df %>%
+  filter(party == "Republican") %>%
+  select(-party) %>%
+  rename(rep_est_cost = est_cost)
+ads_dist_cost_df <- inner_join(dem_df, rep_df, by = c("cycle", "st_cd_fips")) %>%
+  mutate(
+    rep_est_cost_pct = rep_est_cost / (dem_est_cost + rep_est_cost))
+
+plot_rep <- cd114 %>% left_join(filter(rep_df, cycle == 2018), by=c("district", "state")) %>%
+  filter(!state %in% c("Alaska","Hawaii"))
+
+ggplot(data = plot_rep) +
+  geom_sf(mapping = aes(fill = rep_est_cost, geometry = geometry)) +
+  scale_fill_gradient2(low = "white", high = "red", midpoint = 50, name = "GOP Ads Spending") +
+  theme_void() +
+  labs(title = "2018 GOP District Level Ad Spending")
+
+plot_dem <- cd114 %>% left_join(filter(dem_df, cycle == 2018), by=c("district", "state")) %>%
+  filter(!state %in% c("Alaska","Hawaii"))
+
+ggplot(data = plot_dem) +
+  geom_sf(mapping = aes(fill = dem_est_cost, geometry = geometry)) +
+  scale_fill_gradient2(low = "white", high = "blue", midpoint = 50, name = "Democratic Ads Spending") +
+  theme_void() +
+  labs(title = "2018 Democrat District Level Ad Spending")
+
+```
+
+
+## Ads Spending Models by District
+Using the 2018 data as an input lets use historical data to create district level models of vote share as a function of partisan media spending. 
+```{r}
+combined_dist_df <- inner_join(dist_voteshare_1948_2020_df, ads_dist_cost_df, by=c("cycle", "st_cd_fips"))
+
+dist_train_df <- combined_dist_df %>%
+  filter(cycle != 2018) %>%
+  group_by(st_cd_fips, state, district) %>% 
+  filter(n() > 1) %>% # Filtering out single data rows
+  group_nest() %>%
+  mutate(data = map(data, ~unnest(., cols = c())))
+
+dist_test_df <- combined_dist_df %>%
+  filter(cycle == 2018) %>%
+  group_by(st_cd_fips, state, district) %>% 
+  group_nest() %>%
+  mutate(data = map(data, ~unnest(., cols = c())))
+
+models <- dist_train_df %>% 
+  mutate(model = map(data, ~lm(RepVotesMajorPercent ~ rep_est_cost_pct, data = .x))) %>% 
+  mutate(r_squared = map(model, ~summary(.x)$r.squared)) %>%
+  filter(r_squared != 0)
+
+pred_2022 <- dist_test_df %>%
+  # inner join as there may not be historical models for some districts
+  inner_join(models, by = c("st_cd_fips", "state", "district")) 
+
+preds <- data.frame(state = character(), district = character(), pred = double())
+for (i in 1:nrow(pred_2022)) {
+  model <- pred_2022[[i, 6]][[1]]
+  input <- unnest(pred_2022[i, 4])
+  preds <- preds %>% add_row(
+    state = pred_2022[[i, 2]],
+    district = as.character(pred_2022[[i, 3]]),
+    pred = predict(model, input)
+  )
+}
+
+nrow(filter(preds, pred > 50))
+nrow(preds)
+preds <- filter(preds, pred > 0, pred < 100)
+
+plot_preds <- cd114 %>% left_join(preds, by=c("district", "state")) %>%
+  filter(!state %in% c("Alaska","Hawaii"))
+
+ggplot(data = plot_preds) +
+  geom_sf(mapping = aes(fill = pred, geometry = geometry)) +
+  scale_fill_gradient2(low = "blue", mid = "white", high = "red", midpoint = 50, name = "Vote Share") +
+  theme_void() +
+  labs(title = "2018 Voteshare Margins by district")
+
+```
+
+This attempt to model has several flaws that are evident from this map containing the predictions from each of the district models.  First is how few districts had enough regularly intervaled data to train a model that was not rank deficient. The predictions were also very volatile because of the deficient underlying data so many predictions did not have reasonable values.  The 2018 actual outcomes differed from these predictions substantially.  For these reasons, I chose to leave ads data out of this week's combined model.
+
+## Creating a New Combined Model
+Despite containing millions of observations, this weeks data on advertising turns out to me much more sparse in its range and predictive power because it does not span a large time range and has small coverage over the districts.  There is also a lack of advertising data for the upcoming election so there wouldnt be anything to input for a 2022 prediction anyway.  So to wrap up a combined model, the available coefficients are fundamentals, polling, and incumbency.
+```{r}
+inc_2022 <- read_csv("../2022-09-30-04-incumbency/data/house_cands_2022.csv") %>%
+  filter(incumbent == 1) %>%
+  select(state, district, st_cd_fips, cand)
+  
+presidents_df <- read_csv("../2022-09-30-04-incumbency/data/presidents.csv") %>%
+  rename(cycle = year)
+
+combined_dist_df <- left_join(inc_dist_1948_2022_df, presidents_df, by = c("cycle"))
+
+for (row in 1:nrow(inc_2022)) {
+  inc_state <- toString(inc_2022[row, "state"])
+  inc_district <- toString(inc_2022[row, "district"])
+  inc <- toString(inc_2022[row, "cand"])
+  prev <- combined_dist_df %>% 
+    filter(cycle == 2020, state == inc_state, district == inc_district)
+  rep <- toString(prev %>% select(RepCandidate))
+  dem <- toString(prev %>% select(DemCandidate))
+
+  combined_dist_df <- combined_dist_df %>% 
+    add_row(
+      cycle = 2022,
+      state = inc_state,
+      district = inc_district,
+      st_cd_fips = toString(inc_2022[row, "st_cd_fips"]),
+      RepStatus = ifelse(inc == rep, 1, 0),
+      DemStatus = ifelse(inc == dem, 1, 0),
+      pres_dem = 1,
+      pres_rep = 0
+    )
+}
+
+combined_dist_df <- left_join(combined_dist_df, ads_dist_cost_df, by=c("cycle", "st_cd_fips"))
+combined_dist_df <- left_join(combined_dist_df, RDI_quarterly_1959_2022_df, by=c("cycle"))
+combined_dist_df <- left_join(combined_dist_df, dist_polls_2018_2022_df, by=c("cycle", "st_cd_fips", "state", "district"))
+
+dist_train_df <- combined_dist_df %>%
+  filter(cycle != 2022) %>%
+  group_by(st_cd_fips, state, district) %>% 
+  drop_na(RepStatus, DemStatus, pres_rep, pres_dem, rdi_pct, rep_poll_pct) %>%
+  filter(n() > 1) %>% # Filtering out single data rows
+  group_nest() %>%
+  mutate(data = map(data, ~unnest(., cols = c())))
+
+dist_test_df <- combined_dist_df %>%
+  filter(cycle == 2022) %>%
+  group_by(st_cd_fips, state, district) %>% 
+  group_nest() %>%
+  mutate(data = map(data, ~unnest(., cols = c())))
+
+models <- dist_train_df %>% 
+  mutate(model = map(data, ~lm(RepVotesMajorPercent ~ RepStatus + DemStatus + pres_rep + pres_dem + rdi_pct + rep_poll_pct, data = .x))) %>% 
+  mutate(r_squared = map(model, ~summary(.x)$r.squared))
+
+pred_2022 <- dist_test_df %>%
+  # inner join as there may not be historical models for some districts
+  inner_join(models, by = c("state", "district")) %>% 
+  mutate(pred = map_dbl(.x = model, .y = data.x, ~predict(object = .x, newdata = as.data.frame(.y)))) %>%
+  select(state, district, pred)
+
+nrow(filter(pred_2022, pred > 50))
+
+
+```
+
+Using 
+- Percent change in RDI
+- Reelection coefficients
+- Presidential party incumbency
+- District polls
+Leaving out for lack of 2022 data:
+- Ad expenses
+
+The data is only sufficient to generate models in states where recent and historical polls have been conducted.  Out of the 57 viable models, 33 outcomes anticipated a Republican victory while 24 predicted a Democrat victory.
+
+The result table is as follows:
+```{r, 	results = TRUE}
+export_table(pred_2022, format = "html")
+```
+
+
+## References
+
+- Alan S Gerber, James G Gimpel, Donald P Green, and Daron R Shaw. How Large and Long- lasting are the Persuasive Effects of Televised Campaign Ads? Results from a Randomized Field Experiment. American Political Science Review, 105(01):135–150, 2011.
+
+- Gregory A Huber and Kevin Arceneaux. Identifying the Persuasive Effects of Presidential Advertising. American Journal of Political Science, 51(4):957–977, 2007
+
+

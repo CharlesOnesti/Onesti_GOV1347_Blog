@@ -1,0 +1,146 @@
+---
+title: 07. Shocks
+author: Charles Onesti
+date: '2022-10-24'
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+	echo = FALSE,
+	message = FALSE,
+	warning = FALSE,
+	results = FALSE
+)
+# Import Libraries
+library(ggplot2)
+library(tidyverse)
+library(rmapshaper)
+library(dplyr)
+library(readr)
+library(stargazer)
+library(sf)
+library(insight)
+
+getmode <- function(v) {
+   uniqv <- unique(v)
+   uniqv[which.max(tabulate(match(v, uniqv)))]
+}
+
+# Import Data
+combined_dist_df <- read_csv("../../../data/combined_dist.csv")
+
+## POLLING
+dist_polls_2018_2022_df <- read_csv("../2022-09-30-04-incumbency/data/dist_polls_2018-2022.csv") %>%
+  filter(stage == "general", state != "Puerto Rico") %>%
+  select(cycle, state, district = seat_number, st_cd_fips, party, candidate_name, pct, question_id) %>%
+  mutate(district = as.character(district))
+
+dem_df <- dist_polls_2018_2022_df %>%
+  filter(party == "DEM") %>%
+  select(-party) %>%
+  dplyr::rename(dem_candidate = candidate_name, dem_pct = pct)
+rep_df <- dist_polls_2018_2022_df %>%
+  filter(party == "REP") %>%
+  select(-party) %>%
+  dplyr::rename(rep_candidate = candidate_name, rep_pct = pct)
+dist_polls_2018_2022_df <- inner_join(dem_df, rep_df, by=c("state","cycle","district","question_id","st_cd_fips")) %>%
+  mutate(dem_poll_pct = dem_pct / (dem_pct + rep_pct), rep_poll_pct = rep_pct / (dem_pct + rep_pct)) %>%
+  group_by(cycle, state, district, st_cd_fips) %>%
+  summarise(dem_poll_pct = mean(dem_poll_pct), rep_poll_pct = mean(rep_poll_pct), rep_candidate = getmode(rep_candidate), dem_candidate = getmode(dem_candidate))
+
+## GEO
+cd114 <- st_read("../2022-09-30-04-incumbency/districtShapes/districts114.shp")
+cd114 <- cd114 %>% select(district = DISTRICT, state = STATENAME, geometry)
+cd114 <- rmapshaper::ms_simplify(cd114, keep = 0.01)
+
+```
+
+Welcome back to the last blog post before I make a final prediction on the 2022 midterm elections.  The focus of this week's post is on voting shocks.  A shock is a political or apolitical event that influences a voter's state of mind.  Identifying a potential shock must be followed with some reasoning about how the public responds to that kind of event and then theorize about how which direction voters will move on average between candidates.  Useful heuristics to make this theorization easier are incumbency and party ideology heuristics.  To judge the valence of a shock we can just consider whether it will make most voters more or less favorable for an incumbent or a party and then adjust our expectations according to those data.  Bagues and Volvart (2016) use this approach when talking about how an apolitical shock like winning a lottery will increase the favorability of incumbent candidates. This kind of analysis is replicated by Achen and Bartels (2017) who instead observe that a surge in shark attacks will reduce the favorability of incumbents. 
+The unifying conclusion is that events that make people happy will encourage the average voter to support the incumbent candidate in an upcoming election and negative events will hurt incumbent re-election.  While Achen and Bartels see this as an instance of purely irrational voting behavior, emotionally motivated voting is not necessarily misguided depending on the nature of the shock.  An effective representative should be able to minimize the odds of negative events and increase the odds of positive events.  
+
+## Shock: Affirmative Action in the Supreme Court
+
+Looking at the upcoming election, I decided to measure the impact of the Supreme Court rulings on affirmative action for college admissions.  I chose this topic because it is similar to the Dobbs case in the sense that it is also a judicial ruling, and because it is related to this very blog which is for a Harvard class.  To measure the salience of affirmative action as a shock, I used the NYT article API to create the following weekly frequency graph.
+
+```{r}
+mydata <- readRDS("./scripts/dobbs_2022.RDS")
+
+mydata <- mydata %>% 
+  mutate(publ_date = substr(pub_date, 1, 10))
+
+# mutate week variable
+mydata <- mydata %>% 
+  mutate(week = strftime(publ_date, format = "%V"))
+
+# plot
+mydata %>% 
+  group_by(week) %>% 
+  dplyr::summarize(count = n()) %>% 
+  ggplot(aes(week, count, group = 1, color = count)) +
+    geom_line() +
+    labs(y = "Article Count", x = "Week",
+         title = "NYT Articles mentioning Affirmitive Action Supreme Court decision in 2022",
+         color = "")
+```
+
+Each week combines the number of articles that mention the keywords affirmative and action.  You can tell that in the beginning of the year, the topic had a spike in discussion which has since died does with small peaks every month or so.  For midterm election purposes, according to this graph, the topic is not recent or "shocky" enough to have any macro impact on the election outcomes.
+
+## Ongoing prediction model
+
+Returning to our running model from previous weeks, I want to take a different approach this week.  I have recently been struggling to get powerful predictive results with district level results due to sparse data and rank deficient fits.  One way to try and shake things up is to use a pooled model.  This means that instead of trying unsuccessfully to make 435 unique models, we can just make one model and run demographics through the model so that predictions still clock on the district level.  This will result in districts with similar demographic data having correlated outcomes.  Fundementally the assumption in play is that this election will largely be based on voters voting on party lines.  Demographics have historically been tightly bound to party afiliation and so the pooled model makes sense to use in this situation.
+
+This weeks model will use. Candidate and presidential party incumbency, recent generic ballot polls, demographic data on race, ethnicity, and sex.  The regression table looks like this:
+
+```{r}
+
+train_df <- filter(combined_dist_df, cycle != 2022)
+  
+test_df <- filter(combined_dist_df, cycle == 2022)
+
+pooled_lm <- lm(data = train_df, RepVotesMajorPercent ~ 
+                  RepStatus + 
+                  DemStatus + 
+                  dem_pct +
+                  pres_dem +
+                  pres_rep +
+                  male +
+                  female +
+                  white + 
+                  black + 
+                  latino)
+
+pooled_glm <- glm(data = train_df, 
+                  cbind(RepVotes, DemVotes) ~ 
+                    RepStatus + 
+                    DemStatus + 
+                    dem_pct +
+                    pres_dem +
+                    pres_rep +
+                    male +
+                    female +
+                    white + 
+                    black + 
+                    latino, family = binomial)
+
+stargazer(pooled_lm, type = "text")
+
+results_glm <- test_df %>% mutate(pred=predict(pooled_glm, test_df)) %>%
+  select(state, district, pred)
+results_lm <- test_df %>% mutate(pred=predict(pooled_lm, test_df)) %>%
+  select(state, district, pred)
+
+nrow(filter(results_lm, pred > 50))
+nrow(filter(results_lm, pred < 50))
+
+
+```
+Alas, the model is still not quite right.  Its final prediction anticipates that republicans will win 324 seats against 110 for Democrats.  This prediction is too heavily skewed in favor of Republican candidates.  Perhaps one reason for this is a shortcoming of the pooled model.  I can see that all demographic variables have positive coefficients which is not logical given well documented trends that black voters tend to vote for Democratic candidates.  Going into my final prediction on Nov. 7th, I plan to address this issue and make qualify uncertainty with a probabilistic model. 
+
+## References
+
+Christopher H Achen and Larry M Bartels. Democracy for Realists: Why Elections Do Not Produce Responsive Government, volume 4. Princeton University Press, 2017
+
+
+
+

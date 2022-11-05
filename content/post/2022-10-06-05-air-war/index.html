@@ -1,0 +1,640 @@
+---
+title: 05. Air War
+author: Charles Onesti
+date: '2022-10-10'
+---
+
+
+
+<p>This week we will explore how campaign activity matters in congressional elections. So far our predictions have used factors outside of a candidates direct control like the national economy and their party or individual incumbency status. The role of a good campaign can not be overlooked. This post will deal with television advertising conducted by campaigns in what is called the “Air War.” The data studied is from the Wesleyan Media Project which contains data from 2006 - 2018 on campaign ads for House elections. Today’s topics include ad timing, geographic placement, and the insufficiency of the data to make stable 2022 predictions.</p>
+<div id="campaign-ads-timing" class="section level2">
+<h2>Campaign Ads Timing</h2>
+<p>Distribution of campaign ads is something some voters are intuitively aware of. It is no surprise that campaign ads are run only on election years and concentrate to the days before election day. The chart below graphs the ad frequency spikes before each election day represented by a vertical dotted line.<br />
+<img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-1-1.png" width="672" /></p>
+</div>
+<div id="district-level-ads-spending-by-party" class="section level2">
+<h2>2018 District Level Ads Spending by Party</h2>
+<p>According to research from Alan Gerber, campaign advertising has a short term effect of voting behavior. We will test whether this effect is present in the spending data from the Wesleyan Media Project. WMP has detailed datasets on the quantity and qualities of congressional campaign advertisements. This includes an estimated cost variable which we will combine for each district in support of either party. The following maps outline party spending volume over the districts. This behavior is well explained by Alan Gerber’s theory that advertising psychological effects last a limited amount of time. Campaigns aim to have their highest visibility right before a person casts their vote so that the ad’s message is fresh in their mind when making a decision.</p>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-2-1.png" width="672" /><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-2-2.png" width="672" /></p>
+</div>
+<div id="ads-spending-models-by-district" class="section level2">
+<h2>Ads Spending Models by District</h2>
+<p>Using the 2018 data as an input lets use historical data to create district level models of vote share as a function of partisan media spending.
+<img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+<p>This attempt to model has several flaws that are evident from this map containing the predictions from each of the district models. First is how few districts had enough regularly intervaled data to train a model that was not rank deficient. The predictions were also very volatile because of the deficient underlying data so many predictions did not have reasonable values. The 2018 actual outcomes differed from these predictions substantially. For these reasons, I chose to leave ads data out of this week’s combined model.</p>
+</div>
+<div id="creating-a-new-combined-model" class="section level2">
+<h2>Creating a New Combined Model</h2>
+<p>Despite containing millions of observations, this weeks data on advertising turns out to me much more sparse in its range and predictive power because it does not span a large time range and has small coverage over the districts. There is also a lack of advertising data for the upcoming election so there wouldnt be anything to input for a 2022 prediction anyway. So to wrap up a combined model, the available coefficients are fundamentals, polling, and incumbency.</p>
+<p>Using
+- Percent change in RDI
+- Reelection coefficients
+- Presidential party incumbency
+- District polls
+Leaving out for lack of 2022 data:
+- Ad expenses</p>
+<p>The data is only sufficient to generate models in states where recent and historical polls have been conducted. Out of the 57 viable models, 33 outcomes anticipated a Republican victory while 24 predicted a Democrat victory.</p>
+<p>The result table is as follows:</p>
+<div id="meaudoggao" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>html {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
+}
+
+#meaudoggao .gt_table {
+  display: table;
+  border-collapse: collapse;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#meaudoggao .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#meaudoggao .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#meaudoggao .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 0;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#meaudoggao .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#meaudoggao .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#meaudoggao .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#meaudoggao .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#meaudoggao .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#meaudoggao .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#meaudoggao .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#meaudoggao .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#meaudoggao .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#meaudoggao .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#meaudoggao .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#meaudoggao .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#meaudoggao .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#meaudoggao .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#meaudoggao .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#meaudoggao .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#meaudoggao .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#meaudoggao .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#meaudoggao .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#meaudoggao .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#meaudoggao .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#meaudoggao .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#meaudoggao .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#meaudoggao .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#meaudoggao .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-left: 4px;
+  padding-right: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#meaudoggao .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#meaudoggao .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#meaudoggao .gt_left {
+  text-align: left;
+}
+
+#meaudoggao .gt_center {
+  text-align: center;
+}
+
+#meaudoggao .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#meaudoggao .gt_font_normal {
+  font-weight: normal;
+}
+
+#meaudoggao .gt_font_bold {
+  font-weight: bold;
+}
+
+#meaudoggao .gt_font_italic {
+  font-style: italic;
+}
+
+#meaudoggao .gt_super {
+  font-size: 65%;
+}
+
+#meaudoggao .gt_footnote_marks {
+  font-style: italic;
+  font-weight: normal;
+  font-size: 75%;
+  vertical-align: 0.4em;
+}
+
+#meaudoggao .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#meaudoggao .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#meaudoggao .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#meaudoggao .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#meaudoggao .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#meaudoggao .gt_indent_5 {
+  text-indent: 25px;
+}
+</style>
+<table class="gt_table">
+  
+  <thead class="gt_col_headings">
+    <tr>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col">state</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col">district</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col">pred</th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr><td class="gt_row gt_left">Arkansas</td>
+<td class="gt_row gt_center">2</td>
+<td class="gt_row gt_center">67.07</td></tr>
+    <tr><td class="gt_row gt_left">California</td>
+<td class="gt_row gt_center">49</td>
+<td class="gt_row gt_center">43.58</td></tr>
+    <tr><td class="gt_row gt_left">Colorado</td>
+<td class="gt_row gt_center">3</td>
+<td class="gt_row gt_center">54.19</td></tr>
+    <tr><td class="gt_row gt_left">Florida</td>
+<td class="gt_row gt_center">16</td>
+<td class="gt_row gt_center">60.61</td></tr>
+    <tr><td class="gt_row gt_left">Florida</td>
+<td class="gt_row gt_center">27</td>
+<td class="gt_row gt_center">46.92</td></tr>
+    <tr><td class="gt_row gt_left">Illinois</td>
+<td class="gt_row gt_center">6</td>
+<td class="gt_row gt_center">46.42</td></tr>
+    <tr><td class="gt_row gt_left">Illinois</td>
+<td class="gt_row gt_center">14</td>
+<td class="gt_row gt_center">47.50</td></tr>
+    <tr><td class="gt_row gt_left">Indiana</td>
+<td class="gt_row gt_center">5</td>
+<td class="gt_row gt_center">56.76</td></tr>
+    <tr><td class="gt_row gt_left">Iowa</td>
+<td class="gt_row gt_center">3</td>
+<td class="gt_row gt_center">48.88</td></tr>
+    <tr><td class="gt_row gt_left">Iowa</td>
+<td class="gt_row gt_center">4</td>
+<td class="gt_row gt_center">51.71</td></tr>
+    <tr><td class="gt_row gt_left">Kansas</td>
+<td class="gt_row gt_center">1</td>
+<td class="gt_row gt_center">68.15</td></tr>
+    <tr><td class="gt_row gt_left">Kansas</td>
+<td class="gt_row gt_center">2</td>
+<td class="gt_row gt_center">96.37</td></tr>
+    <tr><td class="gt_row gt_left">Kansas</td>
+<td class="gt_row gt_center">3</td>
+<td class="gt_row gt_center">45.04</td></tr>
+    <tr><td class="gt_row gt_left">Kansas</td>
+<td class="gt_row gt_center">4</td>
+<td class="gt_row gt_center">86.56</td></tr>
+    <tr><td class="gt_row gt_left">Kentucky</td>
+<td class="gt_row gt_center">6</td>
+<td class="gt_row gt_center">94.78</td></tr>
+    <tr><td class="gt_row gt_left">Maine</td>
+<td class="gt_row gt_center">1</td>
+<td class="gt_row gt_center">50.08</td></tr>
+    <tr><td class="gt_row gt_left">Maine</td>
+<td class="gt_row gt_center">2</td>
+<td class="gt_row gt_center">49.90</td></tr>
+    <tr><td class="gt_row gt_left">Minnesota</td>
+<td class="gt_row gt_center">1</td>
+<td class="gt_row gt_center">51.63</td></tr>
+    <tr><td class="gt_row gt_left">Minnesota</td>
+<td class="gt_row gt_center">2</td>
+<td class="gt_row gt_center">47.24</td></tr>
+    <tr><td class="gt_row gt_left">Minnesota</td>
+<td class="gt_row gt_center">7</td>
+<td class="gt_row gt_center">108.35</td></tr>
+    <tr><td class="gt_row gt_left">Missouri</td>
+<td class="gt_row gt_center">2</td>
+<td class="gt_row gt_center">60.13</td></tr>
+    <tr><td class="gt_row gt_left">Nebraska</td>
+<td class="gt_row gt_center">2</td>
+<td class="gt_row gt_center">59.70</td></tr>
+    <tr><td class="gt_row gt_left">New Hampshire</td>
+<td class="gt_row gt_center">1</td>
+<td class="gt_row gt_center">45.66</td></tr>
+    <tr><td class="gt_row gt_left">New Hampshire</td>
+<td class="gt_row gt_center">2</td>
+<td class="gt_row gt_center">53.59</td></tr>
+    <tr><td class="gt_row gt_left">New Jersey</td>
+<td class="gt_row gt_center">2</td>
+<td class="gt_row gt_center">52.93</td></tr>
+    <tr><td class="gt_row gt_left">New Jersey</td>
+<td class="gt_row gt_center">3</td>
+<td class="gt_row gt_center">49.34</td></tr>
+    <tr><td class="gt_row gt_left">New Jersey</td>
+<td class="gt_row gt_center">7</td>
+<td class="gt_row gt_center">47.45</td></tr>
+    <tr><td class="gt_row gt_left">New Mexico</td>
+<td class="gt_row gt_center">1</td>
+<td class="gt_row gt_center">38.05</td></tr>
+    <tr><td class="gt_row gt_left">New Mexico</td>
+<td class="gt_row gt_center">2</td>
+<td class="gt_row gt_center">49.07</td></tr>
+    <tr><td class="gt_row gt_left">New Mexico</td>
+<td class="gt_row gt_center">3</td>
+<td class="gt_row gt_center">41.32</td></tr>
+    <tr><td class="gt_row gt_left">New York</td>
+<td class="gt_row gt_center">11</td>
+<td class="gt_row gt_center">46.76</td></tr>
+    <tr><td class="gt_row gt_left">Ohio</td>
+<td class="gt_row gt_center">1</td>
+<td class="gt_row gt_center">61.65</td></tr>
+    <tr><td class="gt_row gt_left">Ohio</td>
+<td class="gt_row gt_center">12</td>
+<td class="gt_row gt_center">83.06</td></tr>
+    <tr><td class="gt_row gt_left">Oklahoma</td>
+<td class="gt_row gt_center">1</td>
+<td class="gt_row gt_center">66.09</td></tr>
+    <tr><td class="gt_row gt_left">Oklahoma</td>
+<td class="gt_row gt_center">5</td>
+<td class="gt_row gt_center">49.30</td></tr>
+    <tr><td class="gt_row gt_left">Pennsylvania</td>
+<td class="gt_row gt_center">1</td>
+<td class="gt_row gt_center">85.40</td></tr>
+    <tr><td class="gt_row gt_left">Pennsylvania</td>
+<td class="gt_row gt_center">7</td>
+<td class="gt_row gt_center">44.83</td></tr>
+    <tr><td class="gt_row gt_left">Pennsylvania</td>
+<td class="gt_row gt_center">8</td>
+<td class="gt_row gt_center">63.78</td></tr>
+    <tr><td class="gt_row gt_left">Pennsylvania</td>
+<td class="gt_row gt_center">10</td>
+<td class="gt_row gt_center">64.14</td></tr>
+    <tr><td class="gt_row gt_left">Pennsylvania</td>
+<td class="gt_row gt_center">16</td>
+<td class="gt_row gt_center">98.35</td></tr>
+    <tr><td class="gt_row gt_left">South Carolina</td>
+<td class="gt_row gt_center">1</td>
+<td class="gt_row gt_center">49.31</td></tr>
+    <tr><td class="gt_row gt_left">Texas</td>
+<td class="gt_row gt_center">6</td>
+<td class="gt_row gt_center">54.56</td></tr>
+    <tr><td class="gt_row gt_left">Texas</td>
+<td class="gt_row gt_center">7</td>
+<td class="gt_row gt_center">47.47</td></tr>
+    <tr><td class="gt_row gt_left">Texas</td>
+<td class="gt_row gt_center">10</td>
+<td class="gt_row gt_center">61.65</td></tr>
+    <tr><td class="gt_row gt_left">Texas</td>
+<td class="gt_row gt_center">17</td>
+<td class="gt_row gt_center">57.89</td></tr>
+    <tr><td class="gt_row gt_left">Texas</td>
+<td class="gt_row gt_center">21</td>
+<td class="gt_row gt_center">53.39</td></tr>
+    <tr><td class="gt_row gt_left">Texas</td>
+<td class="gt_row gt_center">23</td>
+<td class="gt_row gt_center">50.23</td></tr>
+    <tr><td class="gt_row gt_left">Texas</td>
+<td class="gt_row gt_center">31</td>
+<td class="gt_row gt_center">72.09</td></tr>
+    <tr><td class="gt_row gt_left">Utah</td>
+<td class="gt_row gt_center">1</td>
+<td class="gt_row gt_center">71.22</td></tr>
+    <tr><td class="gt_row gt_left">Utah</td>
+<td class="gt_row gt_center">2</td>
+<td class="gt_row gt_center">76.05</td></tr>
+    <tr><td class="gt_row gt_left">Utah</td>
+<td class="gt_row gt_center">3</td>
+<td class="gt_row gt_center">76.11</td></tr>
+    <tr><td class="gt_row gt_left">Utah</td>
+<td class="gt_row gt_center">4</td>
+<td class="gt_row gt_center">49.87</td></tr>
+    <tr><td class="gt_row gt_left">Virginia</td>
+<td class="gt_row gt_center">2</td>
+<td class="gt_row gt_center">48.88</td></tr>
+    <tr><td class="gt_row gt_left">Virginia</td>
+<td class="gt_row gt_center">5</td>
+<td class="gt_row gt_center">48.83</td></tr>
+    <tr><td class="gt_row gt_left">Virginia</td>
+<td class="gt_row gt_center">7</td>
+<td class="gt_row gt_center">49.02</td></tr>
+    <tr><td class="gt_row gt_left">Virginia</td>
+<td class="gt_row gt_center">10</td>
+<td class="gt_row gt_center">43.80</td></tr>
+    <tr><td class="gt_row gt_left">Wisconsin</td>
+<td class="gt_row gt_center">1</td>
+<td class="gt_row gt_center">59.35</td></tr>
+  </tbody>
+  <tfoot class="gt_sourcenotes">
+    <tr>
+      <td class="gt_sourcenote" colspan="3"></td>
+    </tr>
+  </tfoot>
+  
+</table>
+</div>
+</div>
+<div id="references" class="section level2">
+<h2>References</h2>
+<ul>
+<li><p>Alan S Gerber, James G Gimpel, Donald P Green, and Daron R Shaw. How Large and Long- lasting are the Persuasive Effects of Televised Campaign Ads? Results from a Randomized Field Experiment. American Political Science Review, 105(01):135–150, 2011.</p></li>
+<li><p>Gregory A Huber and Kevin Arceneaux. Identifying the Persuasive Effects of Presidential Advertising. American Journal of Political Science, 51(4):957–977, 2007</p></li>
+</ul>
+</div>

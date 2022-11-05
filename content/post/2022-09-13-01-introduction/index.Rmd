@@ -1,0 +1,175 @@
+---
+title: "01. Introduction"
+author: "Charles Onesti"
+date: '2022-09-13'
+output: pdf_document
+comments: no
+image: ''
+menu: ''
+share: yes
+slug: []
+---
+
+This is the first post in a series of weekly publications about the US 2022 midterm elections for the House of Representatives. From today until election day on November 8th 2022 I will be developing a predictive model for estimating the likely outcomes of the election.  In the aftermath, I will be able to evaluate the precision of the model and reflect on its strengths and weaknesses.
+
+For now, we will visualize the two party vote share from the 2014 midterm elections by state and district.  Then we will look at seat shares for the states and compare to our popular vote margins to see the voter distribution effects of districting and gerrymandering on seat outcomes.  Lastly we well identify historical swing states so we can get a sense of what states to narrow in on for further modeling.
+
+
+```{r, setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+
+# Import Libraries
+library(ggplot2)
+library(tidyverse)
+library(dplyr)
+library(plotly)
+library(usmap)
+library(sf)
+library(rmapshaper)
+
+# Import Data
+vote_and_seat_share_df <- read_csv("./data/house nationwide vote and seat share by party 1948-2020.csv")
+vote_by_district_df <- read_csv("./data/house party vote share by district 1948-2020.csv")
+seat_share_by_state_2014_df <- read_csv("./data/seat_share_2014.csv")
+states <- tibble(State = state.name, abbr = state.abb)
+
+# ggplot Theme
+my_theme <- function() {
+  theme(
+    panel.border = element_rect(colour = "red", fill = NA, linetype = 2),
+    panel.background = element_rect(fill = "steelblue"),
+    legend.position = "right"
+  )
+}
+
+```
+
+## 2014 Trends in Popular Voting:
+Lets start with a simple map colored in to represent the results of the 2014 House elections.  We will try to get a quick answer to: Which way do states lean in their two party popular votes when aggregating all districts?
+
+```{r, 2-party vote share}
+vote_share_by_state_2014_df <- vote_by_district_df %>%
+  filter(raceYear == 2014) %>%
+  select(raceYear, State, district_num, district_id, RepVotes, DemVotes) %>%
+  # Grab party voteshare by state
+  group_by(State) %>%
+  summarize(R_votemargin_st = (sum(RepVotes))/sum(RepVotes + DemVotes),
+  D_votemargin_st = (sum(DemVotes))/sum(RepVotes + DemVotes)) %>%
+  left_join(states, by = "State") %>%
+  rename(state = State)
+
+plot_usmap(data = vote_share_by_state_2014_df, regions = "states", values = "R_votemargin_st", labels = TRUE) +
+  scale_fill_gradient(low = "white", high = "red", name = "GOP vote share") +
+  my_theme() +
+  labs(title = "2014 GOP Vote Share by State")
+
+```
+
+The map above will roughly estimate which seats are locked in for either party.  With redistricting happening in the recent 2020 census, popular vote trends have a unique advantage of continuity despite shifting county boundaries.  
+The overall picture paints strong Republican presence in the central and mountain time zones as well as strong turnout in the South East.  States like Wyoming and Oklahoma in bright red indicate overwhelming Republican popular vote majorities.  On the other hand, near the coasts in light pink and white are states like Massachusetts and California which have overwhelming Democrat popular vote majorities. 
+It initially seems that most states in orage are likely harder to predict what outcomes they might have.  Looking further into districting though gives more concrete insights into how thie popular vote is distributed to win seats in Congress.
+
+## Districting Effects:
+
+```{r echo=FALSE, paged.print=FALSE, results = FALSE}
+# Load geographic data for 114th congress - 2014 election
+get_congress_map <- function(cong=114) {
+  tmp_file <- tempfile()
+  tmp_dir <- tempdir()
+  zp <- sprintf("https://cdmaps.polisci.ucla.edu/shp/districts114.zip",cong)
+  download.file(zp, tmp_file)
+  unzip(zipfile = tmp_file, exdir = tmp_dir)
+  fpath <- paste(tmp_dir, sprintf("districtShapes/districts114.shp",cong), sep = "/")
+  st_read(fpath)
+}
+
+vote_share_by_district_2014_df <- vote_by_district_df %>%
+  select(raceYear, State, CD, district_id, district_num, RepVotes, DemVotes) %>%
+  filter(raceYear == 2014) %>%
+  # summarize party vote share by state
+  mutate(R_votemargin = RepVotes/(RepVotes + DemVotes),
+  D_votemargin = DemVotes/(RepVotes + DemVotes)) %>%
+  rename(DISTRICT = district_num, STATENAME = State)
+
+cd114 <- get_congress_map(114)
+cd114$DISTRICT <- as.numeric(cd114$DISTRICT)
+cd114 <- cd114 %>% left_join(vote_share_by_district_2014_df, by=c("DISTRICT", "STATENAME"))
+
+# plot with simplify
+districts_simp <- rmapshaper::ms_simplify(cd114, keep = 0.01)
+
+ggplot() + 
+  geom_sf(data=districts_simp,aes(fill=R_votemargin),
+          inherit.aes=FALSE,alpha=0.9) + 
+  scale_fill_gradient2(low = "white", high = "red", name = "GOP vote share") +
+  coord_sf(xlim = c(-172.27, -66.57), ylim = c(18.55, 71.23), expand = FALSE) +  
+  theme_void() +
+  theme(axis.title.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank(),
+        axis.title.y=element_blank(),
+        axis.text.y=element_blank(),
+        axis.ticks.y=element_blank())
+```
+
+The difference when looking at districts is that area and population density are negatively correlated.  The map above shows large swaths of red districts with an occasional pink and white island around urban areas.  
+Although it seems that republicans have a large advantage in this visualization, do not be misled because the districts on this map are small and the smallest are generally held by Democratic voters and they are worth just the same as the larger red districts.  
+Lets aggregate these district results to the state level and compare our earlier map of popular vote to seat outcomes.
+
+## Seat Shares and Gerrymandering:
+
+```{r}
+seat_share_by_state_2014_df <- seat_share_by_state_2014_df %>%
+  mutate(Rep_seat_share = RepWinner/(RepWinner + DemWinner)) %>%
+  rename(state = Area)
+
+plot_usmap(data = seat_share_by_state_2014_df, regions = "states", values = "Rep_seat_share", labels = TRUE) +
+  scale_fill_gradient(low = "white", high = "red", name = "GOP seat share") +
+  my_theme() +
+  labs(title = "2014 GOP Seat Share by State")
+
+```
+
+The first thing to note is that wholistically, the popular vote and seat share correlate strongly as one might expect.  The two graphs differ in their decisiveness.  The feeling given off by this chart is that on the state level, states are more one-sided in their outputs than they are in their inputs.  A few examples can be seen in the deeper hue of red in the middle states and bright white on the Pacific West and Northeast.  
+So why does this descrepancy between democratic outcome and respresentative outcome exist?  
+It has to do with the efficient distribution of voters within the districts of each state.  House elections are winner take all in each district.  A candidate might win their seat regardless of how large the minority of voters against them.  Districts won by small and large margins affect the two maps compared above differently.  The difference becomes visible when one party is biased by distict layout.  As a whole, this means that when Democrats are elected, they win by large margins and when they lose they typically lose by small margins.  This is what makes the seat share more red than the popular vote share.  
+The impact of districting is critical to house elections and when incumbents use strategic redistricting to exaggerate its leverage over the popular vote, it is called Gerrymandering.  The impact of gerrymandering is hard to predict for the upcoming 2022 elections because it is the first to happen on a newly minted district map.  It will therefore be less useful for prediction but will surely impact the election results once votes are tallied.
+
+
+## Identifying Swing States:
+```{r}
+swing_state_df <- vote_by_district_df %>%
+  filter(raceYear > 1966) %>%
+  select(raceYear, State, RepVotes, DemVotes, state_abb) %>%
+  # Grab party votes by state
+  group_by(raceYear, State) %>%
+  summarize(RepVotes = sum(RepVotes), DemVotes = sum(DemVotes)) %>%
+  mutate(swinginess =  (RepVotes/(DemVotes+RepVotes))-(lag(RepVotes)/(lag(DemVotes)+lag(RepVotes)))) %>%
+  left_join(states, by = "State") 
+# Code below is taken from Plotly's Cloropleth Maps example:
+# https://plotly.com/r/choropleth-maps/
+# specify some map projection/options
+map_options <- list(
+  scope = 'usa',
+  projection = list(type = 'albers usa'),
+  showlakes = FALSE,
+  lakecolor = toRGB('white')
+)
+swing_state_map <- plot_geo(swing_state_df, locationmode = 'USA-states') %>% 
+  add_trace(z = ~swinginess, locations = ~abbr,
+            color = ~swinginess, colors = 'Reds', frame = ~raceYear,
+            zmin = -0.5, zmax = 0.5) %>% 
+  colorbar(title = 'Swinginess') %>% 
+  layout(title = 'Swinginess by state 1968-2020',
+         geo = map_options)
+swing_state_map
+```
+
+To clear the obvious confusion of: What in the world is "Swinginess"?  A state's propensity to be a swing state is taken to mean: How volatile is the two party voting turnout over many election cycles?  To measure this, we can use time series data going back to 1968 on congressional elections.
+The Swinginess formula is: $R_{x}/(D_{x}+R_{x})-R_{x-2}/(D_{x-2}+R_{x-2})$  Where R and D are total votes for Republican and Democratic candidates respectively and x is the election year.
+In other words it measures the difference between which direction the state voted in the last election to the next election.
+Looking across time, Virginia, South Carolina and Florida seem to recently have high volatility in their two party vote shares while a state like California has settled down and not moved significantly recently.
+Data on swing states is useful for prediction because is will indicate where prediction confidence should be dialed up or down for measuring the overall confidence of a prediction.
+
+
+

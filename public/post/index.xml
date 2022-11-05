@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Posts on Election Analytics Blog</title>
+    <link>http://example.org/post/</link>
+    <description>Recent content in Posts on Election Analytics Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Mon, 24 Oct 2022 00:00:00 +0000</lastBuildDate><atom:link href="http://example.org/post/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>07. Shocks</title>
+      <link>http://example.org/post/2022-10-24-07-shocks/</link>
+      <pubDate>Mon, 24 Oct 2022 00:00:00 +0000</pubDate>
+      
+      <guid>http://example.org/post/2022-10-24-07-shocks/</guid>
+      <description>Welcome back to the last blog post before I make a final prediction on the 2022 midterm elections. The focus of this week’s post is on voting shocks. A shock is a political or apolitical event that influences a voter’s state of mind. Identifying a potential shock must be followed with some reasoning about how the public responds to that kind of event and then theorize about how which direction voters will move on average between candidates.</description>
+    </item>
+    
+    <item>
+      <title>06. Ground Game</title>
+      <link>http://example.org/post/2022-10-17-06-the-ground-game/</link>
+      <pubDate>Mon, 17 Oct 2022 00:00:00 +0000</pubDate>
+      
+      <guid>http://example.org/post/2022-10-17-06-the-ground-game/</guid>
+      <description>In contrast to the Air War described in last weeks post, the ground game constitutes any non-digital voter outreach conducted by political campaigns. This week’s post is firstly about the axes of persuasion and turnout that air war or ground game strategies might impact. Last week we saw how advertisements have only a short lasting effect on voting behavior. Ground game strategies such as canvassing and voter rallies, however, are considered to be more effective at influencing voters.</description>
+    </item>
+    
+    <item>
+      <title>05. Air War</title>
+      <link>http://example.org/post/2022-10-06-05-air-war/</link>
+      <pubDate>Mon, 10 Oct 2022 00:00:00 +0000</pubDate>
+      
+      <guid>http://example.org/post/2022-10-06-05-air-war/</guid>
+      <description>This week we will explore how campaign activity matters in congressional elections. So far our predictions have used factors outside of a candidates direct control like the national economy and their party or individual incumbency status. The role of a good campaign can not be overlooked. This post will deal with television advertising conducted by campaigns in what is called the “Air War.” The data studied is from the Wesleyan Media Project which contains data from 2006 - 2018 on campaign ads for House elections.</description>
+    </item>
+    
+    <item>
+      <title>04. Incumbency and Expert Prediction</title>
+      <link>http://example.org/post/2022-09-30-04-incumbency/</link>
+      <pubDate>Mon, 03 Oct 2022 00:00:00 +0000</pubDate>
+      
+      <guid>http://example.org/post/2022-09-30-04-incumbency/</guid>
+      <description>This week we will be adding an incumbency term to our 2022 House elections prediction model and bringing our predictions into the district level. First however, let’s do an analysis of expert predictions. An expert prediction is when a journalist of political pundit make personal predictions about how certain contentious districts will break in the upcoming election. The person or firm informs their decision with their unique knowledge and expertise about the voters and candidates.</description>
+    </item>
+    
+    <item>
+      <title>03. Polling</title>
+      <link>http://example.org/post/2022-09-22-03-polling/</link>
+      <pubDate>Thu, 22 Sep 2022 00:00:00 +0000</pubDate>
+      
+      <guid>http://example.org/post/2022-09-22-03-polling/</guid>
+      <description>There is no better gold standard for election prediction that a direct and simple poll. If you want to know the outcome of a vote, sample a part of the outcome and extrapolate the microcosmic results to the larger population. Yet polling is subject to lots of errors associated with temporal and psychological factors. Gelman and King highlight these problems in their 1993 paper stating that early polls are unrelated to the eventual outcome of an election.</description>
+    </item>
+    
+    <item>
+      <title>02. Local and National Economy</title>
+      <link>http://example.org/post/2022-09-18-02-local-and-national-economy/</link>
+      <pubDate>Sun, 18 Sep 2022 00:00:00 +0000</pubDate>
+      
+      <guid>http://example.org/post/2022-09-18-02-local-and-national-economy/</guid>
+      <description>Welcome back to my election analytics blog. This week we will be looking at economic data as predictors for the popular vote. Political science theory described by Achen and Bartels in Democracy for Realists suggests that voter behavior can be modeled retrospectively. When a voter chooses who to vote for, they measure the performance of the incumbent party based on their experiences during the last term when they decide to keep or replace the party candidate.</description>
+    </item>
+    
+    <item>
+      <title>01. Introduction</title>
+      <link>http://example.org/post/2022-09-13-01-introduction/</link>
+      <pubDate>Tue, 13 Sep 2022 00:00:00 +0000</pubDate>
+      
+      <guid>http://example.org/post/2022-09-13-01-introduction/</guid>
+      <description>This is the first post in a series of weekly publications about the US 2022 midterm elections for the House of Representatives. From today until election day on November 8th 2022 I will be developing a predictive model for estimating the likely outcomes of the election. In the aftermath, I will be able to evaluate the precision of the model and reflect on its strengths and weaknesses.
+For now, we will visualize the two party vote share from the 2014 midterm elections by state and district.</description>
+    </item>
+    
+  </channel>
+</rss>
