@@ -92,6 +92,78 @@
 
 	</div>
 
+
+
+<article class="post post">
+    <header class="post-header">
+        <h2 class="post-title"><a href="/post/2022-10-24-07-shocks/">08. Final Prediction</a></h2>
+    </header>
+    <section class="post-excerpt">
+      <p>
+          <section class="post-content">
+            
+            <p>This post contains my final prediction for tomorrow’s midterm elections. This is the culmination of my past 7 posts analyzing different aspects of election prediction and campaign theory.</p>
+<div id="model-description-and-justification" class="section level2">
+<h2>Model Description and Justification</h2>
+<p>My model is composed of unique district level models. Each district model is a binomial logistic regression predicting the outcome that a republican candidate wins the election in that state. Creating over 400 district models was very challenging because of the restricted time scope of the data I am working with. I believe that it is still worth it to make this decision because it allows each district to be unique and it is the closest modeling technique to the structure of the actual election. The seat share after voting ends is determined by the aggregate of every individual election and my model will do the same with its predicted outcomes. I chose to use the inverse logistic function for regression because linear predictions with limited data tend to be volatile. A GLM meant that probabilistic predictions would stay in the 0-1 range.</p>
+</div>
+<div id="model-formula" class="section level2">
+<h2>Model Formula</h2>
+<p>The independent variables in each regression are:</p>
+<ul>
+<li><p>Unemployment rate: The economic predictor with the best r-squared for my data. The theoretical motivation is as described in week 2 that unemployment is a democratic party issue and would favor democrat candidates regardless of incumbency.</p></li>
+<li><p>Seat incumbency: Candidates running for re-election have a massive advantage in name recognition and fundraising. This variable captures that advantage as two binary indicators.</p></li>
+<li><p>Presidential party incumbency: Midterm election are often used by voters as a way to reward or punish the performance of the incumbent president.</p></li>
+<li><p>Presidential approval: The presidential party variable and the presidential approval are in the regression as interaction terms so that the theory of reward and punishment can manifest if the trend exists in the data.</p></li>
+<li><p>Expert prediction: To have historical expert prediction to model on, I used the Cook Report district ratings and averaged them with the Inside Politics ratings. Experts often have key insights investigating battleground districts so if they have a history of success their 2022 predictions should shine in my models.</p></li>
+</ul>
+</div>
+<div id="example-regression-table" class="section level2">
+<h2>Example Regression Table</h2>
+<pre><code>## 
+## Call:  glm(formula = rep_win ~ unrate + D_inc + R_inc + pres_dem * approval + 
+##     pres_rep * approval + code, family = binomial, data = .x)
+## 
+## Coefficients:
+##       (Intercept)             unrate              D_inc              R_inc  
+##         2.457e+01          1.109e-09                 NA                 NA  
+##          pres_dem           approval           pres_rep               code  
+##         9.417e-08         -7.106e-07                 NA          3.960e-08  
+## pres_dem:approval  approval:pres_rep  
+##                NA                 NA  
+## 
+## Degrees of Freedom: 4 Total (i.e. Null);  0 Residual
+## Null Deviance:       0 
+## Residual Deviance: 2.143e-10     AIC: 10</code></pre>
+<p>A few things I notice in this table is that the unemployment rate (unrate) has a positive coefficient. I would have expected a negative one since the prediction is probability of Republican victory and unemployment generally favors Democrat candidates. The next peculiarity is that the model decided to ignore the seat incumbency and instead only use presidential party incumbency.</p>
+</div>
+<div id="model-validation" class="section level2">
+<h2>Model validation</h2>
+<p>The final prediction of the set of district models is 244 Republican seats and 191 Democrat seats. This includes adding in districts that failed to model due to lack of data. Unmodeled districts tend to by no contest races or uncompetitive races to I filled in with the expert prediction average.</p>
+<p>I corroborated my Binomial logistic regression results with an equivalently composed linear regression and found that the results were nearly identical. The linear model seemed to favor the Republican majority by only 9 seats (253,182).</p>
+<p>I was unable to create a predictive interval for these models because of how I coded a binary outcome. Upper and lower bounds calculated with the standard error were almost identical to the prediction and were either very close to 1 or very close to 0. After wrestling with the data my compromise was to lose visibility on this statistic in order to get modeled predictions on more districts.</p>
+</div>
+            
+            
+          </section>
+      </p>
+      
+    </section>
+    <footer class="post-meta">
+        
+            <img class="author-thumb" src="http://example.org/images/user.png" alt="Author image" nopin="nopin" />
+        
+        
+            Charles Onesti
+        
+        
+        <time class="post-date" datetime="2022-10-24T00:00:00Z">
+            7 Nov 2022
+        </time>
+    </footer>
+</article> 
+            
+            
 	
 	   
 <article class="post post">
