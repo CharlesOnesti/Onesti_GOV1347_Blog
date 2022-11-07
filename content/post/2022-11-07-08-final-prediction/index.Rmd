@@ -1,0 +1,202 @@
+---
+title: "08. Final Prediction"
+author: "Charles Onesti"
+date: "2022-11-07"
+---
+
+
+This post contains my final prediction for tomorrow's midterm elections. This is the culmination of my past 7 posts analyzing different aspects of election prediction and campaign theory.
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+	echo = FALSE,
+	message = FALSE,
+	warning = FALSE,
+	results = FALSE
+)
+# Import Libraries
+library(ggplot2)
+library(tidyverse)
+library(rmapshaper)
+library(dplyr)
+library(readr)
+library(stargazer)
+library(snakecase)
+
+AL <- c("Alaska", "Wyoming", "Montana", "North Dakota", "South Dakota", "Vermont", "Delaware")
+# Import Data
+dist_2012_2020_df <- read_csv("../../../data/dist_2012_2020.csv") %>%
+  select(cycle = raceYear, state = State, state_abb, district = district_num, RepVotesMajorPercent, D_inc, R_inc) %>%
+  mutate(D_inc=ifelse(D_inc == TRUE, 1, 0),
+         R_inc=ifelse(R_inc == TRUE, 1, 0))
+
+dist_2022_df <- read_csv("../../../data/dist_2022.csv") %>%
+  mutate(raceYear = 2022,
+         pres_rep = 0,
+         pres_dem = 1,
+         approval = 0.40,
+         unrate = 10.8,
+         district = ifelse(state %in% AL, 0, district)) %>%
+  select(cycle = raceYear, state, state_abb = abb_info, district, D_inc, R_inc, pres_rep, pres_dem, approval, unrate) %>%
+  mutate(D_inc=ifelse(D_inc == TRUE, 1, 0),
+         R_inc=ifelse(R_inc == TRUE, 1, 0))
+
+inside_elections <- read_csv("../../../data/inside_elections.csv")  %>%
+  select(cycle = year, state_abb = state, district, code) %>%
+  mutate(district=as.numeric(district))
+
+cook <- read_csv("../../../data/cook.csv")  %>%
+  select(cycle = year, state_abb = state, district, code) %>%
+  mutate(district=as.numeric(district))
+
+inside_cook <- left_join(inside_elections, cook, by=c("cycle", "state_abb", "district")) %>%
+  mutate(avg = (code.x+code.y) / 2) %>%
+  mutate(code=case_when(
+    is.na(avg) ~ code.x,
+    TRUE ~ avg,
+  )) %>%
+  select(cycle, state_abb, district, code)
+
+combined_dist_df <- left_join(dist_2012_2020_df, inside_cook, by=c("cycle", "state_abb", "district"))
+dist_2022_df <- left_join(dist_2022_df, inside_cook, by=c("cycle", "state_abb", "district"))
+
+```
+
+```{r}
+# Approval ratings
+approval <- read_csv("../../../data/approval.csv") %>%
+  select(cycle = year, approval = approval_rating)
+
+combined_dist_df <- left_join(combined_dist_df, approval, by=c("cycle"))
+```
+
+```{r}
+# Presidential party
+party_power <- read_csv("../../../data/party_power.csv") %>%
+  mutate(pres_rep=ifelse(pres_party_in_power_at_election == "R", 1, 0),
+         pres_dem=ifelse(pres_party_in_power_at_election == "D", 1, 0)) %>%
+    select(cycle = Year, pres_rep, pres_dem)
+
+combined_dist_df <- left_join(combined_dist_df, party_power, by=c("cycle"))
+```
+
+```{r}
+# Unemployment rates
+unemployment <- read_csv("../../../data/unemployment_national.csv") %>%
+  select(cycle = year, quarter_cycle, unrate = unrate_qt_total) %>%
+  filter(quarter_cycle >= 3) %>%
+  group_by(cycle) %>% dplyr::summarise(unrate = mean(unrate))
+
+combined_dist_df <- left_join(combined_dist_df, unemployment, by=c("cycle"))
+```
+
+```{r}
+# Filling in vote tallies
+inc <- read_csv("../../../data/incumb_dist_1948-2022 (2).csv") %>%
+  select(cycle = year, state, district = district_num, RepVotes, DemVotes) %>%
+  mutate(district=as.numeric(district))
+
+combined_dist_df <- left_join(combined_dist_df, inc, by=c("cycle", "state", "district")) %>%
+  mutate(rep_win=ifelse(RepVotesMajorPercent > 50, 1, 0))
+
+
+```
+
+```{r}
+# CVAP
+cvap <- read_csv("../../../data/cvap_district_2012-2020_clean.csv") %>%
+  select(cycle = year, state, district = cd, cvap) %>%
+  mutate(state=to_any_case(state, sep_out=" ", case="parsed"),
+         district = ifelse(district == "AL", 0, as.numeric(district)))
+
+combined_dist_df <- left_join(combined_dist_df, cvap, by=c("cycle", "state", "district"))
+```
+
+```{r}
+# Demographics
+demog <- read_csv("../../../data/demographic_2009_2020.csv") %>%
+  select(cycle = year, state, district, white, black, latino = "hispanic or latino") %>%
+  mutate(district = ifelse(district == "AL", 0, as.numeric(district)))
+demog_2022 <- read_csv("../../../data/demographics_by_2022.csv")
+```
+
+```{r}
+dist_train_df <- filter(combined_dist_df, RepVotesMajorPercent != 0, RepVotesMajorPercent != 100) %>%
+  group_by(state, district) %>%
+  filter(n() > 1) %>% # Filtering out single data rows
+  group_nest() %>%
+  mutate(data = map(data, ~unnest(., cols = c())))
+
+dist_test_df <- dist_2022_df %>%
+  group_by(state, district) %>% 
+  group_nest() %>%
+  mutate(data = map(data, ~unnest(., cols = c())))
+```
+
+```{r}
+# District models GLM
+rep_models <- dist_train_df %>% 
+  mutate(model = map(data, ~glm(rep_win ~ 
+          unrate+D_inc+R_inc+pres_dem*approval+pres_rep*approval+code,
+          data = .x, family = binomial)))
+
+rep_pred_2022 <- dist_test_df %>%
+  inner_join(rep_models, by = c("state", "district")) %>% 
+  mutate(pred = map(.x = model, .y = data.x, ~predict(object = .x, newdata = as.data.frame(.y), se.fit = TRUE, type="response"))) %>% 
+  mutate(
+    lower = map_dbl(.x = pred, ~.x$fit[1] - (2 * .x$se.fit[1])),
+    fitted = map_dbl(.x = pred, ~.x$fit[1]),
+    upper = map_dbl(.x = pred, ~.x$fit[1] + (2 * .x$se.fit[1]))) %>%
+  select(state, district, lower, fitted, upper)
+
+nrow(filter(rep_pred_2022, fitted > 0.50))
+nrow(filter(rep_pred_2022, fitted < 0.50))
+```
+
+
+```{r}
+# District models LM
+lm_models <- dist_train_df %>% 
+  mutate(model = map(data, ~lm(RepVotesMajorPercent ~ 
+          unrate+D_inc+R_inc+pres_dem*approval+pres_rep*approval+code,
+          data = .x)))
+
+lm_pred_2022 <- dist_test_df %>%
+  inner_join(lm_models, by = c("state", "district")) %>% 
+  mutate(pred = map_dbl(.x = model, .y = data.x, ~predict(object = .x, newdata = as.data.frame(.y), type="response")[1])) 
+  
+nrow(filter(lm_pred_2022, pred > 50))
+nrow(filter(lm_pred_2022, pred < 50))
+```
+
+
+## Model Description and Justification
+My model is composed of unique district level models.  Each district model is a binomial logistic regression predicting the outcome that a republican candidate wins the election in that state.  Creating over 400 district models was very challenging because of the restricted time scope of the data I am working with.  I believe that it is still worth it to make this decision because it allows each district to be unique and it is the closest modeling technique to the structure of the actual election.  The seat share after voting ends is determined by the aggregate of every individual election and my model will do the same with its predicted outcomes.  I chose to use the inverse logistic function for regression because linear predictions with limited data tend to be volatile.  A GLM meant that probabilistic predictions would stay in the 0-1 range.
+
+## Model Formula
+The independent variables in each regression are:
+
+- Unemployment rate: The economic predictor with the best r-squared for my data. The theoretical motivation is as described in week 2 that unemployment is a democratic party issue and would favor democrat candidates regardless of incumbency.
+
+- Seat incumbency: Candidates running for re-election have a massive advantage in name recognition and fundraising. This variable captures that advantage as two binary indicators.
+
+- Presidential party incumbency:  Midterm election are often used by voters as a way to reward or punish the performance of the incumbent president.
+
+- Presidential approval:  The presidential party variable and the presidential approval are in the regression as interaction terms so that the theory of reward and punishment can manifest if the trend exists in the data.
+
+- Expert prediction:  To have historical expert prediction to model on, I used the Cook Report district ratings and averaged them with the Inside Politics ratings.  Experts often have key insights investigating battleground districts so if they have a history of success their 2022 predictions should shine in my models.
+
+## Example Regression Table 
+```{r, results = TRUE}
+rep_models[[4]][[7]]
+```
+
+A few things I notice in this table is that the unemployment rate (unrate) has a positive coefficient. I would have expected a negative one since the prediction is probability of Republican victory and unemployment generally favors Democrat candidates.  The next peculiarity is that the model decided to ignore the seat incumbency and instead only use presidential party incumbency.
+
+## Model validation 
+The final prediction of the set of district models is 244 Republican seats and 191 Democrat seats.  This includes adding in districts that failed to model due to lack of data. Unmodeled districts tend to by no contest races or uncompetitive races to I filled in with the expert prediction average.
+
+I corroborated my Binomial logistic regression results with an equivalently composed linear regression and found that the results were nearly identical.  The linear model seemed to favor the Republican majority by only 9 seats (253,182).
+
+I was unable to create a predictive interval for these models because of how I coded a binary outcome.  Upper and lower bounds calculated with the standard error were almost identical to the prediction and were either very close to 1 or very close to 0.  After wrestling with the data my compromise was to lose visibility on this statistic in order to get modeled predictions on more districts.
+
