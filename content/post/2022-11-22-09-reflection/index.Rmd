@@ -1,0 +1,235 @@
+---
+title: 09. Reflection
+author: Charles Onesti
+date: '2022-11-22'
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+	echo = FALSE,
+	message = FALSE,
+	warning = FALSE,
+	results = FALSE
+)
+# Import Libraries
+library(ggplot2)
+library(tidyverse)
+library(rmapshaper)
+library(dplyr)
+library(readr)
+library(stargazer)
+library(snakecase)
+
+AL <- c("Alaska", "Wyoming", "Montana", "North Dakota", "South Dakota", "Vermont", "Delaware")
+# Import Data
+dist_2012_2020_df <- read_csv("../../../data/dist_2012_2020.csv") %>%
+  select(cycle = raceYear, state = State, state_abb, district = district_num, RepVotesMajorPercent, D_inc, R_inc) %>%
+  mutate(D_inc=ifelse(D_inc == TRUE, 1, 0),
+         R_inc=ifelse(R_inc == TRUE, 1, 0))
+
+dist_2022_df <- read_csv("../../../data/dist_2022.csv") %>%
+  mutate(raceYear = 2022,
+         pres_rep = 0,
+         pres_dem = 1,
+         approval = 0.40,
+         unrate = 10.8,
+         district = ifelse(state %in% AL, 0, district)) %>%
+  select(cycle = raceYear, state, state_abb = abb_info, district, D_inc, R_inc, pres_rep, pres_dem, approval, unrate) %>%
+  mutate(D_inc=ifelse(D_inc == TRUE, 1, 0),
+         R_inc=ifelse(R_inc == TRUE, 1, 0))
+
+inside_elections <- read_csv("../../../data/inside_elections.csv")  %>%
+  select(cycle = year, state_abb = state, district, code) %>%
+  mutate(district=as.numeric(district))
+
+cook <- read_csv("../../../data/cook.csv")  %>%
+  select(cycle = year, state_abb = state, district, code) %>%
+  mutate(district=as.numeric(district))
+
+inside_cook <- left_join(inside_elections, cook, by=c("cycle", "state_abb", "district")) %>%
+  mutate(avg = (code.x+code.y) / 2) %>%
+  mutate(code=case_when(
+    is.na(avg) ~ code.x,
+    TRUE ~ avg,
+  )) %>%
+  select(cycle, state_abb, district, code)
+
+combined_dist_df <- left_join(dist_2012_2020_df, inside_cook, by=c("cycle", "state_abb", "district"))
+dist_2022_df <- left_join(dist_2022_df, inside_cook, by=c("cycle", "state_abb", "district"))
+
+```
+
+```{r}
+# Approval ratings
+approval <- read_csv("../../../data/approval.csv") %>%
+  select(cycle = year, approval = approval_rating)
+
+combined_dist_df <- left_join(combined_dist_df, approval, by=c("cycle"))
+```
+
+```{r}
+# Presidential party
+party_power <- read_csv("../../../data/party_power.csv") %>%
+  mutate(pres_rep=ifelse(pres_party_in_power_at_election == "R", 1, 0),
+         pres_dem=ifelse(pres_party_in_power_at_election == "D", 1, 0)) %>%
+    select(cycle = Year, pres_rep, pres_dem)
+
+combined_dist_df <- left_join(combined_dist_df, party_power, by=c("cycle"))
+```
+
+```{r}
+# Unemployment rates
+unemployment <- read_csv("../../../data/unemployment_national.csv") %>%
+  select(cycle = year, quarter_cycle, unrate = unrate_qt_total) %>%
+  filter(quarter_cycle >= 3) %>%
+  group_by(cycle) %>% dplyr::summarise(unrate = mean(unrate))
+
+combined_dist_df <- left_join(combined_dist_df, unemployment, by=c("cycle"))
+```
+
+```{r}
+# Filling in vote tallies
+inc <- read_csv("../../../data/incumb_dist_1948-2022 (2).csv") %>%
+  select(cycle = year, state, district = district_num, RepVotes, DemVotes) %>%
+  mutate(district=as.numeric(district))
+
+combined_dist_df <- left_join(combined_dist_df, inc, by=c("cycle", "state", "district")) %>%
+  mutate(rep_win=ifelse(RepVotesMajorPercent > 50, 1, 0))
+
+
+```
+
+```{r}
+# CVAP
+cvap <- read_csv("../../../data/cvap_district_2012-2020_clean.csv") %>%
+  select(cycle = year, state, district = cd, cvap) %>%
+  mutate(state=to_any_case(state, sep_out=" ", case="parsed"),
+         district = ifelse(district == "AL", 0, as.numeric(district)))
+
+combined_dist_df <- left_join(combined_dist_df, cvap, by=c("cycle", "state", "district"))
+```
+
+```{r}
+# Demographics
+demog <- read_csv("../../../data/demographic_2009_2020.csv") %>%
+  select(cycle = year, state, district, white, black, latino = "hispanic or latino") %>%
+  mutate(district = ifelse(district == "AL", 0, as.numeric(district)))
+demog_2022 <- read_csv("../../../data/demographics_by_2022.csv")
+```
+
+```{r}
+dist_train_df <- filter(combined_dist_df, RepVotesMajorPercent != 0, RepVotesMajorPercent != 100) %>%
+  group_by(state, district) %>%
+  filter(n() > 1) %>% # Filtering out single data rows
+  group_nest() %>%
+  mutate(data = map(data, ~unnest(., cols = c())))
+
+dist_test_df <- dist_2022_df %>%
+  group_by(state, district) %>% 
+  group_nest() %>%
+  mutate(data = map(data, ~unnest(., cols = c())))
+```
+
+```{r}
+# District models GLM
+rep_models <- dist_train_df %>% 
+  mutate(model = map(data, ~glm(rep_win ~ 
+          unrate+D_inc+R_inc+pres_dem*approval+pres_rep*approval+code,
+          data = .x, family = binomial)))
+
+rep_pred_2022 <- dist_test_df %>%
+  inner_join(rep_models, by = c("state", "district")) %>% 
+  mutate(pred = map(.x = model, .y = data.x, ~predict(object = .x, newdata = as.data.frame(.y), se.fit = TRUE, type="response"))) %>% 
+  mutate(
+    lower = map_dbl(.x = pred, ~.x$fit[1] - (2 * .x$se.fit[1])),
+    fitted = map_dbl(.x = pred, ~.x$fit[1]),
+    upper = map_dbl(.x = pred, ~.x$fit[1] + (2 * .x$se.fit[1]))) %>%
+  select(state, district, lower, fitted, upper)
+
+```
+
+```{r}
+library(sf)
+
+# GEO
+cd114 <- st_read("../../../data/districts114.shp")
+cd114 <- cd114 %>% rename(district = DISTRICT, state = STATENAME) %>%
+  mutate(district=as.numeric(district))
+cd114 <- rmapshaper::ms_simplify(cd114, keep = 0.01)
+
+fips <- read_csv("../../../data/fips.csv") %>%
+  rename(STATE_FIPS=st, state=stname) %>%
+  mutate(STATE_FIPS=as.character(as.numeric(STATE_FIPS)))
+
+X2022_4_0_3 <- read_csv("../../../data/2022_4_0_3.csv") %>%
+  rename(dist = "Geographic Subtype") %>%
+  filter(dist == "Congressional District") %>%
+  left_join(fips, by=c("STATE_FIPS")) %>%
+  mutate(district=ifelse(`Geographic Name` == 'At Large', 0, as.numeric(CD)),
+         rep_win_res=ifelse(RANKR == '1', 1, 0)) %>%
+  select(state, district, rep_win_res)
+
+rep_pred_2022 <- rep_pred_2022 %>%
+  mutate(rep_win = ifelse(fitted > 0.5, 1, 0)) %>%
+  left_join(X2022_4_0_3, by=c("state", "district"))
+
+```
+The results are in! After an exciting election period, let's do some recap on the results and reflect on the predictions I made two weeks ago. 
+
+## Recap
+The congressional elections were a very close call in both the senate and the house.  The Democratic candidates performed better than expected and the Republican candidates under performed.  The result is that the democrats secured a majority in the Senate with 50 confirmed seats and the presidency while Republicans have 49 confirmed seats. The outstanding seat belongs to Georgia which is going to a runoff election on December 6th.  The House of Representatives is now in a Republican majority with a confirmed 220 seats having flipped 18 seats.  The democrats have 212 seats only flipping 6 seats from last cycle.  Below is a plot of the results (on a slightly outdated map. For better results see https://www.reuters.com/graphics/USA-ELECTION/RESULTS/dwvkdgzdqpm/)
+
+
+```{r}
+plot_df_res <- cd114 %>% left_join(X2022_4_0_3, by=c("district", "state")) %>%
+  filter(!state %in% c("Alaska","Hawaii"))
+
+
+ggplot(data = plot_df_res) +
+  geom_sf(mapping = aes(fill = rep_win_res, geometry = geometry)) +
+  scale_fill_gradient2(low = "blue", mid = "white", high = "red", midpoint = 0.5, name = "Party") +
+  theme_void() +
+  labs(title = "2022 Midterm Results")
+```
+
+## Model Reflection
+At a high level, my prediction was biased too strongly in favor of Republican candidates.  The overall district level accuracy of my model was 355 correct predictions and 80 incorrect predictions.  I am definitely not the only forecaster out there who thought there would be a stronger red wave given the low presidential approval ratings and low economic figures during the term of President Biden. Looking more closely at the details will elucidate what aspects of my model may have lead to this error. My model is actually a series of 435 district models each fitted to its specific historical data.  The independent variables in each regression are:
+
+- Unemployment rate: The economic predictor with the best r-squared for my data. The theoretical motivation is as described in week 2 that unemployment is a democratic party issue and would favor democrat candidates regardless of incumbency.
+
+- Seat incumbency: Candidates running for re-election have a massive advantage in name recognition and fundraising. This variable captures that advantage as two binary indicators.
+
+- Presidential party incumbency:  Midterm election are often used by voters as a way to reward or punish the performance of the incumbent president.
+
+- Presidential approval:  The presidential party variable and the presidential approval are in the regression as interaction terms so that the theory of reward and punishment can manifest if the trend exists in the data.
+
+- Expert prediction:  To have historical expert prediction to model on, I used the Cook Report district ratings and averaged them with the Inside Politics ratings.  Experts often have key insights investigating battleground districts so if they have a history of success their 2022 predictions should shine in my models.
+
+## Accuracy Reflection
+A visualization of my model results looks like this:
+```{r}
+plot_df <- cd114 %>% left_join(rep_pred_2022, by=c("district", "state")) %>%
+  filter(!state %in% c("Alaska","Hawaii")) %>%
+  mutate(correct = rep_win - rep_win_res)
+
+ggplot(data = plot_df) +
+  geom_sf(mapping = aes(fill = correct, geometry = geometry)) +
+  scale_fill_gradient2(low = "red", mid = "green", high = "blue", midpoint = 0, name = "Correct") +
+  theme_void() +
+  labs(title = "Correct Predictions")
+```
+The districts colored in green were correctly characterized by the model while districts in red and blue were incorrect.  Red means that the model predicted a Democratic candidate to win but a Republican won instead and blue means that the model predicted a Republican candidate to win but a Democrat won instead.
+
+My models were most often accurate in the Central United States in areas like Texas, Oklahoma, Colorado.  This is because these areas are solidly Republican on most years and so the model had a strong history of consistent outcomes to train on.  This might also be a result that Republican leaning bias might inadvertently make my predictions seem accurate in states that solidly vote Republican. I also had some good predictions outside the central region in states like Georgia, Alabama and solidly Democrat states in the North East like Massachusetts, New Hampshire, and Maine. On the other hand, contested battleground regions had higher miss rates in my predictions. States like Florida, California, and Arizona had several mispredicted districts.
+
+Looking at the model design, I suspect is that my independent variables of presidential incumbency and approval rating skewed my results against the Democratic party in a way that is no longer a present force in modern elections.  I based my choice on the theory taught in academics that presidential approval and seat change for the presidents party are strongly correlated. The mechanism is that people reward or punish the party in midterm elections by judging the performance of the president.  The interaction term in my regression between presidential party incumbency and approval rating was not as important as I expected in this election however.  
+
+This is possibly due to what Lynn Vavreck called "calcification" or the idea that party identity matters more than something like presidential approval. In other words, voters are no longer holding referenda on the president during midterm elections and are instead so divided on the issues that Republican and Democrat candidates disagree on that their vote is decided by ideological default.  This would also explain why economic fundemental variables were unprecedentedly poor predictors of this election outcome. The unemployment variable in my models would then be just as problematic to its predictive accuracy.
+
+## Improvement
+If I were to approach this task again I would drop the unemployment, presidential incumbency, and presidential approval variables.  I would swap in variables that are closer measures of a voter's sentiment like campaign and candidate quality leading to voter turnout, and stances on ideological issues.  Given accurate enough data on these variables would allow for better observation of the newest trends towards partisanship in modern politics where I believe turnout and ideology matter more than fundementals.
+
+Another way to improve prediction is to use the most recent polls which are, for obvious reasons a great way to predict a result because they are by definition a sample of the end result.  However I am not in favor of using polls because I don't think they offer any insights.  I would rather choose an independent variable that has a theoretical motivation to be related to a person's vote rather than just asking them who they are going to vote for because we can therefore learn more about the world and about how democracy works.  So, if my model provides a better learning opportunity at the expense of accuracy, I am willing to make concessions.
+
+In contrast to polls, I would be interested in testing out further the ideological voting idea.  Using data on a voter's stance on issues, issue salience/recency, and data about candidates and the campaigns they run, I think a model could more accurately predict an election's outcome.  At the very least, the research would surely further our understanding of what motivates voters in elections.
+
+
